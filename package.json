@@ -1,0 +1,21 @@
+{
+  "name": "20mart-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:store": "pnpm --filter @20mart/storefront dev",
+    "dev:admin": "pnpm --filter @20mart/admin dev",
+    "kill:ports": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000, 3001 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }\"",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @20mart/database db:generate",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4",
+    "typescript": "^5.7.3",
+    "prettier": "^3.5.2"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

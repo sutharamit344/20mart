@@ -1,0 +1,21 @@
+{
+  "name": "@20mart/database",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "node --loader ts-node/esm ./src/seed.ts"
+  },
+  "dependencies": {
+    "@20mart/shared": "workspace:*",
+    "@prisma/client": "^6.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "prisma": "^6.4.1",
+    "typescript": "^5.7.3"
+  }
+}
