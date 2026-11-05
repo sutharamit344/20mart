@@ -47,7 +47,7 @@ export const MobileBottomNav: React.FC = () => {
               <div className="relative">
                 <Icon className={cn('h-5 w-5', isActive && 'stroke-[2.5]')} />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 flex h-3.5 min-w-3.5 px-0.5 items-center justify-center rounded-full bg-[#FF7A00] text-[9px] font-bold text-white leading-none">
+                  <span className="absolute -top-1 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[9px] font-bold text-white leading-none">
                     {item.badge}
                   </span>
                 )}

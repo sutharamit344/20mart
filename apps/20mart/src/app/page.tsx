@@ -29,7 +29,7 @@ import {
 
 export default function HomePage() {
   const router = useRouter();
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
 
   const trendingProducts = mockProducts.filter((p) => p.trending);
   const dailyDeals = mockProducts.filter((p) => p.dailyDeal);
@@ -48,7 +48,7 @@ export default function HomePage() {
 
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 items-stretch">
             {/* Left Content */}
-            <div className="md:col-span-7 p-6 sm:p-8 lg:p-10 space-y-4 sm:space-y-5 flex flex-col justify-center">
+            <div className="md:col-span-6 lg:col-span-5 xl:col-span-5 p-5 sm:p-8 lg:p-10 space-y-3.5 sm:space-y-5 flex flex-col justify-center">
               {/* Coming Soon Pill (Screen 01) */}
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#FFD027] via-[#FFB703] to-[#FFA200] text-gray-950 text-xs font-black tracking-wide uppercase shadow-md shadow-amber-950/20 border border-yellow-200/60 w-fit">
                 <Sparkles className="w-3.5 h-3.5 fill-current text-gray-950" />
@@ -87,35 +87,35 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right: Product basket presentation with vibrant lighting */}
-            <div className="md:col-span-5 relative flex items-end justify-center md:justify-end px-6 pt-6 md:pt-0 pb-4 md:pb-0 overflow-hidden min-h-[220px] sm:min-h-[260px]">
-              {/* Luminous halo behind the basket */}
+            {/* Right: Grouped daily-use items & basket filling the banner space gracefully */}
+            <div className="md:col-span-6 lg:col-span-7 xl:col-span-7 relative flex items-end justify-center md:justify-end px-3 sm:px-6 pt-4 md:pt-2 pb-2 md:pb-0">
+              {/* Radiant ambient glow without clipping */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-60 sm:w-72 h-60 sm:h-72 rounded-full bg-gradient-to-tr from-emerald-400/35 via-emerald-300/25 to-transparent blur-3xl" />
+                <div className="w-80 sm:w-[500px] md:w-[600px] h-72 sm:h-96 rounded-full bg-gradient-to-tr from-emerald-400/30 via-emerald-300/20 to-transparent blur-3xl pointer-events-none" />
               </div>
 
               {/* Free Delivery Badge */}
-              <div className="absolute top-3 sm:top-5 right-3 sm:right-6 z-10 bg-white/95 backdrop-blur-md rounded-full px-3.5 py-1.5 text-[11px] font-black text-[#0B5D38] flex items-center gap-1.5 shadow-lg shadow-emerald-950/20 border border-white">
+              <div className="absolute top-2 sm:top-4 right-3 sm:right-6 z-10 bg-white/95 backdrop-blur-md rounded-full px-3.5 py-1.5 text-[11px] font-black text-[#0B5D38] flex items-center gap-1.5 shadow-lg shadow-emerald-950/20 border border-white">
                 <Truck className="w-3.5 h-3.5 text-[#0B5D38]" />
                 <span>Free Delivery &gt; ₹199</span>
               </div>
 
-              {/* Product basket 3D image */}
+              {/* Grouped Daily Use Items & Basket 3D image - perfectly filling space on desktop & mobile */}
               <img
-                src="/hero-basket-transparent.png"
-                alt="20Mart Household Value Basket"
-                className="relative z-0 h-44 sm:h-56 lg:h-64 w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
+                src="/hero-group-transparent.png"
+                alt="20Mart Household & Kitchen Essentials Cluster"
+                className="relative z-0 h-52 sm:h-64 md:h-76 lg:h-[340px] xl:h-[380px] w-auto max-w-[96%] md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
               />
 
               {/* Floating Price Pill */}
-              <div className="absolute bottom-3 sm:bottom-5 right-4 sm:right-8 z-10 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white rounded-full px-4 py-1.5 text-xs sm:text-sm font-black shadow-xl shadow-orange-950/35 border-2 border-white/90">
+              <div className="absolute bottom-2 sm:bottom-4 right-3 sm:right-6 z-10 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white rounded-full px-4 py-1.5 text-xs sm:text-sm font-black shadow-xl shadow-orange-950/35 border-2 border-white/90">
                 Starts @ ₹20!
               </div>
 
               {/* Trust Badge */}
-              <div className="absolute bottom-3 left-4 z-10 hidden xl:flex items-center gap-1.5 bg-black/30 backdrop-blur-md rounded-full px-3 py-1 text-[11px] font-bold text-white border border-white/15">
+              <div className="absolute bottom-3 left-2 sm:left-4 z-10 hidden sm:flex items-center gap-1.5 bg-black/35 backdrop-blur-md rounded-full px-3 py-1 text-[11px] font-bold text-white border border-white/20">
                 <Sparkles className="w-3 h-3 text-amber-300" />
-                <span>100% Everyday Value</span>
+                <span>100% Everyday Essentials</span>
               </div>
             </div>
           </div>
@@ -125,8 +125,8 @@ export default function HomePage() {
       {/* 2. Value Props Bar (Matching reference 4 pills in Screen 01) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF6E9] text-[#FF7A00]">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-orange-200 transition-all duration-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF6E9] text-[#FF7A00]">
               <Percent className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
@@ -135,8 +135,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#0B5D38]">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-emerald-200 transition-all duration-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-[#0B5D38]">
               <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
@@ -145,8 +145,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-amber-200 transition-all duration-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
               <Truck className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
@@ -155,8 +155,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-gray-100 shadow-xs">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF6E9] text-[#FF7A00]">
+          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-orange-200 transition-all duration-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF6E9] text-[#FF7A00]">
               <RotateCcw className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
@@ -220,8 +220,11 @@ export default function HomePage() {
             <ProductCard
               key={product.id}
               product={product}
+              quantity={getItemQuantity(product.id)}
               isWishlisted={isWishlisted(product.id)}
-              onAddToCart={() => addToCart(product)}
+              onAddToCart={() => updateItemQuantity(product.id, 1)}
+              onIncrement={() => updateItemQuantity(product.id, 1)}
+              onDecrement={() => updateItemQuantity(product.id, -1)}
               onToggleWishlist={() => toggleWishlist(product.id)}
               onClick={() => router.push(`/product/${product.slug}`)}
             />
@@ -231,30 +234,37 @@ export default function HomePage() {
 
       {/* 5. Steal Deals Under ₹50 */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500 to-amber-500 p-5 sm:p-7 text-white shadow-xs">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-5">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] p-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border border-white/20">
+          {/* Subtle ambient light */}
+          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/15 blur-2xl pointer-events-none" />
+          <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-amber-300/20 blur-xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-5">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[#FF7A00] text-xs font-bold">
-                <Flame className="w-3.5 h-3.5 fill-current" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white text-[#FF7A00] text-xs font-black shadow-xs">
+                <Flame className="w-3.5 h-3.5 fill-current text-[#FF7A00]" />
                 <span>Today's Steal Deals</span>
               </div>
-              <h2 className="text-lg sm:text-xl font-black">Under ₹50 Everyday Essentials</h2>
+              <h2 className="text-lg sm:text-2xl font-black tracking-tight">Under ₹50 Everyday Essentials</h2>
             </div>
             <Link
               href="/shop?maxPrice=50"
-              className="px-4 py-2 rounded-xl bg-white text-gray-900 text-xs font-bold hover:bg-gray-100 shadow-xs transition-colors"
+              className="px-4 py-2 rounded-full bg-white text-[#FF7A00] text-xs sm:text-sm font-black hover:bg-orange-50 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
               View All ₹50 Deals →
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {dailyDeals.slice(0, 4).map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
+                quantity={getItemQuantity(product.id)}
                 isWishlisted={isWishlisted(product.id)}
-                onAddToCart={() => addToCart(product)}
+                onAddToCart={() => updateItemQuantity(product.id, 1)}
+                onIncrement={() => updateItemQuantity(product.id, 1)}
+                onDecrement={() => updateItemQuantity(product.id, -1)}
                 onToggleWishlist={() => toggleWishlist(product.id)}
                 onClick={() => router.push(`/product/${product.slug}`)}
               />
@@ -265,34 +275,37 @@ export default function HomePage() {
 
       {/* 6. Early Access Campaign Promo Banner (Screen 16 Desktop & Mobile Screen 14) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#0B5D38] text-white p-6 sm:p-8 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl text-center md:text-left">
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-[#0B5D38] text-[11px] font-bold uppercase tracking-wider">
-              Early Access
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white p-6 sm:p-8 shadow-xl shadow-emerald-950/15 border border-emerald-600/20 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Ambient lighting */}
+          <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
+          <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-2 max-w-xl text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[#FFD027] to-[#FFA200] text-gray-950 text-[11px] font-black uppercase tracking-wider shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Early Access</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black">Join 20Mart Early!</h3>
+            <h3 className="text-xl sm:text-3xl font-black tracking-tight">Join 20Mart Early!</h3>
             <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
               Add your favourite products and answer a few quick questions to unlock an extra{' '}
-              <strong className="text-amber-300">₹50 welcome coupon</strong> for your first order.
+              <strong className="text-amber-300 font-black">₹50 welcome coupon</strong> for your first order.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
             {/* Coupon preview card */}
-            <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-white/10 px-5 py-3 text-center backdrop-blur-xs">
-              <span className="text-[10px] uppercase font-bold text-amber-200">Bonus Voucher</span>
+            <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-white/10 px-5 py-3 text-center backdrop-blur-md shadow-inner">
+              <span className="text-[10px] uppercase font-black text-amber-200 tracking-wider">Bonus Voucher</span>
               <div className="text-2xl font-black text-white">₹50 OFF</div>
-              <span className="text-[10px] text-emerald-200">Min. order ₹99</span>
+              <span className="text-[10px] text-emerald-200 font-medium">Min. order ₹99</span>
             </div>
 
-            <Button
-              size="md"
-              variant="primary"
+            <button
               onClick={() => router.push('/survey')}
-              className="rounded-xl font-bold whitespace-nowrap shadow-xs cursor-pointer"
+              className="rounded-full font-black px-6 py-3 text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 whitespace-nowrap hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               Join Early Access →
-            </Button>
+            </button>
           </div>
         </div>
       </section>

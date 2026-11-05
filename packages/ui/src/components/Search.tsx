@@ -35,7 +35,7 @@ export const Search: React.FC<SearchProps> = ({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full h-9.5 rounded-full border border-gray-200 bg-gray-50/70 py-2 pl-9.5 pr-8 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/15"
+        className="w-full h-10 rounded-full border border-gray-200 bg-gray-50/70 py-2 pl-10 pr-8 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/15"
         {...props}
       />
       {value && (

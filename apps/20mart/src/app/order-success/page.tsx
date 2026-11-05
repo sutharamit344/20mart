@@ -13,14 +13,14 @@ function OrderSuccessContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center space-y-6">
-      {/* Celebration Bag & Checkmark Graphic */}
-      <div className="relative mx-auto flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-amber-100 animate-pulse" />
-        <div className="relative z-10 flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-3xl bg-gradient-to-b from-amber-400 to-amber-500 shadow-xl border-4 border-white">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md">
-            <CheckCircle2 className="w-9 h-9 stroke-[3]" />
-          </div>
-        </div>
+      {/* Celebration Bag & Checkmark Graphic (Screen 07 Reference) */}
+      <div className="relative mx-auto flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-amber-200/60 blur-xl animate-pulse" />
+        <img
+          src="/order-success-bag.png"
+          alt="Order Successful"
+          className="relative z-10 h-24 sm:h-32 w-auto object-contain drop-shadow-md"
+        />
       </div>
 
       <div className="space-y-1.5">

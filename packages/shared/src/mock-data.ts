@@ -86,9 +86,8 @@ export const mockProducts: Product[] = [
     stock: 45,
     inStock: true,
     images: [
+      '/orange-peeler.png',
       'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=600&q=80',
     ],
     featured: true,
     trending: true,
@@ -117,8 +116,8 @@ export const mockProducts: Product[] = [
     stock: 32,
     inStock: true,
     images: [
+      '/mint-basket.png',
       'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80',
     ],
     featured: true,
     trending: true,
@@ -234,7 +233,7 @@ export const mockProducts: Product[] = [
     stock: 40,
     inStock: true,
     images: [
-      'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1593618998160-e34014e67546?auto=format&fit=crop&w=600&q=80',
     ],
     featured: false,
     trending: true,

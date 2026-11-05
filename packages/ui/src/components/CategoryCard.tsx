@@ -76,17 +76,19 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       <div
         onClick={() => onClick?.(category)}
         className={cn(
-          'group flex flex-col items-center cursor-pointer text-center select-none transition-all hover:-translate-y-0.5',
+          'group flex flex-col items-center cursor-pointer text-center select-none transition-all duration-200 hover:-translate-y-1',
           className
         )}
       >
         {/* Square rounded card with pastel bg (Screen 01 reference – category tiles) */}
         <div
           style={{ backgroundColor: theme.bg }}
-          className="relative flex w-full aspect-square items-center justify-center rounded-2xl shadow-xs transition-all group-hover:shadow-md border border-white/50 p-3 sm:p-4"
+          className="relative flex w-full aspect-square items-center justify-center rounded-2xl sm:rounded-3xl shadow-2xs transition-all duration-300 group-hover:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] border border-white/80 ring-1 ring-black/[0.03] p-3 sm:p-4 overflow-hidden"
         >
+          {/* Subtle glossy gradient highlight */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-black/[0.02] pointer-events-none" />
           <IconComponent
-            className="h-8 w-8 sm:h-10 sm:w-10 transition-transform group-hover:scale-110"
+            className="h-8 w-8 sm:h-9 sm:w-9 transition-transform duration-300 group-hover:scale-115 relative z-10"
             style={{ color: theme.iconColor }}
           />
         </div>
@@ -105,15 +107,15 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     <div
       onClick={() => onClick?.(category)}
       className={cn(
-        'group flex items-center gap-3 p-3 rounded-2xl border border-gray-100 bg-white hover:border-orange-200 hover:shadow-xs transition-all cursor-pointer select-none',
+        'group flex items-center gap-3 p-3.5 rounded-2xl border border-gray-100/90 bg-white hover:border-orange-200 hover:shadow-xs transition-all duration-200 cursor-pointer select-none',
         className
       )}
     >
       <div
         style={{ backgroundColor: theme.bg }}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/60 shadow-2xs"
       >
-        <IconComponent className="h-6 w-6" style={{ color: theme.iconColor }} />
+        <IconComponent className="h-6 w-6 transition-transform group-hover:scale-110" style={{ color: theme.iconColor }} />
       </div>
       <div>
         <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#0B5D3B] transition-colors leading-snug">

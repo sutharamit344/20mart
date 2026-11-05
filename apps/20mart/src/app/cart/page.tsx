@@ -292,15 +292,14 @@ export default function CartPage() {
             </div>
           </div>
 
-          <Button
-            size="md"
-            variant="primary"
+          <button
+            type="button"
             onClick={() => router.push('/checkout')}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-            className="w-full rounded-xl font-bold shadow-xs text-xs sm:text-sm py-2.5"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl font-black shadow-lg shadow-orange-950/20 text-xs sm:text-sm py-3 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer"
           >
-            Proceed to Checkout
-          </Button>
+            <span>Proceed to Checkout</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
 
           <div className="pt-2 flex items-center justify-center gap-2 text-[11px] text-gray-400">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />

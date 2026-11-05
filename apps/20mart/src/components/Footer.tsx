@@ -17,8 +17,8 @@ export const Footer: React.FC = () => {
   return (
     <footer className="mt-10 sm:mt-14 bg-white border-t border-gray-100">
       {/* 1. Value Pillars Row */}
-      <div className="border-b border-gray-100 py-6 sm:py-8 px-4 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="border-b border-gray-100 py-6 sm:py-8 bg-gray-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF6E9] text-[#FF7A00]">
               <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -62,8 +62,8 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* 2. Main Footer Navigation */}
-      <div className="py-8 sm:py-12 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
+      <div className="py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-3 sm:space-y-4">
             <Logo size="md" showTagline={true} />
@@ -216,8 +216,8 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* 3. Bottom Copyright */}
-      <div className="border-t border-gray-100 py-6 px-4 bg-gray-50 text-center text-xs text-gray-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="border-t border-gray-100 py-6 bg-gray-50 text-center text-xs text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© 2026 20Mart. All rights reserved. Your Everyday Value Market.</p>
           <div className="flex items-center gap-4 text-gray-400">
             <span>Made with precision for Indian households</span>

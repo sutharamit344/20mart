@@ -18,7 +18,7 @@ export default function CategoryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
 
   const category = mockCategories.find((c) => c.slug === slug) || mockCategories[0];
   const subcategories = category.subcategories || ['All', 'Popular', 'Best Value'];
@@ -129,8 +129,11 @@ export default function CategoryDetailPage() {
             <ProductCard
               key={product.id}
               product={product}
+              quantity={getItemQuantity(product.id)}
               isWishlisted={isWishlisted(product.id)}
-              onAddToCart={() => addToCart(product)}
+              onAddToCart={() => updateItemQuantity(product.id, 1)}
+              onIncrement={() => updateItemQuantity(product.id, 1)}
+              onDecrement={() => updateItemQuantity(product.id, -1)}
               onToggleWishlist={() => toggleWishlist(product.id)}
               onClick={() => router.push(`/product/${product.slug}`)}
             />

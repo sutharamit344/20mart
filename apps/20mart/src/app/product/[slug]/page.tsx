@@ -31,7 +31,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
 
   const product =
     mockProducts.find((p) => p.slug === slug) ||
@@ -171,14 +171,13 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Add to Cart Button */}
-              <Button
-                size="md"
-                variant="primary"
+              <button
+                type="button"
                 onClick={() => addToCart(product, quantity)}
-                className="flex-1 font-bold rounded-xl text-xs sm:text-sm shadow-xs"
+                className="flex-1 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-orange-950/20 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white hover:scale-[1.01] active:scale-[0.98] transition-all py-2.5 cursor-pointer"
               >
-                Add to Cart
-              </Button>
+                <span>Add to Cart</span>
+              </button>
 
               {/* Wishlist Button */}
               <button
@@ -194,19 +193,19 @@ export default function ProductDetailPage() {
               </button>
             </div>
 
-            {/* Value Guarantees row */}
+            {/* Value Guarantees row (Screen 04 reference) */}
             <div className="grid grid-cols-3 gap-2 pt-2">
-              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-gray-50 text-center sm:text-left">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-gray-700">Great Quality</span>
+              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center sm:text-left">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0B5D3B] shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-emerald-950">Great Quality</span>
               </div>
-              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-gray-50 text-center sm:text-left">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-gray-700">Value for Money</span>
+              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 text-center sm:text-left">
+                <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-amber-950">Value for Money</span>
               </div>
-              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-gray-50 text-center sm:text-left">
-                <RotateCcw className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-gray-700">Easy Returns</span>
+              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 text-center sm:text-left">
+                <RotateCcw className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-bold text-blue-950">Easy Returns</span>
               </div>
             </div>
           </div>
@@ -240,8 +239,11 @@ export default function ProductDetailPage() {
               <ProductCard
                 key={p.id}
                 product={p}
+                quantity={getItemQuantity(p.id)}
                 isWishlisted={isWishlisted(p.id)}
-                onAddToCart={() => addToCart(p)}
+                onAddToCart={() => updateItemQuantity(p.id, 1)}
+                onIncrement={() => updateItemQuantity(p.id, 1)}
+                onDecrement={() => updateItemQuantity(p.id, -1)}
                 onToggleWishlist={() => toggleWishlist(p.id)}
                 onClick={() => router.push(`/product/${p.slug}`)}
               />

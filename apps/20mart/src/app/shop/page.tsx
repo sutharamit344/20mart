@@ -26,7 +26,7 @@ function ShopContent() {
   const initialFilter = searchParams.get('filter') || '';
   const initialMaxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null;
 
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
 
   // Filter States
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -302,8 +302,11 @@ function ShopContent() {
                 <ProductCard
                   key={product.id}
                   product={product}
+                  quantity={getItemQuantity(product.id)}
                   isWishlisted={isWishlisted(product.id)}
-                  onAddToCart={() => addToCart(product)}
+                  onAddToCart={() => updateItemQuantity(product.id, 1)}
+                  onIncrement={() => updateItemQuantity(product.id, 1)}
+                  onDecrement={() => updateItemQuantity(product.id, -1)}
                   onToggleWishlist={() => toggleWishlist(product.id)}
                   onClick={() => router.push(`/product/${product.slug}`)}
                 />

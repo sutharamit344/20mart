@@ -21,6 +21,8 @@ interface StoreContextType {
   updateCartQuantity: (cartItemId: string, delta: number) => void;
   removeFromCart: (cartItemId: string) => void;
   clearCart: () => void;
+  getItemQuantity: (productId: string) => number;
+  updateItemQuantity: (productId: string, delta: number) => void;
   cartCount: number;
   cartSubtotal: number;
   cartDeliveryCharge: number;
@@ -146,6 +148,45 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const clearCart = () => {
     setCart([]);
+  };
+
+  const getItemQuantity = (productId: string) => {
+    const item = cart.find((i) => i.productId === productId);
+    return item ? item.quantity : 0;
+  };
+
+  const updateItemQuantity = (productId: string, delta: number) => {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.productId === productId);
+      if (existing) {
+        const newQty = existing.quantity + delta;
+        if (newQty <= 0) {
+          showToast(`Removed from cart`);
+          return prev.filter((item) => item.productId !== productId);
+        }
+        return prev.map((item) =>
+          item.productId === productId ? { ...item, quantity: newQty } : item
+        );
+      }
+      if (delta > 0) {
+        const product = mockProducts.find((p) => p.id === productId);
+        if (product) {
+          showToast(`Added ${product.name} to cart!`);
+          return [
+            ...prev,
+            {
+              id: `cart-${Date.now()}`,
+              productId,
+              product,
+              quantity: delta,
+              price: product.price,
+              selected: true,
+            },
+          ];
+        }
+      }
+      return prev;
+    });
   };
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -315,6 +356,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCartQuantity,
         removeFromCart,
         clearCart,
+        getItemQuantity,
+        updateItemQuantity,
         cartCount,
         cartSubtotal,
         cartDeliveryCharge,

@@ -50,10 +50,10 @@ export const Header: React.FC = () => {
     <>
       <header className="sticky top-0 z-40 w-full bg-white shadow-xs border-b border-gray-100">
         {/* Green Top Announcement Bar (Screen 01 Desktop Reference) */}
-        <div className="hidden md:block bg-[#0B5D3B] text-white py-1.5 px-6 text-xs">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="hidden md:block bg-[#0B5D3B] text-white py-1.5 text-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 relative">
                 <MapPin className="w-3 h-3 text-amber-300" />
                 <span>Delivery to:</span>
                 <button
@@ -63,6 +63,24 @@ export const Header: React.FC = () => {
                 >
                   {selectedCity}
                 </button>
+                {/* City selector dropdown */}
+                {citySelectorOpen && (
+                  <div className="absolute left-0 top-full mt-2 w-44 rounded-2xl bg-white p-2 shadow-xl border border-gray-100 z-50 text-gray-800">
+                    <p className="text-[10px] uppercase font-bold text-gray-400 px-2 py-1">Select Delivery City</p>
+                    {cities.map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => { setSelectedCity(city); setCitySelectorOpen(false); }}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                          selectedCity === city ? 'bg-[#FFF6E9] text-[#FF7A00]' : 'hover:bg-gray-50 text-gray-700'
+                        }`}
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </span>
               <span className="text-emerald-400">|</span>
               <span className="flex items-center gap-1 text-emerald-100">
@@ -80,147 +98,131 @@ export const Header: React.FC = () => {
               </Link>
             </div>
           </div>
-          {/* City selector dropdown inside top bar */}
-          {citySelectorOpen && (
-            <div className="absolute left-6 top-10 mt-1 w-44 rounded-2xl bg-white p-2 shadow-xl border border-gray-100 z-50 text-gray-800">
-              <p className="text-[10px] uppercase font-bold text-gray-400 px-2 py-1">Select Delivery City</p>
-              {cities.map((city) => (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => { setSelectedCity(city); setCitySelectorOpen(false); }}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    selectedCity === city ? 'bg-[#FFF6E9] text-[#FF7A00]' : 'hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Main Header Row (Screen 01 Desktop) */}
-        <div className="py-2.5 sm:py-3 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
-            {/* Mobile Left: Hamburger Button */}
-            <div className="flex items-center md:hidden">
-              <button
-                type="button"
-                onClick={() => setMobileDrawerOpen(true)}
-                className="p-1.5 -ml-1 text-gray-700 hover:text-[#FF7A00] focus:outline-hidden cursor-pointer"
-                aria-label="Open menu"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Logo */}
-            <div className="flex-1 md:flex-initial flex justify-center md:justify-start">
-              <Link href="/" className="shrink-0 flex items-center">
-                <Logo size="md" showTagline={false} className="sm:hidden" />
-                <Logo size="lg" showTagline={false} className="hidden sm:inline-flex" />
-              </Link>
-            </div>
-
-            {/* Desktop Search Bar – Input + Search Button (matches Screen 01 desktop reference) */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="hidden md:flex flex-1 max-w-2xl items-center gap-0"
-            >
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for everyday products (e.g. peeler, storage, brush)..."
-                className="flex-1 h-10 rounded-l-full border border-r-0 border-gray-300 bg-white py-2 pl-4 pr-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/20"
-              />
-              <button
-                type="submit"
-                className="h-10 px-5 rounded-r-full bg-[#FF7A00] flex items-center gap-1.5 text-white text-sm font-semibold hover:bg-[#E66E00] transition-colors cursor-pointer shrink-0"
-              >
-                <SearchIcon className="w-4 h-4" />
-                <span>Search</span>
-              </button>
-            </form>
-
-            {/* Right Action Items: Wishlist, Cart, Account */}
-            <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-              {/* Wishlist Button (Screen 01) */}
-              <Link
-                href="/wishlist"
-                className="relative hidden sm:flex items-center gap-1.5 p-2 pr-3 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#FF7A00]"
-                title="Wishlist"
-              >
-                <div className="relative">
-                  <Heart className="w-5 h-5" />
-                  {wishlist.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-bold text-white shadow-xs">
-                      {wishlist.length}
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs font-bold hidden lg:inline">Wishlist</span>
-              </Link>
-
-              {/* Shopping Cart Pill (Screen 01 Header) */}
-              <Link
-                href="/cart"
-                className="relative flex items-center gap-1.5 rounded-full bg-[#FFF6E9] px-3 py-1.5 text-[#FF7A00] hover:bg-[#FFEED4] transition-colors shadow-xs"
-              >
-                <div className="relative">
-                  <ShoppingBag className="w-5 h-5 text-[#FF7A00]" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 flex h-4.5 min-w-4.5 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-black text-white shadow-xs">
-                      {cartCount}
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs font-bold hidden sm:inline">Cart</span>
-              </Link>
-
-              {/* User Account / Profile */}
-              {user ? (
-                <Link
-                  href="/account"
-                  className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100 transition-colors"
+        <div className="py-2.5 sm:py-3 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center justify-between gap-3 sm:gap-6">
+              {/* Mobile Left: Hamburger Button */}
+              <div className="flex items-center md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(true)}
+                  className="p-1.5 -ml-1 text-gray-700 hover:text-[#FF7A00] focus:outline-hidden cursor-pointer"
+                  aria-label="Open menu"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs">
-                    {user.name.split(' ').map((n) => n[0]).join('')}
-                  </div>
-                  <div className="hidden xl:flex flex-col text-left">
-                    <span className="text-xs font-bold text-gray-800 leading-none">{user.name}</span>
-                    <span className="text-[10px] text-gray-400 mt-0.5">My Account</span>
-                  </div>
-                </Link>
-              ) : (
-                <Link href="/auth" className="hidden md:inline-block">
-                  <Button size="sm" variant="brand">
-                    Sign In
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
+                  <Menu className="w-5 h-5" />
+                </button>
+              </div>
 
-          {/* Mobile Search Input */}
-          <div className="mt-2.5 md:hidden">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for everyday products..."
-                className="w-full h-9 rounded-full border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-4 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-hidden focus:border-[#FF7A00]"
-              />
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            </form>
+              {/* Logo */}
+              <div className="flex-1 md:flex-initial flex justify-center md:justify-start">
+                <Link href="/" className="shrink-0 flex items-center">
+                  <Logo size="md" showTagline={false} className="sm:hidden" />
+                  <Logo size="lg" showTagline={false} className="hidden sm:inline-flex" />
+                </Link>
+              </div>
+
+              {/* Desktop Search Bar – Input + Search Button (matches Screen 01 desktop reference) */}
+              <form
+                onSubmit={handleSearchSubmit}
+                className="hidden md:flex flex-1 max-w-2xl items-center gap-0"
+              >
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for everyday products (e.g. peeler, storage, brush)..."
+                  className="flex-1 h-10 rounded-l-full border border-r-0 border-gray-300 bg-white py-2 pl-4 pr-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/20"
+                />
+                <button
+                  type="submit"
+                  className="h-10 px-5 rounded-r-full bg-[#FF7A00] flex items-center gap-1.5 text-white text-sm font-semibold hover:bg-[#E66E00] transition-colors cursor-pointer shrink-0"
+                >
+                  <SearchIcon className="w-4 h-4" />
+                  <span>Search</span>
+                </button>
+              </form>
+
+              {/* Right Action Items: Wishlist, Cart, Account */}
+              <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+                {/* Wishlist Button (Screen 01) */}
+                <Link
+                  href="/wishlist"
+                  className="relative hidden sm:flex items-center gap-1.5 p-2 pr-3 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#FF7A00]"
+                  title="Wishlist"
+                >
+                  <div className="relative">
+                    <Heart className="w-5 h-5" />
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-bold text-white shadow-xs">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-bold hidden lg:inline">Wishlist</span>
+                </Link>
+
+                {/* Shopping Cart Pill (Screen 01 Header) */}
+                <Link
+                  href="/cart"
+                  className="relative flex items-center gap-1.5 rounded-full bg-[#FFF6E9] px-3 py-1.5 text-[#FF7A00] hover:bg-[#FFEED4] transition-colors shadow-xs"
+                >
+                  <div className="relative">
+                    <ShoppingBag className="w-5 h-5 text-[#FF7A00]" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-black text-white shadow-xs">
+                        {cartCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-bold hidden sm:inline">Cart</span>
+                </Link>
+
+                {/* User Account / Profile */}
+                {user ? (
+                  <Link
+                    href="/account"
+                    className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs">
+                      {user.name.split(' ').map((n) => n[0]).join('')}
+                    </div>
+                    <div className="hidden xl:flex flex-col text-left">
+                      <span className="text-xs font-bold text-gray-800 leading-none">{user.name}</span>
+                      <span className="text-[10px] text-gray-400 mt-0.5">My Account</span>
+                    </div>
+                  </Link>
+                ) : (
+                  <Link href="/auth" className="hidden md:inline-block">
+                    <Button size="sm" variant="brand">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile Search Input */}
+            <div className="mt-2.5 md:hidden">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for everyday products..."
+                  className="w-full h-9 rounded-full border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-4 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-hidden focus:border-[#FF7A00]"
+                />
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </form>
+            </div>
           </div>
         </div>
 
         {/* Sub-nav / Category & Offer Links (Desktop Screen 01) */}
-        <div className="hidden md:block bg-white border-t border-gray-100 px-6 py-2">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="hidden md:block bg-white border-t border-gray-100 py-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-6">
               {/* "Shop By Category" Orange Button */}
               <div className="relative">
