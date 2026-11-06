@@ -40,7 +40,25 @@ export default function ProductDetailPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0]?.id || '');
+  const [isStickyVisible, setIsStickyVisible] = useState(false);
+  const mainActionsRef = React.useRef<HTMLDivElement>(null);
   const wishlisted = isWishlisted(product.id);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (!mainActionsRef.current) return;
+      const rect = mainActionsRef.current.getBoundingClientRect();
+      if (rect.bottom < 60) {
+        setIsStickyVisible(true);
+      } else {
+        setIsStickyVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const relatedProducts = mockProducts
     .filter((p) => p.id !== product.id && p.categorySlug === product.categorySlug)
@@ -147,14 +165,14 @@ export default function ProductDetailPage() {
 
           {/* Quantity Selector and CTA Actions */}
           <div className="space-y-3 pt-4 border-t border-gray-100">
-            <div className="flex flex-wrap items-center gap-3">
+            <div ref={mainActionsRef} className="flex flex-wrap items-center gap-3">
               {/* Stepper */}
               <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 p-0.5">
                 <button
                   type="button"
                   disabled={quantity <= 1}
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 hover:bg-white transition-all disabled:opacity-40"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 hover:bg-white transition-all disabled:opacity-40 cursor-pointer"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
@@ -164,7 +182,7 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 hover:bg-white transition-all"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 hover:bg-white transition-all cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -183,7 +201,7 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={() => toggleWishlist(product.id)}
-                className={`flex h-9.5 w-9.5 items-center justify-center rounded-xl border transition-all ${
+                className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all cursor-pointer ${
                   wishlisted
                     ? 'border-red-200 bg-red-50 text-red-500'
                     : 'border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -212,21 +230,41 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Sticky Mobile Add To Cart Bar */}
-      <div className="fixed bottom-14 inset-x-0 z-30 block md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 p-2.5 shadow-lg">
-        <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
-          <div>
-            <span className="text-[10px] text-gray-400">Total</span>
-            <div className="text-base font-bold text-gray-900 leading-none">₹{product.price * quantity}</div>
+      {/* Sticky Mobile Add To Cart Bar - only shows when actual add button has scrolled out of view */}
+      <div
+        className={`fixed bottom-14 inset-x-0 z-30 block md:hidden transition-all duration-300 transform ${
+          isStickyVisible
+            ? 'translate-y-0 opacity-100 pointer-events-auto'
+            : 'translate-y-full opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="bg-white/95 backdrop-blur-md border-t border-gray-200/90 px-4 py-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+          <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
+            <div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block leading-none mb-1">
+                Total Price
+              </span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-base font-black text-gray-900 leading-none">
+                  ₹{product.price * quantity}
+                </span>
+                {product.originalPrice > product.price && (
+                  <span className="text-xs text-gray-400 line-through">
+                    ₹{product.originalPrice * quantity}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => addToCart(product, quantity)}
+              className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white font-black text-xs sm:text-sm shadow-md shadow-orange-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add to Cart</span>
+            </button>
           </div>
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => addToCart(product, quantity)}
-            className="flex-1 font-bold"
-          >
-            Add to Cart
-          </Button>
         </div>
       </div>
 

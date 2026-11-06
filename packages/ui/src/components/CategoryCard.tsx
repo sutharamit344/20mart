@@ -17,7 +17,7 @@ import {
 export interface CategoryCardProps {
   category: ProductCategory;
   onClick?: (category: ProductCategory) => void;
-  variant?: 'circle' | 'card';
+  variant?: 'circle' | 'card' | 'chip';
   className?: string;
 }
 
@@ -70,6 +70,32 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
   const theme = getCategoryTheme(category.slug);
   const IconComponent = theme.icon;
+
+  if (variant === 'chip') {
+    return (
+      <button
+        type="button"
+        onClick={() => onClick?.(category)}
+        className={cn(
+          'group flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white hover:bg-orange-50/20 border border-gray-200/90 hover:border-[#FF7A00]/50 shadow-2xs hover:shadow-xs shrink-0 cursor-pointer select-none transition-all duration-150',
+          className
+        )}
+      >
+        <div
+          style={{ backgroundColor: theme.bg }}
+          className="flex h-5 w-5 sm:h-5.5 sm:w-5.5 items-center justify-center rounded-full shrink-0"
+        >
+          <IconComponent
+            className="h-3 w-3 sm:h-3.5 sm:w-3.5"
+            style={{ color: theme.iconColor }}
+          />
+        </div>
+        <span className="text-[13px] sm:text-sm font-medium text-gray-700 group-hover:text-[#FF7A00] transition-colors whitespace-nowrap">
+          {category.name}
+        </span>
+      </button>
+    );
+  }
 
   if (variant === 'circle') {
     return (

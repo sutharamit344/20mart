@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Logo, Button } from '@20mart/ui';
+import { Logo, Button, cn } from '@20mart/ui';
 import { useStore } from '../lib/store';
 import {
   Search as SearchIcon,
@@ -18,8 +18,10 @@ import {
   Flame,
   X,
   ArrowRight,
+  TrendingUp,
+  Tag,
 } from 'lucide-react';
-import { mockCategories } from '@20mart/shared';
+import { mockCategories, mockProducts } from '@20mart/shared';
 
 export const Header: React.FC = () => {
   const router = useRouter();
@@ -33,16 +35,187 @@ export const Header: React.FC = () => {
     setSearchQuery,
   } = useStore();
 
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [citySelectorOpen, setCitySelectorOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [desktopSuggestionsOpen, setDesktopSuggestionsOpen] = useState(false);
+  const [mobileSuggestionsOpen, setMobileSuggestionsOpen] = useState(false);
+
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+
+  const popularSearches = [
+    'Kitchen Peeler',
+    'Storage Basket',
+    'Bag Clips',
+    'Cleaning Brush',
+    'Storage Container',
+    'Spatula Set',
+  ];
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return mockProducts
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.subcategory?.toLowerCase().includes(q)
+      )
+      .slice(0, 4);
+  }, [searchQuery]);
+
+  const executeSearch = (query: string) => {
+    const q = query.trim();
+    if (!q) return;
+    setSearchQuery(q);
+    setIsSearchOpen(false);
+    setDesktopSuggestionsOpen(false);
+    setMobileSuggestionsOpen(false);
+    router.push(`/shop?q=${encodeURIComponent(q)}`);
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
+    executeSearch(searchQuery);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        desktopSearchRef.current &&
+        !desktopSearchRef.current.contains(e.target as Node)
+      ) {
+        setDesktopSuggestionsOpen(false);
+      }
+      if (
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchOpen(false);
+        setMobileSuggestionsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const renderSuggestions = (onSelect: (q: string) => void) => (
+    <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl bg-white border border-gray-200/90 shadow-2xl overflow-hidden divide-y divide-gray-100 animate-in fade-in slide-in-from-top-1 duration-150">
+      {searchQuery.trim().length > 0 ? (
+        <div className="p-3 space-y-2">
+          <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">
+            Matching Products
+          </div>
+          {searchResults.length > 0 ? (
+            <div className="space-y-1">
+              {searchResults.map((prod) => (
+                <div
+                  key={prod.id}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setIsSearchOpen(false);
+                    setDesktopSuggestionsOpen(false);
+                    setMobileSuggestionsOpen(false);
+                    router.push(`/product/${prod.slug}`);
+                  }}
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FFF6E9]/60 cursor-pointer transition-colors group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src={prod.images[0]}
+                      alt={prod.name}
+                      className="w-10 h-10 rounded-lg object-cover bg-gray-50 shrink-0 border border-gray-100"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-gray-900 group-hover:text-[#FF7A00] truncate transition-colors">
+                        {prod.name}
+                      </p>
+                      <p className="text-[10px] text-gray-400 truncate">
+                        {prod.category}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0 pl-2">
+                    <span className="text-xs font-black text-gray-900">
+                      ₹{prod.price}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-4 text-center text-xs text-gray-500">
+              No matching products found
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onSelect(searchQuery)}
+            className="w-full mt-1 py-2 px-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF7A00] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <SearchIcon className="w-3.5 h-3.5" />
+            <span>Search all for "{searchQuery}"</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div className="p-3.5 space-y-3.5">
+          <div>
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+              <TrendingUp className="w-3.5 h-3.5 text-[#FF7A00]" />
+              <span>Popular Searches</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {popularSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => onSelect(term)}
+                  className="px-2.5 py-1 rounded-full bg-gray-50 hover:bg-[#FFF6E9] hover:text-[#FF7A00] text-gray-700 text-xs font-semibold border border-gray-200/80 transition-colors cursor-pointer"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+              <Tag className="w-3.5 h-3.5 text-[#0B5D3B]" />
+              <span>Categories</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {mockCategories.slice(0, 4).map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setDesktopSuggestionsOpen(false);
+                    setMobileSuggestionsOpen(false);
+                    router.push(`/category/${cat.slug}`);
+                  }}
+                  className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 hover:bg-emerald-50/60 text-left transition-colors cursor-pointer group"
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-5 h-5 rounded-md object-cover bg-white"
+                  />
+                  <span className="text-xs font-bold text-gray-800 group-hover:text-[#0B5D3B] truncate">
+                    {cat.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const cities = ['Ahmedabad', 'Gandhinagar', 'Vadodara', 'Surat', 'Rajkot'];
 
@@ -50,7 +223,7 @@ export const Header: React.FC = () => {
     <>
       <header className="sticky top-0 z-40 w-full bg-white shadow-xs border-b border-gray-100">
         {/* Green Top Announcement Bar (Screen 01 Desktop Reference) */}
-        <div className="hidden md:block bg-[#0B5D3B] text-white py-1.5 text-xs">
+        <div className="hidden md:block bg-[#0B5D3B] text-white py-1 text-[11px] leading-tight">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5 relative">
@@ -100,8 +273,8 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Header Row (Screen 01 Desktop) */}
-        <div className="py-2.5 sm:py-3 border-b border-gray-100">
+        {/* Main Header Row */}
+        <div className="py-2 sm:py-2.5 border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between gap-3 sm:gap-6">
               {/* Mobile Left: Hamburger Button */}
@@ -117,86 +290,114 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Logo */}
-              <div className="flex-1 md:flex-initial flex justify-center md:justify-start">
+              <div className="flex-1 md:flex-initial flex justify-center md:justify-start shrink-0">
                 <Link href="/" className="shrink-0 flex items-center">
-                  <Logo size="md" showTagline={false} className="sm:hidden" />
-                  <Logo size="lg" showTagline={false} className="hidden sm:inline-flex" />
+                  <Logo size="sm" showTagline={false} className="sm:hidden" />
+                  <Logo size="md" showTagline={false} className="hidden sm:inline-flex" />
                 </Link>
               </div>
 
-              {/* Desktop Search Bar – Input + Search Button (matches Screen 01 desktop reference) */}
-              <form
-                onSubmit={handleSearchSubmit}
-                className="hidden md:flex flex-1 max-w-2xl items-center gap-0"
-              >
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for everyday products (e.g. peeler, storage, brush)..."
-                  className="flex-1 h-10 rounded-l-full border border-r-0 border-gray-300 bg-white py-2 pl-4 pr-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/20"
-                />
-                <button
-                  type="submit"
-                  className="h-10 px-5 rounded-r-full bg-[#FF7A00] flex items-center gap-1.5 text-white text-sm font-semibold hover:bg-[#E66E00] transition-colors cursor-pointer shrink-0"
+              {/* Desktop Nav Links (placed between Logo and Search Bar) */}
+              <nav className="hidden md:flex items-center gap-3.5 lg:gap-5 text-xs font-bold text-gray-700 shrink-0">
+                <Link href="/" className="hover:text-[#FF7A00] transition-colors py-1">
+                  Home
+                </Link>
+                <Link href="/shop" className="hover:text-[#FF7A00] transition-colors py-1">
+                  Shop
+                </Link>
+                <Link
+                  href="/coupons"
+                  className="hover:text-[#FF7A00] transition-colors py-1"
                 >
-                  <SearchIcon className="w-4 h-4" />
-                  <span>Search</span>
-                </button>
-              </form>
+                  Offers
+                </Link>
+                <Link
+                  href="/shop?filter=daily-deals"
+                  className="hover:text-[#FF7A00] transition-colors py-1 whitespace-nowrap"
+                >
+                  Daily Deals
+                </Link>
+              </nav>
+
+              {/* Desktop Search Bar – Input + Search Button + Suggestions Dropdown */}
+              <div ref={desktopSearchRef} className="hidden md:block flex-1 max-w-md lg:max-w-xl relative">
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="flex items-center gap-0 w-full"
+                >
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onFocus={() => setDesktopSuggestionsOpen(true)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setDesktopSuggestionsOpen(true);
+                    }}
+                    placeholder="Search for everyday products (e.g. peeler, storage, brush)..."
+                    className="flex-1 h-9 rounded-l-full border border-r-0 border-gray-300 bg-white py-1.5 pl-4 pr-3 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/20"
+                  />
+                  <button
+                    type="submit"
+                    className="h-9 px-4 rounded-r-full bg-[#FF7A00] flex items-center gap-1.5 text-white text-xs font-semibold hover:bg-[#E66E00] transition-colors cursor-pointer shrink-0"
+                  >
+                    <SearchIcon className="w-3.5 h-3.5" />
+                    <span>Search</span>
+                  </button>
+                </form>
+
+                {desktopSuggestionsOpen && renderSuggestions(executeSearch)}
+              </div>
 
               {/* Right Action Items: Wishlist, Cart, Account */}
-              <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-                {/* Wishlist Button (Screen 01) */}
+              <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                {/* Wishlist Icon Button – visible in logo bar on both mobile & desktop */}
                 <Link
                   href="/wishlist"
-                  className="relative hidden sm:flex items-center gap-1.5 p-2 pr-3 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#FF7A00]"
+                  className="relative flex items-center justify-center h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#FF7A00]"
                   title="Wishlist"
+                  aria-label="Wishlist"
                 >
-                  <div className="relative">
-                    <Heart className="w-5 h-5" />
-                    {wishlist.length > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-bold text-white shadow-xs">
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold hidden lg:inline">Wishlist</span>
+                  <Heart className="w-5 h-5" />
+                  {wishlist.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-bold text-white shadow-xs leading-none">
+                      {wishlist.length}
+                    </span>
+                  )}
                 </Link>
 
-                {/* Shopping Cart Pill (Screen 01 Header) */}
+                {/* Shopping Cart Icon Button – visible in logo bar on both mobile & desktop */}
                 <Link
                   href="/cart"
-                  className="relative flex items-center gap-1.5 rounded-full bg-[#FFF6E9] px-3 py-1.5 text-[#FF7A00] hover:bg-[#FFEED4] transition-colors shadow-xs"
+                  className="relative flex items-center justify-center h-9 w-9 rounded-full bg-[#FFF6E9] text-[#FF7A00] hover:bg-[#FFEED4] transition-colors border border-orange-200/50 shadow-2xs"
+                  title="Cart"
+                  aria-label="Cart"
                 >
-                  <div className="relative">
-                    <ShoppingBag className="w-5 h-5 text-[#FF7A00]" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-black text-white shadow-xs">
-                        {cartCount}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold hidden sm:inline">Cart</span>
+                  <ShoppingBag className="w-5 h-5 text-[#FF7A00]" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-black text-white shadow-xs leading-none">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
 
-                {/* User Account / Profile */}
+                {/* User Account / Profile – hidden on mobile (handled by bottom nav), visible on desktop */}
                 {user ? (
                   <Link
                     href="/account"
-                    className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100 transition-colors"
+                    className="hidden md:flex items-center gap-2 rounded-full p-0.5 hover:bg-gray-100 transition-colors"
+                    title={user.name}
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs select-none">
                       {user.name.split(' ').map((n) => n[0]).join('')}
                     </div>
-                    <div className="hidden xl:flex flex-col text-left">
-                      <span className="text-xs font-bold text-gray-800 leading-none">{user.name}</span>
-                      <span className="text-[10px] text-gray-400 mt-0.5">My Account</span>
+                    <div className="hidden xl:flex flex-col text-left pr-2">
+                      <span className="text-xs font-bold text-gray-800 leading-tight">{user.name}</span>
+                      <span className="text-[10px] text-gray-400 mt-0.5 leading-tight">My Account</span>
                     </div>
                   </Link>
                 ) : (
                   <Link href="/auth" className="hidden md:inline-block">
-                    <Button size="sm" variant="brand">
+                    <Button size="sm" variant="brand" className="h-9 px-3.5 text-xs">
                       Sign In
                     </Button>
                   </Link>
@@ -204,107 +405,56 @@ export const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* Mobile Search Input */}
-            <div className="mt-2.5 md:hidden">
-              <form onSubmit={handleSearchSubmit} className="relative">
+            {/* Mobile Full-Width Search Row */}
+            <div ref={mobileSearchRef} className="mt-2 md:hidden relative">
+              <form
+                onSubmit={handleSearchSubmit}
+                className="relative flex items-center w-full"
+              >
+                <SearchIcon className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => {
+                    setIsSearchOpen(true);
+                    setMobileSuggestionsOpen(true);
+                  }}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setMobileSuggestionsOpen(true);
+                  }}
                   placeholder="Search for everyday products..."
-                  className="w-full h-9 rounded-full border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-4 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-hidden focus:border-[#FF7A00]"
+                  className={cn(
+                    'w-full h-9 rounded-full border border-gray-200 bg-gray-50/90 py-1.5 pl-9 text-xs text-gray-900 placeholder:text-gray-400 transition-all focus:bg-white focus:outline-none focus:border-[#FF7A00]',
+                    isSearchOpen ? 'pr-20 ring-2 ring-[#FF7A00]/20' : 'pr-3'
+                  )}
                 />
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </form>
-            </div>
-          </div>
-        </div>
 
-        {/* Sub-nav / Category & Offer Links (Desktop Screen 01) */}
-        <div className="hidden md:block bg-white border-t border-gray-100 py-2">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              {/* "Shop By Category" Orange Button */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                  className="flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#E66E00] transition-colors cursor-pointer"
-                >
-                  <Menu className="w-3.5 h-3.5" />
-                  <span>Shop By Category</span>
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-
-                {/* Category Dropdown Menu */}
-                {categoryDropdownOpen && (
-                  <div
-                    onMouseLeave={() => setCategoryDropdownOpen(false)}
-                    className="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-white p-2.5 shadow-xl border border-gray-100 z-50 animate-in fade-in zoom-in-95"
-                  >
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-2 pb-1.5 border-b border-gray-100 mb-1">
-                      All Categories
-                    </p>
-                    <div className="space-y-0.5">
-                      {mockCategories.map((cat) => (
-                        <Link
-                          key={cat.id}
-                          href={`/category/${cat.slug}`}
-                          onClick={() => setCategoryDropdownOpen(false)}
-                          className="flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-[#FFF6E9] hover:text-[#FF7A00] transition-colors"
-                        >
-                          <span>{cat.name}</span>
-                          <span className="text-[10px] text-gray-400">{cat.itemCount}+</span>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="pt-2 mt-1 border-t border-gray-100">
-                      <Link
-                        href="/shop"
-                        onClick={() => setCategoryDropdownOpen(false)}
-                        className="block text-center text-xs font-bold text-[#0B5D3B] hover:underline py-1"
+                {/* On click / active search: show Search icon button + Clear icon */}
+                {isSearchOpen && (
+                  <div className="absolute right-1 flex items-center gap-1">
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="p-1 rounded-full text-gray-400 hover:text-gray-600 cursor-pointer"
                       >
-                        View All Products →
-                      </Link>
-                    </div>
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="h-7 px-2.5 rounded-full bg-[#FF7A00] hover:bg-[#E66E00] text-white text-xs font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                    >
+                      <SearchIcon className="w-3 h-3" />
+                      <span>Search</span>
+                    </button>
                   </div>
                 )}
-              </div>
+              </form>
 
-              {/* Navigation links matching design reference Screen 01 */}
-              <nav className="flex items-center gap-6 text-xs font-bold text-gray-700">
-                <Link href="/" className="hover:text-[#FF7A00] transition-colors">
-                  Home
-                </Link>
-                <Link href="/shop" className="hover:text-[#FF7A00] transition-colors">
-                  Shop
-                </Link>
-                <Link
-                  href="/coupons"
-                  className="flex items-center gap-1 hover:text-[#FF7A00] transition-colors"
-                >
-                  <span>Offers</span>
-                </Link>
-                <Link
-                  href="/shop?filter=daily-deals"
-                  className="flex items-center gap-1 hover:text-[#FF7A00] transition-colors"
-                >
-                  <span>Daily Deals</span>
-                </Link>
-              </nav>
-            </div>
-
-            <div className="flex items-center gap-4 text-xs font-semibold text-gray-600">
-              <span className="text-[#0B5D3B] flex items-center gap-1 font-bold">
-                ⚡ Free Delivery Above ₹199
-              </span>
-              <span className="text-gray-300">|</span>
-              <Link
-                href="/survey"
-                className="text-[#FF7A00] hover:underline font-bold"
-              >
-                Get ₹50 Welcome Coupon →
-              </Link>
+              {/* Mobile Search Suggestions Dropdown */}
+              {isSearchOpen && mobileSuggestionsOpen && renderSuggestions(executeSearch)}
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 export interface LogoProps {
   className?: string;
+  imgClassName?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   showTagline?: boolean;
   inverted?: boolean;
@@ -12,6 +13,7 @@ export interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({
   className = '',
+  imgClassName = '',
   size = 'md',
   showTagline = false,
   inverted = false,
@@ -19,13 +21,13 @@ export const Logo: React.FC<LogoProps> = ({
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  // Exact sizes matching official brand guidelines
+  // Balanced sizes for sleek header & UI integration
   const sizeMap = {
-    xs: { h: 'h-7', iconW: 'w-7 h-7', subText: 'text-[9px]' },
-    sm: { h: 'h-8 sm:h-9', iconW: 'w-8 h-8', subText: 'text-[10px]' },
-    md: { h: 'h-10 sm:h-11', iconW: 'w-10 h-10', subText: 'text-xs' },
-    lg: { h: 'h-12 sm:h-14', iconW: 'w-12 h-12', subText: 'text-sm' },
-    xl: { h: 'h-16 sm:h-20', iconW: 'w-16 h-16', subText: 'text-base' },
+    xs: { h: 'h-6 sm:h-7', iconW: 'w-6 h-6 sm:w-7 sm:h-7', subText: 'text-[9px]' },
+    sm: { h: 'h-7 sm:h-8', iconW: 'w-7 h-7 sm:w-8 sm:h-8', subText: 'text-[10px]' },
+    md: { h: 'h-8 sm:h-9', iconW: 'w-8 h-8 sm:w-9 sm:h-9', subText: 'text-xs' },
+    lg: { h: 'h-10 sm:h-12', iconW: 'w-10 h-10 sm:w-12 sm:h-12', subText: 'text-sm' },
+    xl: { h: 'h-14 sm:h-16', iconW: 'w-14 h-14 sm:w-16 sm:h-16', subText: 'text-base' },
   };
 
   const cur = sizeMap[size];
@@ -55,7 +57,7 @@ export const Logo: React.FC<LogoProps> = ({
         <img
           src="/logo/20mart-logo-transparent.png"
           alt="20Mart – Your Everyday Value Market"
-          className={`${cur.h} w-auto object-contain shrink-0`}
+          className={`${cur.h} w-auto object-contain shrink-0 ${imgClassName}`}
           loading="eager"
           onError={() => setImgError(true)}
         />

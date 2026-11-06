@@ -9,7 +9,6 @@ import {
 } from '@20mart/shared';
 import {
   ProductCard,
-  CategoryCard,
   Button,
 } from '@20mart/ui';
 import { useStore } from '../lib/store';
@@ -17,15 +16,32 @@ import {
   ArrowRight,
   Sparkles,
   Flame,
-  Percent,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  ShoppingBag,
   Gift,
-  RotateCcw,
   Truck,
+  CookingPot,
+  BookOpen,
+  Layers,
+  Heart,
+  Grid as GridIcon,
 } from 'lucide-react';
+
+const getCategoryTheme = (slug: string) => {
+  switch (slug) {
+    case 'kitchen-home':
+      return { bg: '#FFEED9', iconColor: '#FF7A00', icon: CookingPot };
+    case 'cleaning-care':
+      return { bg: '#DCFCE7', iconColor: '#0B5D3B', icon: Sparkles };
+    case 'stationery-school':
+      return { bg: '#F3E8FF', iconColor: '#9333EA', icon: BookOpen };
+    case 'daily-use':
+      return { bg: '#FEF3C7', iconColor: '#D97706', icon: Layers };
+    case 'personal-care':
+      return { bg: '#FCE7F3', iconColor: '#DB2777', icon: Heart };
+    case 'storage-organisation':
+    default:
+      return { bg: '#FFEED9', iconColor: '#EA580C', icon: GridIcon };
+  }
+};
 
 export default function HomePage() {
   const router = useRouter();
@@ -36,9 +52,42 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-8">
-      {/* 1. Hero Banner (Screen 01 Desktop & Mobile 01) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5">
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white shadow-xl shadow-emerald-950/15 border border-emerald-600/20">
+      {/* Top Section: Category Strip + Hero Banner with tight Amazon-style spacing & gap */}
+      <div className="space-y-1.5 sm:space-y-2">
+        {/* 1. Category Scroll Strip (Amazon-style: compact spacing, gap, font-size) */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-1 sm:pt-1.5 pb-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto whitespace-nowrap scrollbar-none py-0.5">
+            {mockCategories.map((cat) => {
+              const theme = getCategoryTheme(cat.slug);
+              const Icon = theme.icon;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => router.push(`/category/${cat.slug}`)}
+                  className="group flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white hover:bg-orange-50/20 border border-gray-200/90 hover:border-[#FF7A00]/50 shadow-2xs hover:shadow-xs shrink-0 cursor-pointer select-none transition-all duration-150"
+                >
+                  <div
+                    style={{ backgroundColor: theme.bg }}
+                    className="flex h-5 w-5 sm:h-5.5 sm:w-5.5 items-center justify-center rounded-full shrink-0"
+                  >
+                    <Icon
+                      className="h-3 w-3 sm:h-3.5 sm:w-3.5"
+                      style={{ color: theme.iconColor }}
+                    />
+                  </div>
+                  <span className="text-[13px] sm:text-sm font-medium text-gray-700 group-hover:text-[#FF7A00] transition-colors whitespace-nowrap">
+                    {cat.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 2. Hero Banner (Screen 01 Desktop & Mobile 01) */}
+        <section className="max-w-7xl mx-auto px-0 sm:px-6">
+          <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white shadow-xl shadow-emerald-950/15 border-y sm:border border-emerald-600/20">
           {/* Vibrant radiant glows & ambient lighting */}
           <div className="absolute -top-24 -right-24 w-96 sm:w-[500px] h-96 sm:h-[500px] rounded-full bg-emerald-400/25 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 right-10 w-80 h-80 rounded-full bg-emerald-300/20 blur-2xl pointer-events-none" />
@@ -88,7 +137,7 @@ export default function HomePage() {
             </div>
 
             {/* Right: Grouped daily-use items & basket filling the banner space gracefully */}
-            <div className="md:col-span-6 lg:col-span-7 xl:col-span-7 relative flex items-end justify-center md:justify-end px-3 sm:px-6 pt-4 md:pt-2 pb-2 md:pb-0">
+            <div className="md:col-span-6 lg:col-span-7 xl:col-span-7 relative flex items-end justify-center md:justify-end px-2 sm:px-6 pt-2 md:pt-2 pb-2 md:pb-0 overflow-hidden sm:overflow-visible">
               {/* Radiant ambient glow without clipping */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-80 sm:w-[500px] md:w-[600px] h-72 sm:h-96 rounded-full bg-gradient-to-tr from-emerald-400/30 via-emerald-300/20 to-transparent blur-3xl pointer-events-none" />
@@ -100,11 +149,20 @@ export default function HomePage() {
                 <span>Free Delivery &gt; ₹199</span>
               </div>
 
-              {/* Grouped Daily Use Items & Basket 3D image - perfectly filling space on desktop & mobile */}
+              {/* Mobile Hero Image: Centered, prominent, no left negative space */}
+              <div className="md:hidden relative z-0 w-full flex items-center justify-center overflow-hidden px-1 pt-2 pb-1">
+                <img
+                  src="/hero-group-mobile.png"
+                  alt="20Mart Household & Kitchen Essentials Cluster"
+                  className="w-full max-w-[390px] h-auto max-h-[260px] object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
+                />
+              </div>
+
+              {/* Desktop Hero Image: Existing desktop image unchanged */}
               <img
                 src="/hero-group-transparent.png"
                 alt="20Mart Household & Kitchen Essentials Cluster"
-                className="relative z-0 h-52 sm:h-64 md:h-76 lg:h-[340px] xl:h-[380px] w-auto max-w-[96%] md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
+                className="hidden md:block relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
               />
 
               {/* Floating Price Pill */}
@@ -121,81 +179,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+    </div>
 
-      {/* 2. Value Props Bar (Matching reference 4 pills in Screen 01) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-orange-200 transition-all duration-200">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF6E9] text-[#FF7A00]">
-              <Percent className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Great Value</h4>
-              <p className="text-[11px] text-gray-500">Budget-friendly prices</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-emerald-200 transition-all duration-200">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-[#0B5D38]">
-              <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Daily Use Items</h4>
-              <p className="text-[11px] text-gray-500">For every home</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-amber-200 transition-all duration-200">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-              <Truck className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Fast Delivery</h4>
-              <p className="text-[11px] text-gray-500">At your doorstep</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100/90 shadow-2xs hover:shadow-xs hover:border-orange-200 transition-all duration-200">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF6E9] text-[#FF7A00]">
-              <RotateCcw className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Easy Returns</h4>
-              <p className="text-[11px] text-gray-500">Hassle-free policy</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Shop by Category (Screen 01 Circular Badges) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-gray-900">Shop by Category</h2>
-            <p className="text-xs text-gray-500">Explore everyday necessities by department</p>
-          </div>
-          <Link
-            href="/shop"
-            className="text-xs sm:text-sm font-bold text-[#FF7A00] hover:text-[#E66E00] flex items-center gap-1"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
-          {mockCategories.slice(0, 6).map((cat) => (
-            <CategoryCard
-              key={cat.id}
-              category={cat}
-              variant="circle"
-              onClick={() => router.push(`/category/${cat.slug}`)}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* 4. Trending Everyday Finds (Screen 01) */}
+      {/* 3. Trending Everyday Finds (Screen 01) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -233,8 +219,8 @@ export default function HomePage() {
       </section>
 
       {/* 5. Steal Deals Under ₹50 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] p-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border border-white/20">
+      <section className="max-w-7xl mx-auto px-0 sm:px-6">
+        <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] px-3.5 py-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border-y sm:border border-white/20">
           {/* Subtle ambient light */}
           <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/15 blur-2xl pointer-events-none" />
           <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-amber-300/20 blur-xl pointer-events-none" />
@@ -274,8 +260,8 @@ export default function HomePage() {
       </section>
 
       {/* 6. Early Access Campaign Promo Banner (Screen 16 Desktop & Mobile Screen 14) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white p-6 sm:p-8 shadow-xl shadow-emerald-950/15 border border-emerald-600/20 flex flex-col md:flex-row items-center justify-between gap-6">
+      <section className="max-w-7xl mx-auto px-0 sm:px-6">
+        <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white p-5 sm:p-8 shadow-xl shadow-emerald-950/15 border-y sm:border border-emerald-600/20 flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Ambient lighting */}
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
           <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />

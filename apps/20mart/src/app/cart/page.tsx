@@ -202,18 +202,20 @@ export default function CartPage() {
           </div>
 
           {/* Coupon Input Bar (Screen 07 & 05) */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#FF7A00]" />
-                <span className="text-xs font-bold text-gray-900">Have a coupon code?</span>
+          <div className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-4 shadow-xs">
+            <div className="flex items-center justify-between gap-2 mb-2.5">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Tag className="w-4 h-4 text-[#FF7A00] shrink-0" />
+                <span className="text-xs sm:text-sm font-bold text-gray-900 whitespace-nowrap">
+                  Have a coupon code?
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setCouponDrawerOpen(true)}
-                className="text-xs font-bold text-[#0B5D3B] hover:underline"
+                className="text-[11px] sm:text-xs font-bold text-[#0B5D3B] hover:underline shrink-0 cursor-pointer"
               >
-                View Available Coupons →
+                View <span className="hidden sm:inline">Available </span>Coupons →
               </button>
             </div>
 

@@ -12,6 +12,7 @@ export interface ProductImageProps {
   aspectRatio?: 'square' | 'video' | '4/3';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   priority?: boolean;
+  objectFit?: 'cover' | 'contain';
 }
 
 export const ProductImage: React.FC<ProductImageProps> = ({
@@ -20,8 +21,9 @@ export const ProductImage: React.FC<ProductImageProps> = ({
   className,
   imgClassName,
   aspectRatio = 'square',
-  padding = 'sm',
+  padding = 'none',
   priority = false,
+  objectFit = 'cover',
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -76,7 +78,8 @@ export const ProductImage: React.FC<ProductImageProps> = ({
           onError={() => setHasError(true)}
           onLoad={() => setIsLoaded(true)}
           className={cn(
-            'w-full h-full max-h-full max-w-full object-contain object-center transition-all duration-300',
+            'w-full h-full max-h-full max-w-full object-center transition-all duration-300',
+            objectFit === 'contain' ? 'object-contain' : 'object-cover',
             !isLoaded && 'opacity-0 scale-95',
             isLoaded && 'opacity-100 scale-100',
             imgClassName
@@ -86,7 +89,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
             height: '100%',
             maxHeight: '100%',
             maxWidth: '100%',
-            objectFit: 'contain',
+            objectFit: objectFit,
             objectPosition: 'center',
           }}
         />

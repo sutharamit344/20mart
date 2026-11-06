@@ -40,7 +40,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       )}
     >
       {/* Top Image Container with Badges */}
-      <div className="relative mb-2 w-full overflow-hidden rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center p-2.5">
+      <div className="relative mb-2 w-full overflow-hidden rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">
         {/* Discount Badge */}
         {product.discountPercent > 0 && (
           <div className="absolute left-2 top-2 z-10 rounded-md bg-[#FFF6E9] border border-orange-200/80 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-black text-[#FF7A00] shadow-2xs">
