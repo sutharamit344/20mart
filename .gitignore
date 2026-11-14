@@ -8,3 +8,6 @@ build
 .env.local
 .DS_Store
 
+.env.test
+.env.*.local
+storage/
