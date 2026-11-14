@@ -7,7 +7,14 @@ import { assertPermission, getAdminContext, type AdminContext } from '../auth/ad
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
+/** Next.js uses thrown errors for control flow (dynamic usage, redirect, notFound); never swallow them. */
+function isNextInternalError(err: unknown) {
+  const digest = (err as { digest?: unknown } | null)?.digest;
+  return typeof digest === 'string' && (digest === 'DYNAMIC_SERVER_USAGE' || digest.startsWith('NEXT_'));
+}
+
 export function errorResponse(err: unknown) {
+  if (isNextInternalError(err)) throw err;
   const e = toAppError(err);
   if (e.status >= 500) console.error('[api] unhandled error:', err);
   return NextResponse.json(

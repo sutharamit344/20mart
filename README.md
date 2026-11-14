@@ -18,7 +18,8 @@ Built with **Turborepo** and **pnpm workspaces**:
 │   ├── ui/                # Centralized Design System (Buttons, Inputs, Cards, Badges, Modals, Tables)
 │   ├── shared/            # Types, Zod Schemas, Configurations, and Real Mock Datasets
 │   ├── config/            # Shared Tailwind Tokens & TypeScript Presets
-│   └── database/          # Prisma ORM & PostgreSQL Schema (26 modular relational models)
+│   ├── database/          # Prisma schema, migrations, seeds
+│   └── server/            # Server-only services: auth, RBAC, catalog, inventory, storage (+ tests)
 │
 ├── package.json
 ├── pnpm-workspace.yaml
@@ -84,33 +85,85 @@ Built with **Turborepo** and **pnpm workspaces**:
 
 ## 🚀 Local Development
 
+### Prerequisites
+- Node.js 22+, pnpm 12
+- PostgreSQL 16+ (developed against 18)
+
+### 1. Database
+Create a least-privilege role and two databases (dev + a disposable test DB):
+
+```sql
+CREATE ROLE twentymart_app LOGIN CREATEDB PASSWORD '<strong-password>';  -- CREATEDB only for Prisma's dev shadow DB
+CREATE DATABASE twentymart_dev  OWNER twentymart_app;
+CREATE DATABASE twentymart_test OWNER twentymart_app;
+```
+
+### 2. Environment
+Copy `.env.example` into the four (git-ignored) locations it lists and fill in values:
+`packages/database/.env`, `apps/20mart/.env.local`, `apps/20martadmin/.env.local`, `packages/server/.env.test`.
+
+| Variable | Used by | Notes |
+|---|---|---|
+| `DATABASE_URL` | all | `packages/server/.env.test` must point at the **test** DB |
+| `AUTH_SECRET` | both apps | ≥ 32 random chars; signs the OAuth state cookie |
+| `APP_URL`, `ADMIN_APP_URL` | both apps | Public origins; used for OAuth redirect + CSRF origin checks |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | storefront | Customer Google sign-in |
+| `REVALIDATE_SECRET` | both apps | Admin → storefront cache refresh |
+| `STORAGE_DRIVER` | both apps | `local` (dev) or `s3` (AWS S3 / Cloudflare R2) |
+| `STORAGE_LOCAL_DIR`, `STORAGE_PUBLIC_BASE_URL` | both apps | Local uploads are served by the storefront at `/media/*` |
+| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | both apps | Only when `STORAGE_DRIVER=s3` |
+| `INITIAL_ADMIN_USERNAME/EMAIL/PASSWORD` | bootstrap script | One-time use; remove the password afterwards |
+
+### 3. Install, migrate, seed
 ```bash
-# 1. Install all monorepo dependencies
 pnpm install
+pnpm --filter @20mart/database db:deploy     # apply migrations (non-destructive)
+pnpm --filter @20mart/database db:seed       # permissions, roles, 4 categories, price points (idempotent)
+pnpm --filter @20mart/database db:seed:demo  # OPTIONAL, dev only: 9 draft demo products with 0 stock
+```
 
-# 2. Generate Prisma Client
-pnpm db:generate
+### 4. Create the first Super Admin
+```bash
+INITIAL_ADMIN_USERNAME=owner INITIAL_ADMIN_EMAIL=owner@example.com INITIAL_ADMIN_PASSWORD='<12+ chars>' \
+  pnpm --filter @20mart/server admin:bootstrap
+```
+- Works only while **no** Super Admin exists; later runs refuse (exit code 2). Further admins are created in the admin UI (**Access management**).
+- The password is never printed. Remove `INITIAL_ADMIN_PASSWORD` from your shell/env afterwards.
+- **Recovery** (forgotten password / locked out): `INITIAL_ADMIN_PASSWORD='<new>' pnpm --filter @20mart/server admin:bootstrap --recover <username>` resets the password, reactivates the account and revokes its sessions.
 
-# 3. Start both applications simultaneously
-pnpm dev
-
-# Or run applications individually:
-pnpm dev:store   # Storefront on http://localhost:3000
-pnpm dev:admin   # Admin Portal on http://localhost:3001
+### 5. Run
+```bash
+pnpm dev:store   # Storefront   http://localhost:3000
+pnpm dev:admin   # Admin portal http://localhost:3001  (sign in at /login)
+pnpm --filter @20mart/server test   # test suite (uses the test DB only)
+pnpm build                           # production build of both apps
 ```
 
 ---
 
-## 🗄️ Database Integration (Prisma & PostgreSQL)
+## 🔐 Google OAuth setup (customers)
 
-The schema in `packages/database/prisma/schema.prisma` includes all 26 relational entities:
-- `Customer`, `Address`
-- `Category`, `Brand`, `Product`, `ProductVariant`
-- `Inventory`, `InventoryMovement`
-- `Cart`, `CartItem`
-- `Order`, `OrderItem`, `Payment`
-- `Coupon`, `CouponRule`, `CouponRedemption`
-- `Question`, `QuestionOption`, `QuestionResponse`
-- `AdminUser`, `AdminRole`, `AdminPermission`, `AdminAuditLog`
-- `SystemSettings`, `BusinessConfigurations`, `ConfigurationHistory`
+1. Google Cloud Console → **APIs & Services → OAuth consent screen**: External, app name "20Mart", scopes `openid`, `email`, `profile`.
+2. **Credentials → Create credentials → OAuth client ID → Web application**.
+   - Authorised JavaScript origins: `http://localhost:3000` and your production storefront origin.
+   - Authorised redirect URIs: `http://localhost:3000/api/auth/google/callback` and `https://<your-domain>/api/auth/google/callback`.
+3. Put the client ID/secret into `apps/20mart/.env.local` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and restart the storefront.
 
+Customers are identified by Google's stable subject id (`sub`); only verified emails are accepted and accounts are never merged by email. Admins **never** use Google — they sign in with username/email + password on the admin app.
+
+---
+
+## 🗄️ Database (Prisma & PostgreSQL)
+
+- Schema: `packages/database/prisma/schema.prisma`; all money is **integer paise** (₹20 = 2000).
+- Constraints Prisma can't express (non-negative stock, price ≤ MRP, one primary image, one inventory row per product/variant) live in the migration SQL.
+- **Development:** `pnpm --filter @20mart/database db:migrate` (creates new migrations).
+- **Production:** only ever run `pnpm --filter @20mart/database db:deploy` (= `prisma migrate deploy`). Never run `migrate reset` or `db push` against a database with real data.
+- Check state with `pnpm --filter @20mart/database db:status`.
+
+## 🛡️ Security model (summary)
+- Separate customer (`20m_session`, SameSite=Lax) and admin (`20m_admin`, SameSite=Strict) sessions; only SHA-256 hashes of tokens are stored; `__Host-` + Secure cookies over HTTPS.
+- Every admin API verifies origin (CSRF), session, ACTIVE account and the required permission on the server; roles/permissions are DB-managed (`Role`, `Permission`, `RolePermission`, `AdminUserRole`).
+- Admin passwords: Argon2id; generic login errors; per-identifier/IP throttling with lockout; session rotation; 12 h absolute / 2 h idle expiry; deactivation revokes sessions immediately.
+- Uploads: magic-byte type check (JPEG/PNG/WebP/AVIF), 5 MB limit, dimension limits, random keys; DB rows are written only after storage confirms.
+- Inventory: every change is a `StockMovement` + audit log entry inside one transaction; atomic conditional updates and a DB CHECK prevent negative stock.
