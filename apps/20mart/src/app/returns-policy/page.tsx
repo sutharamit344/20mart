@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
-import { RotateCcw, ShieldCheck, CheckCircle2, HelpCircle } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 export default function ReturnsPolicyPage() {
   return (
@@ -11,59 +11,50 @@ export default function ReturnsPolicyPage() {
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
-          { label: 'Return & Refund Policy' },
+          { label: 'No Returns Policy' },
         ]}
       />
 
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#0B5D3B] text-xs font-bold border border-emerald-200/50">
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Hassle-Free Guarantee</span>
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Everyday Direct Value</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
-          Return & Refund Policy
+          No Returns Policy
         </h1>
-        <p className="text-xs text-gray-400">7-day replacement guarantee on everyday household essentials</p>
+        <p className="text-xs text-gray-400">All sales are final to ensure unbeatable direct-to-consumer prices starting at ₹20</p>
       </div>
 
       <div className="rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-xs text-xs sm:text-sm text-gray-600 space-y-6 leading-relaxed">
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">1. 7-Day Return & Replacement Policy</h2>
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">1. All Sales Are Final (No Returns)</h2>
           <p>
-            At 20Mart, your satisfaction is our foremost priority. If any kitchen peeler, organizer, cleaning brush, or household item received is damaged, defective, or incorrect, you can request a replacement or full refund within 7 days of delivery.
+            At 20Mart, we procure household and kitchen essentials directly from quality manufacturers to deliver everyday neighborhood prices starting at just ₹20. Because reverse logistics on small-ticket items would drive prices up, <strong>we do not accept product returns or exchanges once an order is delivered</strong>.
           </p>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">2. Eligibility for Returns</h2>
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">2. Damaged or Defective Items in Transit</h2>
+          <p>
+            Your satisfaction matters. If an item arrives physically damaged, broken, or defective during delivery, please notify us within <strong>48 hours of delivery</strong>:
+          </p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Product must be in its original unused condition with all tags and barcode labels intact.</li>
-            <li>Original receipt or order confirmation email/SMS must be provided.</li>
-            <li>For hygiene-sensitive products (e.g., opened personal care items), returns are accepted only in case of physical transit defects or expiry upon delivery.</li>
+            <li>Send a photo or short video showing the damaged item and packaging box.</li>
+            <li>Include your order number and registered phone number.</li>
+            <li>Our support team will verify the damage and send an immediate <strong>free replacement</strong> or issue store wallet credit.</li>
           </ul>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">3. How to Initiate a Return</h2>
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">3. Contact Support</h2>
           <p>
-            Go to <Link href="/account/orders" className="text-[#0B5D3B] font-bold underline">My Orders</Link>, select the order containing the item, and tap "Request Return / Replacement". Alternatively, reach out to our WhatsApp or email support at{' '}
-            <a href="mailto:support@20mart.in" className="text-[#FF7A00] font-bold underline">
-              support@20mart.in
-            </a>{' '}
-            with a photo of the product.
+            For assistance with transit damage or order issues, please submit a ticket through our{' '}
+            <Link href="/contact" className="text-[#FF7A00] font-bold underline">
+              Contact Support Form
+            </Link>
+            . Our team reviews all inquiries promptly.
           </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">4. Refund Processing Time</h2>
-          <p>
-            Once our delivery agent inspects and collects the return package:
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li><strong>UPI & Net Banking:</strong> 24–48 working hours.</li>
-            <li><strong>Credit & Debit Cards:</strong> 3–5 working days (subject to issuing bank cycle).</li>
-            <li><strong>Cash on Delivery (COD):</strong> Instant refund into your 20Mart Wallet or direct IMPS to your bank account.</li>
-          </ul>
         </section>
       </div>
     </div>

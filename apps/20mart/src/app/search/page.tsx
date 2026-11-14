@@ -59,16 +59,17 @@ function SearchResultsContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 pt-2.5 pb-8 sm:pt-3.5 space-y-3 sm:space-y-3.5">
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: 'Search Results' },
         ]}
+        className="mb-1.5 sm:mb-2"
       />
 
       {/* Main Search Input Container */}
-      <div className="rounded-2xl bg-white border border-gray-100 p-4 sm:p-5 shadow-xs space-y-3">
+      <div className="rounded-2xl bg-white border border-gray-100 p-3.5 sm:p-4 shadow-xs space-y-2.5">
         <div className="max-w-2xl">
           <label className="block text-xs font-bold text-gray-700 mb-1.5">
             Search for household essentials
@@ -199,7 +200,7 @@ function SearchResultsContent() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
           {filteredResults.map((product) => (
             <ProductCard
               key={product.id}

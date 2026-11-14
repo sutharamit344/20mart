@@ -74,7 +74,7 @@ export default function AboutPage() {
           </div>
           <h3 className="text-sm font-bold text-gray-900">Customer-First Approach</h3>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Fast doorstep delivery in 2–4 days, transparent order tracking, and hassle-free returns.
+            Fast doorstep delivery in 2–4 days, transparent order tracking, and unbeatable everyday direct-value prices.
           </p>
         </div>
       </div>

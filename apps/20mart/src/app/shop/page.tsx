@@ -28,6 +28,13 @@ function ShopContent() {
 
   const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
 
+  // Redirect daily-deals filter to dedicated /deals route
+  React.useEffect(() => {
+    if (initialFilter === 'daily-deals') {
+      router.replace('/deals');
+    }
+  }, [initialFilter, router]);
+
   // Filter States
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialCategory ? [initialCategory] : []
@@ -146,12 +153,12 @@ function ShopContent() {
   );
 
   const FilterSidebar = (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3">
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 mb-2">
           Category
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {mockCategories.map((cat) => (
             <div key={cat.id} className="flex items-center justify-between text-xs">
               <Checkbox
@@ -159,7 +166,7 @@ function ShopContent() {
                 checked={selectedCategories.includes(cat.slug)}
                 onChange={() => handleCategoryToggle(cat.slug)}
               />
-              <span className="text-gray-400 text-[11px] font-medium">({cat.itemCount})</span>
+              <span className="text-gray-400 text-[10px] font-medium">({cat.itemCount})</span>
             </div>
           ))}
         </div>
@@ -168,10 +175,10 @@ function ShopContent() {
       <hr className="border-gray-100" />
 
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3">
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 mb-2">
           Price Range
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {priceRanges.map((range) => (
             <div key={range.id} className="text-xs">
               <Checkbox
@@ -187,10 +194,10 @@ function ShopContent() {
       <hr className="border-gray-100" />
 
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3">
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 mb-2">
           Customer Rating
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {[4, 3].map((stars) => (
             <div key={stars} className="text-xs">
               <Checkbox
@@ -207,7 +214,7 @@ function ShopContent() {
         <button
           type="button"
           onClick={clearAllFilters}
-          className="w-full py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+          className="w-full py-1.5 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
         >
           Clear All Filters
         </button>
@@ -216,18 +223,18 @@ function ShopContent() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10">
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: initialQuery ? `Search: "${initialQuery}"` : 'Shop - All Products' },
         ]}
-        className="mb-4"
+        className="mb-2 sm:mb-2.5"
       />
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 pb-2.5 border-b border-gray-100 mb-3.5 sm:mb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-gray-900">
+          <h1 className="text-lg sm:text-xl font-black text-gray-900">
             {initialQuery ? `Search results for "${initialQuery}"` : 'All Products'}
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -264,12 +271,12 @@ function ShopContent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 lg:gap-6">
-        <div className="hidden md:block col-span-1 rounded-2xl border border-gray-100 bg-white p-4 shadow-xs h-fit sticky top-24">
-          <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 mb-3.5">
+      <div className="flex flex-col md:flex-row gap-4 lg:gap-5 items-start">
+        <aside className="hidden md:block w-48 lg:w-52 shrink-0 rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs sticky top-20">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-3">
             <div className="flex items-center gap-2">
               <SlidersHorizontal className="w-4 h-4 text-[#FF7A00]" />
-              <h3 className="text-xs sm:text-sm font-bold text-gray-900">Filters</h3>
+              <h3 className="text-xs font-bold text-gray-900">Filters</h3>
             </div>
             {(selectedCategories.length > 0 || selectedPriceRanges.length > 0) && (
               <button
@@ -282,9 +289,9 @@ function ShopContent() {
             )}
           </div>
           {FilterSidebar}
-        </div>
+        </aside>
 
-        <div className="col-span-1 md:col-span-3 space-y-5">
+        <div className="flex-1 min-w-0 space-y-4">
           {paginatedProducts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
               <SearchIcon className="w-8 h-8 text-gray-300 mx-auto mb-2.5" />
@@ -297,7 +304,7 @@ function ShopContent() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 min-[960px]:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-2.5">
               {paginatedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -315,7 +322,7 @@ function ShopContent() {
           )}
 
           {totalPages > 1 && (
-            <div className="pt-6">
+            <div className="pt-4">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

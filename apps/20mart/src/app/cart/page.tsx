@@ -72,17 +72,18 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 space-y-3.5 sm:space-y-4">
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: `Your Cart (${cartCount} items)` },
         ]}
+        className="mb-1.5 sm:mb-2"
       />
 
-      <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+      <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-gray-900">
+          <h1 className="text-lg sm:text-xl font-black text-gray-900">
             Your Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})
           </h1>
           <p className="text-xs text-gray-500">Review your selected items before checkout</p>

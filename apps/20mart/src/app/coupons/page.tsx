@@ -20,16 +20,17 @@ export default function CouponsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 space-y-3.5 sm:space-y-4">
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: 'Coupons & Rewards' },
         ]}
+        className="mb-1.5 sm:mb-2"
       />
 
       {/* Header Banner (Screen 14 & Mobile Screen 10) */}
-      <div className="rounded-3xl bg-gradient-to-r from-amber-500 to-orange-500 p-6 sm:p-8 text-white shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 sm:p-6 text-white shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-center sm:text-left">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xs">
             <Gift className="w-8 h-8 text-white" />

@@ -64,11 +64,11 @@ export default function PrivacyPolicyPage() {
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900">4. Contact Our Data Protection Team</h2>
           <p>
-            For inquiries regarding privacy, data deletion, or updating your information, email us at{' '}
-            <a href="mailto:privacy@20mart.in" className="text-[#FF7A00] font-bold underline">
-              privacy@20mart.in
-            </a>{' '}
-            or visit our <Link href="/contact" className="text-[#0B5D3B] font-bold underline">Contact Page</Link>.
+            For inquiries regarding privacy, data deletion, or updating your information, please visit our{' '}
+            <Link href="/contact" className="text-[#0B5D3B] font-bold underline">
+              Contact Page
+            </Link>
+            .
           </p>
         </section>
       </div>

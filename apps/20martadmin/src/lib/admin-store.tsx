@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Product,
   Order,
@@ -8,12 +8,14 @@ import {
   SurveyQuestion,
   AdminUser,
   AuditLogEntry,
+  ContactInquiry,
   mockProducts,
   mockOrders,
   mockCoupons,
   mockSurveyQuestions,
   mockAdminUsers,
   mockAuditLogs,
+  mockContactInquiries,
   BusinessConfigurations,
   defaultBusinessConfigurations,
 } from '@20mart/shared';
@@ -22,6 +24,12 @@ interface AdminContextType {
   // Current admin
   currentUser: AdminUser;
   setCurrentUserRole: (role: AdminUser['role']) => void;
+
+  // Inquiries / Customer Messages
+  inquiries: ContactInquiry[];
+  updateInquiryStatus: (id: string, status: ContactInquiry['status'], notes?: string) => void;
+  addInquiry: (inquiry: Omit<ContactInquiry, 'id' | 'ticketNumber' | 'createdAt'>) => void;
+  deleteInquiry: (id: string) => void;
 
   // Products
   products: Product[];
@@ -82,7 +90,92 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
   ]);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(mockAuditLogs);
+  const [inquiries, setInquiries] = useState<ContactInquiry[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('20mart_admin_inquiries');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        // fallback to mock
+      }
+    }
+    return mockContactInquiries;
+  });
   const [toast, setToast] = useState<string | null>(null);
+
+  // Sync inquiries to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('20mart_admin_inquiries', JSON.stringify(inquiries));
+      } catch (e) {
+        // ignore storage quota error
+      }
+    }
+  }, [inquiries]);
+
+  // Try fetching any newly submitted inquiries from API
+  useEffect(() => {
+    const fetchInquiries = async () => {
+      try {
+        const res = await fetch('/api/inquiries');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setInquiries((prev) => {
+              const existingIds = new Set(prev.map((i) => i.id));
+              const newItems = data.filter((d: ContactInquiry) => !existingIds.has(d.id));
+              if (newItems.length > 0) {
+                return [...newItems, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (err) {
+        // fallback
+      }
+    };
+    fetchInquiries();
+  }, []);
+
+  const updateInquiryStatus = (id: string, status: ContactInquiry['status'], notes?: string) => {
+    setInquiries((prev) =>
+      prev.map((inq) =>
+        inq.id === id
+          ? {
+              ...inq,
+              status,
+              adminNotes: notes !== undefined ? notes : inq.adminNotes,
+            }
+          : inq
+      )
+    );
+    addAuditLog(
+      `Updated Inquiry #${id}`,
+      'USER_MANAGEMENT',
+      `Status changed to ${status}${notes ? `. Notes: ${notes}` : ''}`
+    );
+    showToast(`Inquiry status updated to ${status}`);
+  };
+
+  const addInquiry = (inquiryData: Omit<ContactInquiry, 'id' | 'ticketNumber' | 'createdAt'>) => {
+    const newInquiry: ContactInquiry = {
+      ...inquiryData,
+      id: `inq-${Date.now()}`,
+      ticketNumber: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
+      createdAt: 'Just now',
+    };
+    setInquiries((prev) => [newInquiry, ...prev]);
+    addAuditLog('Created Customer Inquiry', 'USER_MANAGEMENT', `Inquiry for ${inquiryData.name} (${inquiryData.subject})`);
+    showToast('Customer inquiry created successfully!');
+  };
+
+  const deleteInquiry = (id: string) => {
+    setInquiries((prev) => prev.filter((i) => i.id !== id));
+    addAuditLog('Deleted Customer Inquiry', 'USER_MANAGEMENT', `Deleted inquiry ${id}`);
+    showToast('Inquiry removed');
+  };
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -223,6 +316,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       value={{
         currentUser,
         setCurrentUserRole,
+        inquiries,
+        updateInquiryStatus,
+        addInquiry,
+        deleteInquiry,
         products,
         addProduct,
         updateProduct,

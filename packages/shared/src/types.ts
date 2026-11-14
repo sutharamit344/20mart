@@ -158,3 +158,18 @@ export type AuditLogEntry = {
   details: string;
 };
 
+export type ContactInquiry = {
+  id: string;
+  ticketNumber: string; // e.g. "INQ-2849"
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  createdAt: string;
+  status: 'NEW' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  adminNotes?: string;
+};
+
+

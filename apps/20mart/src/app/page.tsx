@@ -201,8 +201,8 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {trendingProducts.slice(0, 8).map((product) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
+          {trendingProducts.slice(0, 10).map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -234,15 +234,15 @@ export default function HomePage() {
               <h2 className="text-lg sm:text-2xl font-black tracking-tight">Under ₹50 Everyday Essentials</h2>
             </div>
             <Link
-              href="/shop?maxPrice=50"
+              href="/deals"
               className="px-4 py-2 rounded-full bg-white text-[#FF7A00] text-xs sm:text-sm font-black hover:bg-orange-50 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
-              View All ₹50 Deals →
+              View All Daily Deals →
             </Link>
           </div>
 
-          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {dailyDeals.slice(0, 4).map((product) => (
+          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
+            {dailyDeals.slice(0, 5).map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -278,19 +278,28 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
-            {/* Coupon preview card */}
-            <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-white/10 px-5 py-3 text-center backdrop-blur-md shadow-inner">
-              <span className="text-[10px] uppercase font-black text-amber-200 tracking-wider">Bonus Voucher</span>
-              <div className="text-2xl font-black text-white">₹50 OFF</div>
-              <span className="text-[10px] text-emerald-200 font-medium">Min. order ₹99</span>
+          {/* Unified Bonus Voucher Ticket */}
+          <div className="relative z-10 flex flex-col sm:flex-row items-center bg-white/10 backdrop-blur-md rounded-2xl border-2 border-dashed border-amber-300/90 p-3 sm:p-3.5 shadow-inner gap-3 sm:gap-4 shrink-0">
+            {/* Voucher Value */}
+            <div className="text-center sm:text-left sm:pr-4 sm:border-r sm:border-dashed sm:border-amber-300/60">
+              <span className="text-[10px] uppercase font-black text-amber-200 tracking-wider block leading-none mb-1">
+                Bonus Voucher
+              </span>
+              <div className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                ₹50 OFF
+              </div>
+              <span className="text-[10px] text-emerald-200 font-medium block leading-none mt-1">
+                Min. order ₹99
+              </span>
             </div>
 
+            {/* CTA Button */}
             <button
               onClick={() => router.push('/survey')}
-              className="rounded-full font-black px-6 py-3 text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 whitespace-nowrap hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="w-full sm:w-auto h-11 px-6 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 whitespace-nowrap hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              Join Early Access →
+              <span>Join Early Access</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

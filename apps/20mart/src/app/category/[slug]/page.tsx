@@ -33,7 +33,7 @@ export default function CategoryDetailPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 space-y-3.5 sm:space-y-4">
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
@@ -41,27 +41,28 @@ export default function CategoryDetailPage() {
           { label: 'Categories', href: '/shop' },
           { label: category.name },
         ]}
+        className="mb-1.5 sm:mb-2"
       />
 
-      {/* Category Hero Banner (Screen 03) */}
+      {/* Category Hero Banner - Compact & Minimal */}
       <div
-        className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xs border border-gray-100"
+        className="relative overflow-hidden rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs border border-gray-100"
         style={{
           background: `linear-gradient(135deg, ${category.color} 0%, #FFFFFF 100%)`,
         }}
       >
-        <div className="space-y-1.5 text-center sm:text-left z-10">
+        <div className="space-y-1 text-center sm:text-left z-10">
           <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/80 text-xs font-bold text-gray-700 backdrop-blur-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#FF7A00]" />
             <span>Curated Collection</span>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{category.name}</h1>
-          <p className="text-xs sm:text-sm text-gray-600 max-w-md">
+          <h1 className="text-lg sm:text-xl font-bold text-gray-900">{category.name}</h1>
+          <p className="text-xs text-gray-600 max-w-md">
             Everyday {category.name.toLowerCase()} essentials at great value, backed by 20Mart quality.
           </p>
         </div>
 
-        <div className="relative h-24 sm:h-32 w-24 sm:w-32 shrink-0 rounded-2xl overflow-hidden bg-white/70 p-2 shadow-xs border border-white flex items-center justify-center">
+        <div className="relative h-20 sm:h-24 w-20 sm:w-24 shrink-0 rounded-xl overflow-hidden bg-white/70 p-1.5 shadow-xs border border-white flex items-center justify-center">
           <img
             src={category.image}
             alt={category.name}
@@ -124,7 +125,7 @@ export default function CategoryDetailPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
           {categoryProducts.map((product) => (
             <ProductCard
               key={product.id}

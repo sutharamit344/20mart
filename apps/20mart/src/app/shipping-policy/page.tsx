@@ -18,7 +18,7 @@ export default function ShippingPolicyPage() {
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#0B5D3B] text-xs font-bold border border-emerald-200/50">
           <Truck className="w-3.5 h-3.5" />
-          <span>Everyday Fast Delivery</span>
+          <span>Everyday Home Delivery</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
           Shipping & Delivery Policy
@@ -29,9 +29,9 @@ export default function ShippingPolicyPage() {
       {/* Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs space-y-1">
-          <span className="text-2xl">⚡</span>
+          <span className="text-2xl">📦</span>
           <h3 className="text-xs font-bold text-gray-900">2–4 Days Standard</h3>
-          <p className="text-[11px] text-gray-500">Fast delivery across all serviceable pincodes</p>
+          <p className="text-[11px] text-gray-500">Home delivery across all serviceable pincodes</p>
         </div>
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xs space-y-1">
           <span className="text-2xl">🎉</span>

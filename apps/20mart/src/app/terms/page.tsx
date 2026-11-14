@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Breadcrumb } from '@20mart/ui';
 
@@ -78,11 +79,11 @@ function TermsContent() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-sm font-bold text-gray-900">4. Delivery and Returns</h2>
+              <h2 className="text-sm font-bold text-gray-900">4. Delivery and Transit Replacements (No Returns)</h2>
               <p>
-                Delivery times are estimates and may vary due to transit factors. If a product arrives
-                damaged or defective, notify us within 7 days of receipt for an immediate free
-                replacement or refund.
+                Delivery times are estimates and may vary due to transit factors. All orders are final sale
+                and non-returnable. If a product arrives physically damaged or defective in transit, notify us
+                within 48 hours of receipt with proof for an immediate free replacement.
               </p>
             </section>
           </>
@@ -111,8 +112,11 @@ function TermsContent() {
             <section className="space-y-2">
               <h2 className="text-sm font-bold text-gray-900">3. Contacting Us About Your Data</h2>
               <p>
-                For questions regarding your saved profile data or addresses, please email us at
-                privacy@20mart.in.
+                For questions regarding your saved profile data or addresses, please submit an inquiry via our{' '}
+                <Link href="/contact" className="text-[#FF7A00] font-bold underline">
+                  Contact Support Page
+                </Link>
+                .
               </p>
             </section>
           </>

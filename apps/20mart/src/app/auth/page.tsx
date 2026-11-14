@@ -53,7 +53,7 @@ export default function AuthPage() {
           </h2>
           <p className="text-xs text-gray-500">
             {isRegister
-              ? 'Join 20Mart to unlock exclusive welcome coupons & fast delivery'
+              ? 'Join 20Mart to unlock exclusive welcome coupons & doorstep delivery'
               : 'Enter your 10-digit mobile number to login'}
           </p>
         </div>

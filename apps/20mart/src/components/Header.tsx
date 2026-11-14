@@ -221,7 +221,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white shadow-xs border-b border-gray-100">
+      <header className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-gray-100 transition-shadow">
         {/* Green Top Announcement Bar (Screen 01 Desktop Reference) */}
         <div className="hidden md:block bg-[#0B5D3B] text-white py-1 text-[11px] leading-tight">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -267,7 +267,7 @@ export const Header: React.FC = () => {
               </Link>
               <span className="text-emerald-600">|</span>
               <Link href="/contact" className="hover:text-white transition-colors">
-                Help: +91 98765 43210
+                Help & Support
               </Link>
             </div>
           </div>
@@ -299,23 +299,23 @@ export const Header: React.FC = () => {
 
               {/* Desktop Nav Links (placed between Logo and Search Bar) */}
               <nav className="hidden md:flex items-center gap-3.5 lg:gap-5 text-xs font-bold text-gray-700 shrink-0">
-                <Link href="/" className="hover:text-[#FF7A00] transition-colors py-1">
-                  Home
-                </Link>
-                <Link href="/shop" className="hover:text-[#FF7A00] transition-colors py-1">
+                <Link
+                  href="/shop"
+                  className="hover:text-[#FF7A00] transition-colors py-1"
+                >
                   Shop
+                </Link>
+                <Link
+                  href="/deals"
+                  className="hover:text-[#FF7A00] transition-colors py-1 whitespace-nowrap"
+                >
+                  Daily Deals
                 </Link>
                 <Link
                   href="/coupons"
                   className="hover:text-[#FF7A00] transition-colors py-1"
                 >
                   Offers
-                </Link>
-                <Link
-                  href="/shop?filter=daily-deals"
-                  className="hover:text-[#FF7A00] transition-colors py-1 whitespace-nowrap"
-                >
-                  Daily Deals
                 </Link>
               </nav>
 
@@ -505,7 +505,15 @@ export const Header: React.FC = () => {
                 onClick={() => setMobileDrawerOpen(false)}
                 className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
               >
-                All Products
+                Shop (All Products)
+              </Link>
+              <Link
+                href="/deals"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00] flex items-center justify-between"
+              >
+                <span>Daily Deals</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-[#FF7A00]">HOT</span>
               </Link>
               <Link
                 href="/category"

@@ -6,11 +6,7 @@ import { Logo } from '@20mart/ui';
 import {
   ShieldCheck,
   Truck,
-  RotateCcw,
   Headphones,
-  MapPin,
-  Mail,
-  Phone,
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -34,18 +30,18 @@ export const Footer: React.FC = () => {
               <Truck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900">Fast Delivery</h4>
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900">Home Delivery</h4>
               <p className="text-[10px] sm:text-[11px] text-gray-500">Direct to your doorstep</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gray-900">Easy Returns</h4>
-              <p className="text-[10px] sm:text-[11px] text-gray-500">Hassle-free guarantee</p>
+              <h4 className="text-xs sm:text-sm font-bold text-gray-900">100% Genuine</h4>
+              <p className="text-[10px] sm:text-[11px] text-gray-500">Quality assured essentials</p>
             </div>
           </div>
 
@@ -71,20 +67,6 @@ export const Footer: React.FC = () => {
               20Mart is your everyday value market, curating high-utility, reliable household essentials,
               kitchenware, organizers, and stationery at unbeatable neighborhood prices.
             </p>
-            <div className="space-y-1.5 text-xs text-gray-600 pt-1">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#FF7A00] shrink-0" />
-                <span>Chanakyapuri, Ahmedabad, Gujarat 380061</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#FF7A00] shrink-0" />
-                <span>+91 98765 43210</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#FF7A00] shrink-0" />
-                <span>support@20mart.in</span>
-              </div>
-            </div>
           </div>
 
           {/* Quick Categories */}
@@ -185,11 +167,7 @@ export const Footer: React.FC = () => {
                   Shipping & Delivery
                 </Link>
               </li>
-              <li>
-                <Link href="/returns-policy" className="hover:text-[#FF7A00] transition-colors">
-                  Returns & Refunds
-                </Link>
-              </li>
+
               <li>
                 <Link href="/terms" className="hover:text-[#FF7A00] transition-colors">
                   Terms & Conditions
@@ -199,16 +177,6 @@ export const Footer: React.FC = () => {
                 <Link href="/privacy" className="hover:text-[#FF7A00] transition-colors">
                   Privacy Policy
                 </Link>
-              </li>
-              <li>
-                <a
-                  href="http://localhost:3001"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-[#0B5D3B] hover:underline"
-                >
-                  20MartAdmin Portal ↗
-                </a>
               </li>
             </ul>
           </div>

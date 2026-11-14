@@ -29,8 +29,8 @@ export default function FaqsPage() {
       a: 'Yes! Navigate to "My Orders" from your account menu. Tap on any active order to view its real-time 4-step progress: Order Placed, Processing, Out for Delivery, and Delivered.',
     },
     {
-      q: 'What is your return & replacement policy?',
-      a: 'We offer a 7-day hassle-free replacement guarantee on damaged, defective, or incorrect items. Simply contact our support team at support@20mart.in with your order number.',
+      q: 'Can I return an item?',
+      a: 'To maintain our everyday rock-bottom value pricing (starting from ₹20), all sales are final and non-returnable. However, if any product arrives damaged or defective in transit, reach out via our Contact Support ticketing page and we will promptly send a free replacement!',
     },
   ];
 

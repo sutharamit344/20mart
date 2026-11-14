@@ -82,8 +82,8 @@ export const defaultBusinessConfigurations: BusinessConfigurations = {
   general: {
     storeName: '20Mart',
     tagline: 'Your Everyday Value Market',
-    supportEmail: 'support@20mart.in',
-    supportPhone: '+91 98765 43210',
+    supportEmail: '',
+    supportPhone: '',
     operatingCity: 'Ahmedabad',
     currencySymbol: '₹',
     maintenanceMode: false,

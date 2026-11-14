@@ -34,16 +34,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between rounded-2xl border border-gray-200/90 bg-white transition-all duration-300 hover:border-orange-300 hover:shadow-[0_8px_24px_-6px_rgba(255,122,0,0.14),0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none',
-        compact ? 'p-2 sm:p-2.5' : 'p-2.5 sm:p-3',
+        'group relative flex flex-col justify-between rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white transition-all duration-300 hover:border-orange-300 hover:shadow-[0_6px_20px_-4px_rgba(255,122,0,0.14),0_2px_6px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none',
+        compact ? 'p-1.5 sm:p-2' : 'p-2 sm:p-2.5',
         className
       )}
     >
       {/* Top Image Container with Badges */}
-      <div className="relative mb-2 w-full overflow-hidden rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">
+      <div className="relative mb-1.5 w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">
         {/* Discount Badge */}
         {product.discountPercent > 0 && (
-          <div className="absolute left-2 top-2 z-10 rounded-md bg-[#FFF6E9] border border-orange-200/80 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-black text-[#FF7A00] shadow-2xs">
+          <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-[#FFF6E9] border border-orange-200/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-[#FF7A00] shadow-2xs">
             -{product.discountPercent}%
           </div>
         )}
@@ -57,17 +57,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onToggleWishlist?.(product);
           }}
           className={cn(
-            'absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 backdrop-blur-xs border border-gray-100 shadow-xs transition-all hover:scale-110 active:scale-95 cursor-pointer',
+            'absolute right-1.5 top-1.5 z-10 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/95 backdrop-blur-xs border border-gray-100 shadow-xs transition-all hover:scale-110 active:scale-95 cursor-pointer',
             isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
           )}
         >
-          <Heart className={cn('h-3.5 w-3.5', isWishlisted && 'fill-current')} />
+          <Heart className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', isWishlisted && 'fill-current')} />
         </button>
 
         {/* Standardized Product Image with Hover Zoom */}
         <div
           onClick={() => onClick?.(product)}
-          className="h-full w-full cursor-pointer flex items-center justify-center"
+          className="h-full w-full cursor-pointer flex items-center justify-center p-1 sm:p-1.5"
         >
           <ProductImage
             src={product.images[0]}
@@ -83,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="flex flex-1 flex-col justify-between">
         <div onClick={() => onClick?.(product)} className="cursor-pointer">
           {/* Subtitle / Brand / Category */}
-          <p className="text-[10px] sm:text-[11px] font-semibold text-gray-400 uppercase tracking-wider truncate">
+          <p className="text-[9px] sm:text-[10px] font-semibold text-gray-400 uppercase tracking-wider truncate">
             {product.subcategory || product.category}
           </p>
 
@@ -91,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <h3
             className={cn(
               'font-semibold text-gray-800 line-clamp-2 group-hover:text-[#0B5D3B] transition-colors leading-snug',
-              compact ? 'text-xs mt-0.5 h-8' : 'text-xs sm:text-[13px] mt-1 h-8 sm:h-9'
+              compact ? 'text-[11px] sm:text-xs mt-0.5 h-7 sm:h-8' : 'text-xs sm:text-[13px] mt-0.5 h-7.5 sm:h-8.5'
             )}
             title={product.name}
           >
@@ -100,21 +100,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Ratings */}
           {product.rating && (
-            <div className="mt-1 flex items-center gap-1">
+            <div className="mt-0.5 flex items-center gap-1">
               <div className="flex items-center text-amber-500">
-                <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-current" />
+                <Star className="h-3 w-3 fill-current" />
               </div>
-              <span className="text-[10px] sm:text-[11px] font-bold text-gray-700">{product.rating}</span>
-              <span className="text-[9px] sm:text-[10px] text-gray-400">({product.reviewCount})</span>
+              <span className="text-[10px] font-bold text-gray-700">{product.rating}</span>
+              <span className="text-[9px] text-gray-400">({product.reviewCount})</span>
             </div>
           )}
         </div>
 
         {/* Pricing & Add to Cart / Counter Button */}
-        <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between gap-1.5 sm:gap-2">
+        <div className="mt-2 pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1 sm:gap-2">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
-              <span className="text-sm sm:text-base font-black text-gray-900">₹{product.price}</span>
+              <span className="text-xs sm:text-sm md:text-base font-black text-gray-900">₹{product.price}</span>
               {product.originalPrice > product.price && (
                 <span className="text-[10px] sm:text-xs text-gray-400 line-through">₹{product.originalPrice}</span>
               )}
@@ -126,7 +126,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div
               className={cn(
                 'flex items-center justify-between font-bold text-white bg-gradient-to-r from-[#FF7A00] to-[#FF6200] rounded-lg sm:rounded-xl shadow-xs shrink-0 select-none overflow-hidden border border-orange-500/20',
-                compact ? 'h-7 min-w-[76px]' : 'h-8 min-w-[84px]'
+                compact ? 'h-6.5 min-w-[68px]' : 'h-7 sm:h-7.5 min-w-[74px] sm:min-w-[80px]'
               )}
               onClick={(e) => e.stopPropagation()}
             >
@@ -137,11 +137,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   e.stopPropagation();
                   onDecrement?.(product);
                 }}
-                className="h-full px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
+                className="h-full px-1.5 sm:px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
               >
-                <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5 stroke-[2.5]" />
+                <Minus className="h-3 w-3 stroke-[2.5]" />
               </button>
-              <span className="px-1 text-center font-black text-white text-xs sm:text-[13px] leading-none min-w-[16px]">
+              <span className="px-1 text-center font-black text-white text-[11px] sm:text-xs leading-none min-w-[14px]">
                 {quantity}
               </span>
               <button
@@ -151,9 +151,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   e.stopPropagation();
                   onIncrement?.(product);
                 }}
-                className="h-full px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
+                className="h-full px-1.5 sm:px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
               >
-                <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5 stroke-[2.5]" />
+                <Plus className="h-3 w-3 stroke-[2.5]" />
               </button>
             </div>
           ) : (
@@ -167,7 +167,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               }}
               className={cn(
                 'flex items-center justify-center font-bold text-white transition-all bg-[#FF7A00] hover:bg-[#E66E00] active:scale-95 shadow-xs hover:shadow-sm rounded-lg sm:rounded-xl shrink-0 cursor-pointer select-none leading-none',
-                compact ? 'h-7 px-2.5 text-[11px] gap-0.5 min-w-[62px]' : 'h-8 px-3.5 text-xs gap-1 min-w-[72px]'
+                compact ? 'h-6.5 px-2 text-[10px] sm:text-[11px] gap-0.5 min-w-[56px]' : 'h-7 sm:h-7.5 px-2.5 sm:px-3 text-xs gap-1 min-w-[64px] sm:min-w-[70px]'
               )}
             >
               <Plus className="h-3.5 w-3.5 stroke-[2.5]" />

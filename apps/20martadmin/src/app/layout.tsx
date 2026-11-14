@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased flex overflow-x-hidden">
+      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased flex overflow-x-clip">
         <AdminProvider>
           <AdminSidebar />
           <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">

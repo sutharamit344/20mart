@@ -36,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-hidden">
+      <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-clip">
         <StoreProvider>
           <Header />
           <main className="flex-1">{children}</main>

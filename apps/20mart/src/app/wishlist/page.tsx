@@ -82,12 +82,13 @@ export default function WishlistPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 space-y-3 sm:space-y-3.5">
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
           { label: `My Wishlist (${wishlistedProducts.length})` },
         ]}
+        className="mb-1.5 sm:mb-2"
       />
 
       {/* Header Row */}
@@ -205,13 +206,13 @@ export default function WishlistPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
             {wishlistedProducts.map((product) => {
               const isSelected = validSelectedIds.includes(product.id);
               return (
                 <div
                   key={product.id}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-gray-200/90 bg-white p-2.5 sm:p-3 transition-all duration-300 hover:border-orange-300 hover:shadow-[0_8px_24px_-6px_rgba(255,122,0,0.14),0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none"
+                  className="group relative flex flex-col justify-between rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white p-2 sm:p-2.5 transition-all duration-300 hover:border-orange-300 hover:shadow-[0_6px_20px_-4px_rgba(255,122,0,0.14),0_2px_6px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none"
                 >
                   {/* Top Badges & Controls */}
                   <div className="relative mb-2 w-full overflow-hidden rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">

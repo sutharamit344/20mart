@@ -18,7 +18,6 @@ import {
   Star,
   ShieldCheck,
   Truck,
-  RotateCcw,
   Heart,
   Share2,
   Check,
@@ -62,10 +61,10 @@ export default function ProductDetailPage() {
 
   const relatedProducts = mockProducts
     .filter((p) => p.id !== product.id && p.categorySlug === product.categorySlug)
-    .slice(0, 4);
+    .slice(0, 5);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2 pb-8 sm:pt-2.5 sm:pb-10">
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
@@ -73,21 +72,24 @@ export default function ProductDetailPage() {
           { label: product.category, href: `/category/${product.categorySlug}` },
           { label: product.name },
         ]}
+        className="mb-2 sm:mb-2.5"
       />
 
       {/* Main Product Section (Screen 04) */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 bg-white rounded-3xl border border-gray-100 p-4 sm:p-8 shadow-xs">
+      <div className="mt-1.5 sm:mt-2 grid grid-cols-1 md:grid-cols-12 gap-5 lg:gap-8 bg-white rounded-2xl border border-gray-100 p-3.5 sm:p-5 lg:p-6 shadow-xs">
         {/* Gallery Column */}
-        <div className="md:col-span-6 lg:col-span-5">
-          <ProductGallery
-            images={product.images}
-            productName={product.name}
-          />
+        <div className="md:col-span-5 lg:col-span-5 flex justify-center">
+          <div className="w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[400px]">
+            <ProductGallery
+              images={product.images}
+              productName={product.name}
+            />
+          </div>
         </div>
 
         {/* Product Details Column */}
-        <div className="md:col-span-6 lg:col-span-7 flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
+        <div className="md:col-span-7 lg:col-span-7 flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
             {/* Category & SKU */}
             <div className="flex items-center justify-between text-xs text-gray-400">
               <span className="font-semibold text-[#0B5D3B] uppercase tracking-wider">
@@ -97,12 +99,12 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Title */}
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 leading-snug">
               {product.name}
             </h1>
 
             {/* Rating & In-stock row */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-900 text-xs font-bold">
                 <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>{product.rating}</span>
@@ -124,16 +126,16 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Pricing */}
-            <div className="flex items-baseline gap-2.5 pt-1">
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <div className="flex items-baseline gap-2 pt-0.5">
+              <span className="text-xl sm:text-2xl font-black text-gray-900">
                 ₹{product.price}
               </span>
               {product.originalPrice > product.price && (
                 <>
-                  <span className="text-base text-gray-400 line-through">
+                  <span className="text-sm text-gray-400 line-through">
                     ₹{product.originalPrice}
                   </span>
-                  <span className="rounded-md bg-[#FFF6E9] border border-orange-100 px-2 py-0.5 text-xs font-bold text-[#FF7A00]">
+                  <span className="rounded-md bg-[#FFF6E9] border border-orange-100 px-1.5 py-0.5 text-xs font-bold text-[#FF7A00]">
                     Save {product.discountPercent}%
                   </span>
                 </>
@@ -145,11 +147,11 @@ export default function ProductDetailPage() {
 
             {/* Highlights */}
             {product.features && product.features.length > 0 && (
-              <div className="space-y-2 pt-1">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+              <div className="space-y-1.5 pt-0.5">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-900">
                   Key Features
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {product.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs text-gray-700">
                       <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-[#0B5D3B]">
@@ -164,8 +166,8 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Quantity Selector and CTA Actions */}
-          <div className="space-y-3 pt-4 border-t border-gray-100">
-            <div ref={mainActionsRef} className="flex flex-wrap items-center gap-3">
+          <div className="space-y-2.5 pt-3 border-t border-gray-100">
+            <div ref={mainActionsRef} className="flex flex-wrap items-center gap-2.5">
               {/* Stepper */}
               <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 p-0.5">
                 <button
@@ -176,7 +178,7 @@ export default function ProductDetailPage() {
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="w-10 text-center text-xs font-bold text-gray-900">
+                <span className="w-9 text-center text-xs font-bold text-gray-900">
                   {quantity}
                 </span>
                 <button
@@ -211,19 +213,19 @@ export default function ProductDetailPage() {
               </button>
             </div>
 
-            {/* Value Guarantees row (Screen 04 reference) */}
-            <div className="grid grid-cols-3 gap-2 pt-2">
-              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center sm:text-left">
+            {/* Value Guarantees row */}
+            <div className="grid grid-cols-3 gap-2 pt-1">
+              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center sm:text-left">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#0B5D3B] shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-emerald-950">Great Quality</span>
+                <span className="text-[10px] font-bold text-emerald-950">Great Quality</span>
               </div>
-              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 text-center sm:text-left">
+              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-amber-50/70 border border-amber-100 text-center sm:text-left">
                 <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-amber-950">Value for Money</span>
+                <span className="text-[10px] font-bold text-amber-950">Value for Money</span>
               </div>
-              <div className="flex items-center gap-1.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 text-center sm:text-left">
-                <RotateCcw className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] font-bold text-blue-950">Easy Returns</span>
+              <div className="flex items-center gap-1.5 p-2 rounded-xl bg-blue-50/70 border border-blue-100 text-center sm:text-left">
+                <Truck className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                <span className="text-[10px] font-bold text-blue-950">Home Delivery</span>
               </div>
             </div>
           </div>
@@ -270,9 +272,9 @@ export default function ProductDetailPage() {
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Similar Everyday Essentials</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+        <section className="mt-6 sm:mt-8 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900">Similar Everyday Essentials</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
             {relatedProducts.map((p) => (
               <ProductCard
                 key={p.id}

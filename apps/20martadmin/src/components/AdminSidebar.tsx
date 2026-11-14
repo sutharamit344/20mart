@@ -18,11 +18,13 @@ import {
   ShieldCheck,
   FileText,
   ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { currentUser, setCurrentUserRole } = useAdmin();
+  const { currentUser, setCurrentUserRole, inquiries } = useAdmin();
+  const newInquiriesCount = inquiries ? inquiries.filter((i) => i.status === 'NEW').length : 0;
 
   const navSections = [
     {
@@ -37,6 +39,7 @@ export const AdminSidebar: React.FC = () => {
         { label: 'Products', href: '/products', icon: Package },
         { label: 'Inventory', href: '/inventory', icon: Boxes },
         { label: 'Orders', href: '/orders', icon: ShoppingBag },
+        { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, badge: newInquiriesCount },
         { label: 'Customers', href: '/customers', icon: Users },
       ],
     },
@@ -97,7 +100,12 @@ export const AdminSidebar: React.FC = () => {
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
+                      <span className="truncate">{item.label}</span>
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-400 text-gray-950 text-[10px] font-black leading-none shrink-0 shadow-xs">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
