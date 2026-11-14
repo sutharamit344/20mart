@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccountLayout } from '../../../components/AccountLayout';
 import { useStore } from '../../../lib/store';
 import { Button, Input } from '@20mart/ui';
@@ -9,9 +9,17 @@ import { CheckCircle2, ShieldCheck } from 'lucide-react';
 export default function EditProfilePage() {
   const { user, showToast } = useStore();
 
-  const [name, setName] = useState(user?.name || 'Amit Kumar');
-  const [phone, setPhone] = useState(user?.phone || '+91 98765 43210');
-  const [email, setEmail] = useState(user?.email || 'amit@example.com');
+  const [name, setName] = useState(user?.name ?? '');
+  const [phone] = useState('');
+  const [email, setEmail] = useState(user?.email ?? '');
+
+  // The session user loads asynchronously; sync the form once it arrives.
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? '');
+      setEmail(user.email ?? '');
+    }
+  }, [user]);
   const [language, setLanguage] = useState('English');
   const [city, setCity] = useState('Ahmedabad');
   const [isSaving, setIsSaving] = useState(false);
@@ -45,23 +53,19 @@ export default function EditProfilePage() {
             <input
               type="text"
               value={phone}
+              placeholder="Not added yet"
               disabled
               className="w-full h-9.5 rounded-xl border border-gray-200 bg-gray-50 px-3 text-xs sm:text-sm text-gray-700 font-semibold"
             />
-            <span className="absolute right-3 flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Verified</span>
-            </span>
           </div>
         </div>
 
-        <Input
-          label="Email Address"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <div>
+          <Input label="Email Address" type="email" value={email} readOnly disabled />
+          <p className="mt-1 flex items-center gap-1 text-[11px] text-emerald-700">
+            <CheckCircle2 className="w-3 h-3" /> Verified by Google — managed in your Google account
+          </p>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>

@@ -22,9 +22,21 @@ import {
   TrendingUp,
   Tag,
 } from 'lucide-react';
-import { mockCategories, mockProducts } from '@20mart/shared';
+import { formatPaise } from '@20mart/shared';
 
-export const Header: React.FC = () => {
+export interface HeaderCategory {
+  name: string;
+  slug: string;
+}
+
+interface Suggestion {
+  slug: string;
+  name: string;
+  sellingPricePaise: number;
+  imageUrl: string | null;
+}
+
+export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories }) => {
   const router = useRouter();
   const pathname = usePathname();
   const {
@@ -46,26 +58,29 @@ export const Header: React.FC = () => {
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
 
-  const popularSearches = [
-    'Kitchen Peeler',
-    'Storage Basket',
-    'Bag Clips',
-    'Cleaning Brush',
-    'Storage Container',
-    'Spatula Set',
-  ];
+  const popularSearches = ['Kitchen tools', 'Storage', 'Notebook', 'Cleaning', 'Bottle', 'Hooks'];
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase().trim();
-    return mockProducts
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.subcategory?.toLowerCase().includes(q)
-      )
-      .slice(0, 4);
+  // Debounced live suggestions from the real catalog.
+  const [searchResults, setSearchResults] = useState<Suggestion[]>([]);
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/catalog/search?q=${encodeURIComponent(q)}&limit=5`, { signal: ctrl.signal });
+        if (res.ok) setSearchResults(((await res.json()) as { items: Suggestion[] }).items);
+      } catch {
+        /* aborted or offline */
+      }
+    }, 250);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
   }, [searchQuery]);
 
   const executeSearch = (query: string) => {
@@ -114,7 +129,7 @@ export const Header: React.FC = () => {
             <div className="space-y-1">
               {searchResults.map((prod) => (
                 <div
-                  key={prod.id}
+                  key={prod.slug}
                   onClick={() => {
                     setSearchQuery('');
                     setIsSearchOpen(false);
@@ -125,25 +140,26 @@ export const Header: React.FC = () => {
                   className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FFF6E9]/60 cursor-pointer transition-colors group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Image
-                      src={prod.images[0]}
-                      alt={prod.name}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-lg object-cover bg-gray-50 shrink-0 border border-gray-100"
-                    />
+                    {prod.imageUrl ? (
+                      <Image
+                        src={prod.imageUrl}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-lg object-contain bg-gray-50 shrink-0 border border-gray-100"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-50 shrink-0 border border-gray-100" />
+                    )}
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-gray-900 group-hover:text-[#FF7A00] truncate transition-colors">
                         {prod.name}
-                      </p>
-                      <p className="text-[10px] text-gray-400 truncate">
-                        {prod.category}
                       </p>
                     </div>
                   </div>
                   <div className="text-right shrink-0 pl-2">
                     <span className="text-xs font-black text-gray-900">
-                      ₹{prod.price}
+                      {formatPaise(prod.sellingPricePaise)}
                     </span>
                   </div>
                 </div>
@@ -192,9 +208,9 @@ export const Header: React.FC = () => {
               <span>Categories</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
-              {mockCategories.slice(0, 4).map((cat) => (
+              {categories.slice(0, 4).map((cat) => (
                 <button
-                  key={cat.id}
+                  key={cat.slug}
                   type="button"
                   onClick={() => {
                     setIsSearchOpen(false);
@@ -204,13 +220,7 @@ export const Header: React.FC = () => {
                   }}
                   className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 hover:bg-emerald-50/60 text-left transition-colors cursor-pointer group"
                 >
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    width={20}
-                    height={20}
-                    className="w-5 h-5 rounded-md object-cover bg-white"
-                  />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF7A00]" />
                   <span className="text-xs font-bold text-gray-800 group-hover:text-[#0B5D3B] truncate">
                     {cat.name}
                   </span>
@@ -414,13 +424,23 @@ export const Header: React.FC = () => {
                   <Link
                     href="/account"
                     className="hidden md:flex items-center gap-2 rounded-full p-0.5 hover:bg-gray-100 transition-colors"
-                    title={user.name}
+                    title={user.name ?? 'My Account'}
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs select-none">
-                      {user.name.split(' ').map((n) => n[0]).join('')}
-                    </div>
-                    <div className="hidden xl:flex flex-col text-left pr-2">
-                      <span className="text-xs font-bold text-gray-800 leading-tight">{user.name}</span>
+                    {user.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={user.image}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        className="h-9 w-9 shrink-0 rounded-full object-cover shadow-xs"
+                      />
+                    ) : (
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs select-none">
+                        {(user.name || user.email || '?').charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="hidden xl:flex flex-col text-left pr-2 max-w-[9rem]">
+                      <span className="text-xs font-bold text-gray-800 leading-tight truncate">{user.name ?? 'My Account'}</span>
                       <span className="text-[10px] text-gray-400 mt-0.5 leading-tight">My Account</span>
                     </div>
                   </Link>
@@ -582,7 +602,7 @@ export const Header: React.FC = () => {
                   className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 text-[#0B5D3B] text-xs font-bold"
                 >
                   <User className="w-4 h-4" />
-                  <span>My Account ({user.name})</span>
+                  <span className="truncate">My Account{user.name ? ` (${user.name})` : ''}</span>
                 </Link>
               ) : (
                 <Link
@@ -590,7 +610,7 @@ export const Header: React.FC = () => {
                   onClick={() => setMobileDrawerOpen(false)}
                   className="block text-center w-full py-2.5 rounded-xl bg-[#0B5D3B] text-white text-xs font-bold"
                 >
-                  Sign In / Register
+                  Sign in with Google
                 </Link>
               )}
             </div>

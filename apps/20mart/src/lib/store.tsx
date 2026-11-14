@@ -48,10 +48,11 @@ interface StoreContextType {
     paymentMethod: 'ONLINE_UPI' | 'CARD' | 'CASH_ON_DELIVERY'
   ) => Order;
 
-  // User & Addresses
-  user: { name: string; phone: string; email: string } | null;
-  loginUser: (phone: string) => void;
-  logoutUser: () => void;
+  // Customer session (Google sign-in). Source of truth is the server session cookie.
+  user: CustomerUser | null;
+  authStatus: 'loading' | 'authenticated' | 'guest';
+  refreshUser: () => Promise<void>;
+  logoutUser: () => Promise<void>;
   addresses: DeliveryAddress[];
   selectedAddress: DeliveryAddress | null;
   addAddress: (addr: Omit<DeliveryAddress, 'id'>) => void;
@@ -73,6 +74,13 @@ interface StoreContextType {
   showToast: (msg: string) => void;
 }
 
+export interface CustomerUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+}
+
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -81,11 +89,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
-  const [user, setUser] = useState<{ name: string; phone: string; email: string } | null>({
-    name: 'Amit Kumar',
-    phone: '+91 98765 43210',
-    email: 'amit@example.com',
-  });
+  const [user, setUser] = useState<CustomerUser | null>(null);
+  const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'guest'>('loading');
   const [addresses, setAddresses] = useState<DeliveryAddress[]>(mockAddresses);
   const [selectedAddressId, setSelectedAddressId] = useState<string>(mockAddresses[0]?.id || '');
   const [surveyCompleted, setSurveyCompleted] = useState<boolean>(false);
@@ -310,20 +315,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newOrder;
   };
 
-  // User
-  const loginUser = (phone: string) => {
-    setUser({
-      name: 'Amit Kumar',
-      phone: phone.startsWith('+91') ? phone : `+91 ${phone}`,
-      email: 'amit@example.com',
-    });
-    showToast('Logged in successfully!');
-  };
+  // Customer session: read from the server (HTTP-only cookie is not readable by JS).
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await fetch('/api/auth/me', { cache: 'no-store', credentials: 'same-origin' });
+      const data = res.ok ? ((await res.json()) as { user: CustomerUser | null }) : { user: null };
+      setUser(data.user);
+      setAuthStatus(data.user ? 'authenticated' : 'guest');
+    } catch {
+      setUser(null);
+      setAuthStatus('guest');
+    }
+  }, []);
 
-  const logoutUser = () => {
-    setUser(null);
-    showToast('Logged out');
-  };
+  useEffect(() => {
+    void refreshUser();
+  }, [refreshUser]);
+
+  const logoutUser = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } finally {
+      setUser(null);
+      setAuthStatus('guest');
+      showToast('Signed out');
+    }
+  }, []);
 
   const addAddress = (addr: Omit<DeliveryAddress, 'id'>) => {
     const newAddr: DeliveryAddress = {
@@ -373,7 +390,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       orders,
       placeOrder,
       user,
-      loginUser,
+      authStatus,
+      refreshUser,
       logoutUser,
       addresses,
       selectedAddress,
@@ -413,7 +431,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       orders,
       placeOrder,
       user,
-      loginUser,
+      authStatus,
+      refreshUser,
       logoutUser,
       addresses,
       selectedAddress,

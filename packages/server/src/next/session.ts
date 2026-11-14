@@ -1,0 +1,25 @@
+import * as React from 'react';
+// React.cache ships with the React canary bundled by Next 14 but is absent from @types/react@18.
+const cache = (React as unknown as { cache: <T extends (...args: never[]) => unknown>(fn: T) => T }).cache;
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { adminSessionCookie, customerSessionCookie } from '../cookies';
+import { getAdminContext, type AdminContext } from '../auth/admin';
+import { getCustomerBySessionToken } from '../auth/customer';
+
+/** Current admin for Server Components (memoised per request). */
+export const getCurrentAdmin = cache(async (): Promise<AdminContext | null> => {
+  return getAdminContext(cookies().get(adminSessionCookie().name)?.value);
+});
+
+/** Gate an admin page: redirects to /login without a valid session. */
+export async function requireAdminPage(): Promise<AdminContext> {
+  const ctx = await getCurrentAdmin();
+  if (!ctx) redirect('/login');
+  return ctx;
+}
+
+/** Current customer for Server Components (memoised per request). */
+export const getCurrentCustomer = cache(async () => {
+  return getCustomerBySessionToken(cookies().get(customerSessionCookie().name)?.value);
+});

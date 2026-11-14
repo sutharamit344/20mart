@@ -5,6 +5,7 @@ import { StoreProvider } from '../lib/store';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { MobileBottomNav } from '../components/MobileBottomNav';
+import { getHeaderCategories } from '../lib/catalog';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -44,16 +45,17 @@ export const viewport: Viewport = {
   themeColor: '#0B5D38',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const categories = await getHeaderCategories();
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-clip font-sans">
         <StoreProvider>
-          <Header />
+          <Header categories={categories} />
           <main className="flex-1">{children}</main>
           <Footer />
           <MobileBottomNav />

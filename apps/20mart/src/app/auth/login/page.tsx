@@ -1,13 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import React, { Suspense } from 'react';
-import AuthPage from '../page';
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-gray-400">Loading sign in...</div>}>
-      <AuthPage />
-    </Suspense>
-  );
+export default function LoginPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+  const qs = new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => !!e[1])).toString();
+  redirect(qs ? `/auth?${qs}` : '/auth');
 }
-

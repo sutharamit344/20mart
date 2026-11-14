@@ -1,4 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { randomUUID } from 'crypto';
+import { z } from 'zod';
+import { rateLimit } from '@20mart/server/rateLimit';
 import fs from 'fs';
 import path from 'path';
 import { mockContactInquiries, ContactInquiry } from '@20mart/shared';
@@ -30,44 +33,46 @@ function saveInquiries(inquiries: ContactInquiry[]) {
   }
 }
 
-export async function GET() {
-  const list = getInquiries();
-  return NextResponse.json(list);
-}
+// NOTE: there is intentionally no GET handler here. Inquiries contain customer
+// PII and are only readable through the authenticated admin app.
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { name, email, phone, subject, message } = body;
+const inquirySchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().max(20).optional().or(z.literal('')),
+  subject: z.string().trim().max(120).optional(),
+  message: z.string().trim().min(5).max(2000),
+});
 
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Name, email, and message are required' }, { status: 400 });
-    }
-
-    const currentList = getInquiries();
-    const newInquiry: ContactInquiry = {
-      id: `inq-${Date.now()}`,
-      ticketNumber: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: String(name).trim(),
-      email: String(email).trim(),
-      phone: phone ? String(phone).trim() : undefined,
-      subject: subject || 'Order & Delivery Inquiry',
-      message: String(message).trim(),
-      createdAt: 'Just now',
-      status: 'NEW',
-      priority:
-        String(subject).toLowerCase().includes('damage') ||
-        String(subject).toLowerCase().includes('bulk')
-          ? 'HIGH'
-          : 'NORMAL',
-    };
-
-    const updatedList = [newInquiry, ...currentList];
-    saveInquiries(updatedList);
-
-    return NextResponse.json({ success: true, inquiry: newInquiry }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.ip || 'unknown';
+  if (!rateLimit(`inquiry:${ip}`, 5, 10 * 60 * 1000).ok) {
+    return NextResponse.json({ error: 'Too many messages. Please try again later.' }, { status: 429 });
   }
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+  const parsed = inquirySchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Name, a valid email, and a message are required' }, { status: 400 });
+  }
+  const { name, email, phone, subject, message } = parsed.data;
+  const newInquiry: ContactInquiry = {
+    id: `inq-${randomUUID()}`,
+    ticketNumber: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
+    name,
+    email,
+    phone: phone || undefined,
+    subject: subject || 'Order & Delivery Inquiry',
+    message,
+    createdAt: 'Just now',
+    status: 'NEW',
+    priority: /damage|bulk/i.test(subject ?? '') ? 'HIGH' : 'NORMAL',
+  };
+  saveInquiries([newInquiry, ...getInquiries()]);
+  // Only echo back the non-sensitive ticket reference.
+  return NextResponse.json({ success: true, inquiry: { ticketNumber: newInquiry.ticketNumber } }, { status: 201 });
 }
-

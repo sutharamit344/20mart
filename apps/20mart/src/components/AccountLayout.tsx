@@ -46,10 +46,19 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
     { key: 'help', label: 'Help & Support', href: '/contact', icon: HelpCircle },
   ];
 
-  const handleLogout = () => {
-    logoutUser();
+  const handleLogout = async () => {
+    await logoutUser();
     router.push('/');
+    router.refresh();
   };
+
+  const initials =
+    (user?.name || user?.email || '?')
+      .split(/[\s@]/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((n) => n[0]?.toUpperCase())
+      .join('') || '?';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10 space-y-4 sm:space-y-5">
@@ -58,14 +67,24 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
         <div className="md:col-span-4 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs space-y-4">
           {/* User Profile Card Header */}
           <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B5D3B] text-white font-bold text-lg shadow-xs">
-              {user?.name?.split(' ').map((n) => n[0]).join('') || 'AK'}
-            </div>
+            {user?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.image}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="h-12 w-12 shrink-0 rounded-2xl object-cover shadow-xs"
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B5D3B] text-white font-bold text-lg shadow-xs">
+                {initials}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <h2 className="text-sm sm:text-base font-bold text-gray-900 truncate">
-                {user?.name || 'Amit Kumar'}
+                {user?.name || 'My Account'}
               </h2>
-              <p className="text-[11px] text-gray-500 truncate">{user?.phone || '+91 98765 43210'}</p>
+              <p className="text-[11px] text-gray-500 truncate">{user?.email || ' '}</p>
             </div>
           </div>
 
