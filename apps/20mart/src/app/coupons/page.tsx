@@ -30,17 +30,17 @@ export default function CouponsPage() {
       />
 
       {/* Header Banner (Screen 14 & Mobile Screen 10) */}
-      <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 sm:p-6 text-white shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-center sm:text-left">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xs">
-            <Gift className="w-8 h-8 text-white" />
+      <div className="rounded-2xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] p-4 sm:p-5 text-white shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 text-left">
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-xs">
+            <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </div>
           <div>
-            <span className="text-xs font-black uppercase tracking-wider text-amber-200">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-100">
               Rewards Wallet
             </span>
-            <h1 className="text-xl sm:text-2xl font-black">Your Rewards</h1>
-            <p className="text-xs sm:text-sm text-amber-100 mt-0.5">
+            <h1 className="text-lg sm:text-2xl font-black leading-tight text-white">Your Rewards</h1>
+            <p className="text-xs text-orange-100 mt-0.5">
               You have <span className="font-bold underline">{unlockedCount} unlocked coupons</span>{' '}
               ready to apply at checkout!
             </p>
@@ -49,7 +49,7 @@ export default function CouponsPage() {
 
         <Link
           href="/survey"
-          className="px-5 py-3 rounded-xl bg-white text-gray-900 text-xs font-bold shadow-md hover:bg-gray-50 transition-colors whitespace-nowrap"
+          className="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl bg-white text-[#FF7A00] text-xs font-bold shadow-xs hover:bg-orange-50 transition-colors whitespace-nowrap cursor-pointer shrink-0"
         >
           Take Survey (+₹50 Bonus) →
         </Link>

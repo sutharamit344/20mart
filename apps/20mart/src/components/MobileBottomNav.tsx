@@ -22,7 +22,7 @@ export const MobileBottomNav: React.FC = () => {
     { label: 'Home', href: '/', icon: Home, exact: true },
     { label: 'Shop', href: '/shop', icon: Grid, exact: false },
     { label: 'Offers', href: '/coupons', icon: Tag, exact: false },
-    { label: 'Deals', href: '/shop?filter=daily-deals', icon: Flame, exact: false },
+    { label: 'Deals', href: '/deals', icon: Flame, exact: false },
     { label: 'Account', href: '/account', icon: User, exact: false },
   ];
 
@@ -32,6 +32,10 @@ export const MobileBottomNav: React.FC = () => {
         {navItems.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
+            : item.href === '/deals'
+            ? pathname === '/deals' || pathname.startsWith('/deals') || pathname.includes('daily-deals')
+            : item.href === '/shop'
+            ? (pathname === '/shop' || pathname.startsWith('/shop')) && !pathname.includes('daily-deals') && !pathname.startsWith('/deals')
             : pathname.startsWith(item.href);
           const Icon = item.icon;
 

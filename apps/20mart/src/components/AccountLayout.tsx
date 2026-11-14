@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Breadcrumb } from '@20mart/ui';
 import { useStore } from '../lib/store';
 import {
   ShoppingBag,
@@ -53,15 +52,7 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5">
-      <Breadcrumb
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'My Account', href: '/account' },
-          { label: title },
-        ]}
-      />
-
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10 space-y-4 sm:space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
         {/* Left Side Navigation Menu (Desktop & Tablet) */}
         <div className="md:col-span-4 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs space-y-4">

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Logo, Button, cn } from '@20mart/ui';
 import { useStore } from '../lib/store';
 import {
@@ -25,6 +25,7 @@ import { mockCategories, mockProducts } from '@20mart/shared';
 
 export const Header: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     cartCount,
     wishlist,
@@ -298,26 +299,49 @@ export const Header: React.FC = () => {
               </div>
 
               {/* Desktop Nav Links (placed between Logo and Search Bar) */}
-              <nav className="hidden md:flex items-center gap-3.5 lg:gap-5 text-xs font-bold text-gray-700 shrink-0">
-                <Link
-                  href="/shop"
-                  className="hover:text-[#FF7A00] transition-colors py-1"
-                >
-                  Shop
-                </Link>
-                <Link
-                  href="/deals"
-                  className="hover:text-[#FF7A00] transition-colors py-1 whitespace-nowrap"
-                >
-                  Daily Deals
-                </Link>
-                <Link
-                  href="/coupons"
-                  className="hover:text-[#FF7A00] transition-colors py-1"
-                >
-                  Offers
-                </Link>
-              </nav>
+              {(() => {
+                const isShopActive = (pathname === '/shop' || pathname.startsWith('/shop')) && !pathname.includes('daily-deals') && !pathname.startsWith('/deals');
+                const isDealsActive = pathname === '/deals' || pathname.startsWith('/deals') || pathname.includes('daily-deals');
+                const isOffersActive = pathname === '/coupons' || pathname.startsWith('/coupons');
+
+                return (
+                  <nav className="hidden md:flex items-center gap-3.5 lg:gap-5 text-xs font-bold shrink-0">
+                    <Link
+                      href="/shop"
+                      className={cn(
+                        'transition-colors py-1 relative',
+                        isShopActive
+                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
+                          : 'text-gray-700 hover:text-[#FF7A00]'
+                      )}
+                    >
+                      Shop
+                    </Link>
+                    <Link
+                      href="/deals"
+                      className={cn(
+                        'transition-colors py-1 whitespace-nowrap relative',
+                        isDealsActive
+                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
+                          : 'text-gray-700 hover:text-[#FF7A00]'
+                      )}
+                    >
+                      Daily Deals
+                    </Link>
+                    <Link
+                      href="/coupons"
+                      className={cn(
+                        'transition-colors py-1 relative',
+                        isOffersActive
+                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
+                          : 'text-gray-700 hover:text-[#FF7A00]'
+                      )}
+                    >
+                      Offers
+                    </Link>
+                  </nav>
+                );
+              })()}
 
               {/* Desktop Search Bar – Input + Search Button + Suggestions Dropdown */}
               <div ref={desktopSearchRef} className="hidden md:block flex-1 max-w-md lg:max-w-xl relative">

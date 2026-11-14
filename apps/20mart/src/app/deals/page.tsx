@@ -53,7 +53,7 @@ export default function DailyDealsPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-black/20 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-white/20 text-xs font-bold text-white shrink-0">
+          <div className="flex items-center gap-2 bg-black/20 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-white/20 text-xs font-bold text-white shrink-0 self-start sm:self-auto">
             <Clock className="w-3.5 h-3.5 text-amber-300" />
             <span>Refreshes Daily at Midnight</span>
           </div>

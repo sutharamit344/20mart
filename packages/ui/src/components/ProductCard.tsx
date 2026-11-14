@@ -34,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white transition-all duration-300 hover:border-orange-300 hover:shadow-[0_6px_20px_-4px_rgba(255,122,0,0.14),0_2px_6px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none',
+        'group relative flex flex-col justify-between h-full rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white transition-all duration-300 hover:border-orange-300 hover:shadow-[0_6px_20px_-4px_rgba(255,122,0,0.14),0_2px_6px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none',
         compact ? 'p-1.5 sm:p-2' : 'p-2 sm:p-2.5',
         className
       )}
@@ -91,27 +91,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <h3
             className={cn(
               'font-semibold text-gray-800 line-clamp-2 group-hover:text-[#0B5D3B] transition-colors leading-snug',
-              compact ? 'text-[11px] sm:text-xs mt-0.5 h-7 sm:h-8' : 'text-xs sm:text-[13px] mt-0.5 h-7.5 sm:h-8.5'
+              compact ? 'text-[11px] sm:text-xs mt-0.5 h-7 sm:h-8' : 'text-xs sm:text-[13px] mt-0.5 h-8 sm:h-9'
             )}
             title={product.name}
           >
             {product.name}
           </h3>
 
-          {/* Ratings */}
-          {product.rating && (
-            <div className="mt-0.5 flex items-center gap-1">
-              <div className="flex items-center text-amber-500">
-                <Star className="h-3 w-3 fill-current" />
+          {/* Ratings - fixed height container prevents vertical shifting */}
+          <div className="mt-0.5 h-4 flex items-center">
+            {product.rating ? (
+              <div className="flex items-center gap-1">
+                <div className="flex items-center text-amber-500">
+                  <Star className="h-3 w-3 fill-current" />
+                </div>
+                <span className="text-[10px] font-bold text-gray-700">{product.rating}</span>
+                <span className="text-[9px] text-gray-400">({product.reviewCount})</span>
               </div>
-              <span className="text-[10px] font-bold text-gray-700">{product.rating}</span>
-              <span className="text-[9px] text-gray-400">({product.reviewCount})</span>
-            </div>
-          )}
+            ) : null}
+          </div>
         </div>
 
         {/* Pricing & Add to Cart / Counter Button */}
-        <div className="mt-2 pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1 sm:gap-2">
+        <div className="mt-auto pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1 sm:gap-2">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
               <span className="text-xs sm:text-sm md:text-base font-black text-gray-900">₹{product.price}</span>
