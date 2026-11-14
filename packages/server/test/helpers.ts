@@ -88,7 +88,7 @@ export function adminRequest(
 export const ctxParams = (params: Record<string, string> = {}) => ({ params });
 
 /** Generate a real, valid RGB PNG of the given size (no image libraries needed). */
-export function makePng(width: number, height: number): Uint8Array {
+export function makePng(width: number, height: number): Uint8Array<ArrayBuffer> {
   const chunk = (type: string, data: Buffer) => {
     const len = Buffer.alloc(4);
     len.writeUInt32BE(data.length);
@@ -105,16 +105,85 @@ export function makePng(width: number, height: number): Uint8Array {
   const row = Buffer.alloc(1 + width * 3, 0xff);
   row[0] = 0;
   const raw = Buffer.concat(Array.from({ length: height }, () => row));
-  return new Uint8Array(
-    Buffer.concat([
+  const buf = Buffer.concat([
       Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
       chunk('IHDR', ihdr),
       chunk('IDAT', deflateSync(raw)),
       chunk('IEND', Buffer.alloc(0)),
-    ])
-  );
+    ]);
+  return new Uint8Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer);
 }
 
 export async function categoryId(slug = 'kitchen') {
   return (await prisma.category.findUniqueOrThrow({ where: { slug } })).id;
+}
+
+/* ─────────────────────────────── P1 helpers ─────────────────────────────── */
+
+let customerSeq = 0;
+/** A signed-in Google customer with a real session token. */
+export async function createCustomer(label = 'cust') {
+  const { createCustomerSession } = await import('../src/auth/customer');
+  customerSeq++;
+  const user = await prisma.user.create({
+    data: { googleSubjectId: `g-${label}-${customerSeq}-${Date.now()}`, email: `${label}${customerSeq}@example.com`, name: `${label} ${customerSeq}`, profile: { create: {} } },
+  });
+  const { token } = await createCustomerSession(user.id);
+  return { user, token };
+}
+
+/** An ACTIVE, purchasable product with an image and the given on-hand stock. */
+export async function makeSellable(opts: { sku: string; pricePaise?: number; mrpPaise?: number; stock?: number; name?: string; category?: string; brandId?: string | null; featured?: boolean }) {
+  const cat = await prisma.category.findUniqueOrThrow({ where: { slug: opts.category ?? 'kitchen' } });
+  const price = opts.pricePaise ?? 2000;
+  const product = await prisma.product.create({
+    data: {
+      name: opts.name ?? `Item ${opts.sku}`,
+      slug: opts.sku.toLowerCase(),
+      sku: opts.sku,
+      categoryId: cat.id,
+      brandId: opts.brandId ?? null,
+      sellingPricePaise: price,
+      mrpPaise: opts.mrpPaise ?? price,
+      status: 'ACTIVE',
+      publishedAt: new Date(),
+      isFeatured: opts.featured ?? false,
+      images: { create: { url: 'https://images.example/p.png', isPrimary: true } },
+      inventories: { create: { availableQuantity: opts.stock ?? 10, lowStockThreshold: 2 } },
+    },
+    include: { inventories: true },
+  });
+  return { product, inventoryId: product.inventories[0].id };
+}
+
+/** Delivery config for tests: COD on, one serviceable PIN, ₹40 fee, free above ₹199, min ₹20. */
+export async function setupDelivery(over: Record<string, unknown> = {}) {
+  await prisma.storeSettings.upsert({
+    where: { id: 'default' },
+    update: { codEnabled: true, deliveryEnabled: true, minOrderPaise: 2000, deliveryFeePaise: 4000, freeDeliveryThresholdPaise: 19900, ...over },
+    create: { id: 'default', codEnabled: true, deliveryEnabled: true, minOrderPaise: 2000, deliveryFeePaise: 4000, freeDeliveryThresholdPaise: 19900, ...over },
+  });
+  await prisma.serviceablePincode.upsert({ where: { pincode: '380015' }, update: {}, create: { pincode: '380015', area: 'Satellite', city: 'Ahmedabad' } });
+}
+
+export const VALID_ADDRESS = {
+  name: 'Asha Patel',
+  phone: '9876543210',
+  addressLine1: '12 Shanti Nagar, Satellite Road',
+  city: 'Ahmedabad',
+  state: 'Gujarat',
+  pincode: '380015',
+};
+
+export function customerRequest(path: string, init: { method?: string; token?: string; guestToken?: string; body?: unknown; origin?: string | null } = {}) {
+  const headers = new Headers();
+  const cookies = [init.token ? `20m_session=${init.token}` : '', init.guestToken ? `20m_cart=${init.guestToken}` : ''].filter(Boolean);
+  if (cookies.length) headers.set('cookie', cookies.join('; '));
+  if (init.origin !== null) headers.set('origin', init.origin ?? 'http://localhost:3000');
+  let body: BodyInit | undefined;
+  if (init.body !== undefined) {
+    headers.set('content-type', 'application/json');
+    body = typeof init.body === 'string' ? init.body : JSON.stringify(init.body);
+  }
+  return new NextRequest(new URL(path, 'http://localhost:3000'), { method: init.method ?? 'GET', headers, body });
 }

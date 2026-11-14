@@ -23,6 +23,12 @@ export const PERMISSIONS = {
   'inventory.adjust': { group: 'Inventory', description: 'Add, remove or correct stock' },
   'media.upload': { group: 'Media', description: 'Upload images' },
   'pricepoints.manage': { group: 'Products', description: 'Manage price points' },
+  'orders.view': { group: 'Orders', description: 'View orders, payments and status history' },
+  'orders.update': { group: 'Orders', description: 'Move orders through fulfilment statuses and add notes' },
+  'orders.cancel': { group: 'Orders', description: 'Cancel eligible orders' },
+  'orders.refund': { group: 'Orders', description: 'Initiate and record refunds' },
+  'customers.view': { group: 'Customers', description: 'View customer accounts' },
+  'delivery.manage': { group: 'Settings', description: 'Manage delivery areas, charges and payment methods' },
   'users.view': { group: 'Administration', description: 'View admin users and customers' },
   'users.manage': { group: 'Administration', description: 'Create, activate and deactivate admin users' },
   'roles.manage': { group: 'Administration', description: 'Assign roles and edit role permissions' },
@@ -34,7 +40,7 @@ export const PERMISSIONS = {
 export type PermissionKey = keyof typeof PERMISSIONS;
 export const ALL_PERMISSIONS = Object.keys(PERMISSIONS) as PermissionKey[];
 
-export const ROLE_KEYS = ['SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'INVENTORY_MANAGER', 'CONTENT_MANAGER'] as const;
+export const ROLE_KEYS = ['SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'INVENTORY_MANAGER', 'CONTENT_MANAGER', 'ORDER_MANAGER'] as const;
 export type RoleKey = (typeof ROLE_KEYS)[number];
 export const SUPER_ADMIN_ROLE: RoleKey = 'SUPER_ADMIN';
 
@@ -78,6 +84,11 @@ export const ROLE_DEFINITIONS: Record<
     name: 'Inventory Manager',
     description: 'Maintains stock levels and thresholds.',
     permissions: ['dashboard.view', 'products.view', 'inventory.view', 'inventory.update', 'inventory.adjust'],
+  },
+  ORDER_MANAGER: {
+    name: 'Order Manager',
+    description: 'Processes and fulfils customer orders. Cannot refund or change catalog.',
+    permissions: ['dashboard.view', 'orders.view', 'orders.update', 'orders.cancel', 'customers.view', 'products.view', 'inventory.view'],
   },
   CONTENT_MANAGER: {
     name: 'Content Manager',

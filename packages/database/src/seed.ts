@@ -97,6 +97,8 @@ async function main() {
     prisma.category.count(),
     prisma.pricePoint.count(),
   ]);
+  // Operational settings row with safe production defaults (COD and online payment OFF).
+  await prisma.storeSettings.upsert({ where: { id: 'default' }, update: {}, create: { id: 'default' } });
   console.log(`Done. permissions=${perms} roles=${roles} categories=${cats} pricePoints=${pps}`);
 }
 

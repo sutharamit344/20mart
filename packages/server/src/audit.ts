@@ -3,7 +3,18 @@ import type { AdminContext } from './auth/admin';
 
 type Tx = Prisma.TransactionClient | typeof prisma;
 
-export type AuditCategory = 'AUTH' | 'PRODUCT' | 'CATEGORY' | 'BRAND' | 'INVENTORY' | 'MEDIA' | 'USER_MANAGEMENT' | 'ROLE';
+export type AuditCategory =
+  | 'AUTH'
+  | 'PRODUCT'
+  | 'CATEGORY'
+  | 'BRAND'
+  | 'INVENTORY'
+  | 'MEDIA'
+  | 'USER_MANAGEMENT'
+  | 'ROLE'
+  | 'SETTINGS'
+  | 'ORDER'
+  | 'PAYMENT';
 
 export async function audit(
   tx: Tx,

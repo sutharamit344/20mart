@@ -31,6 +31,15 @@ export function oauthStateCookie() {
   };
 }
 
+/** Guest cart token (random; only its SHA-256 is stored as Cart.sessionId). */
+export function guestCartCookie() {
+  const secure = secureFor(env().APP_URL);
+  return {
+    name: secure ? '__Host-20m_cart' : '20m_cart',
+    options: { httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge: 30 * 24 * 60 * 60 } satisfies CookieOptions,
+  };
+}
+
 export function adminSessionCookie() {
   const secure = secureFor(env().ADMIN_APP_URL);
   return {

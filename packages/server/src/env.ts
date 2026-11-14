@@ -17,6 +17,10 @@ const schema = z.object({
   S3_BUCKET: z.string().optional().default(''),
   S3_ACCESS_KEY_ID: z.string().optional().default(''),
   S3_SECRET_ACCESS_KEY: z.string().optional().default(''),
+  RAZORPAY_KEY_ID: z.string().optional().default(''),
+  RAZORPAY_KEY_SECRET: z.string().optional().default(''),
+  RAZORPAY_WEBHOOK_SECRET: z.string().optional().default(''),
+  CRON_SECRET: z.string().optional().default(''),
 });
 
 export type Env = z.infer<typeof schema>;
@@ -41,4 +45,5 @@ export function resetEnvCache() {
 }
 
 export const isProduction = () => env().NODE_ENV === 'production';
+export const razorpayConfigured = () => !!(env().RAZORPAY_KEY_ID && env().RAZORPAY_KEY_SECRET && env().RAZORPAY_WEBHOOK_SECRET);
 export const googleConfigured = () => !!(env().GOOGLE_CLIENT_ID && env().GOOGLE_CLIENT_SECRET);

@@ -12,7 +12,8 @@
     "db:status": "prisma migrate status",
     "db:seed": "tsx ./src/seed.ts",
     "db:seed:demo": "tsx ./src/seed-demo.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "db:seed:dev-delivery": "tsx ./src/seed-dev-delivery.ts"
   },
   "dependencies": {
     "@20mart/shared": "workspace:*",

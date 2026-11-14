@@ -62,7 +62,14 @@ export const publicProductQuery = z.object({
   q: z.string().trim().max(80).optional().transform((v) => v || undefined),
   category: z.string().trim().max(80).optional(),
   brand: z.string().trim().max(80).optional(),
-  sort: z.enum(['popular', 'newest', 'price_asc', 'price_desc']).default('popular'),
+  /** Exact merchandising price point in paise (e.g. 2000 = ₹20 collection). */
+  pricePoint: z.coerce.number().int().min(1).max(10_000_000).optional(),
+  /** Only products that can be bought right now. */
+  inStock: flag,
+  sort: z
+    .enum(['featured', 'popular', 'newest', 'price_asc', 'price_desc', 'name_asc'])
+    .default('featured')
+    .transform((s) => (s === 'popular' ? 'featured' : s)),
   minPrice: z.coerce.number().int().min(0).max(10_000_000).optional(),
   maxPrice: z.coerce.number().int().min(1).max(10_000_000).optional(),
   featured: flag,
@@ -75,6 +82,18 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
   const and: Prisma.ProductWhereInput[] = [visibleProductWhere];
   if (query.category) and.push({ OR: [{ category: { slug: query.category } }, { category: { parent: { slug: query.category } } }] });
   if (query.brand) and.push({ brand: { slug: query.brand } });
+  if (query.pricePoint) and.push({ pricePoint: { amountPaise: query.pricePoint, isActive: true } });
+  if (query.inStock) {
+    // Sellable stock on the product row (no variants) or on an active variant row.
+    and.push({
+      inventories: {
+        some: {
+          availableQuantity: { gt: prisma.inventory.fields.reservedQuantity },
+          OR: [{ variantId: null }, { variant: { status: 'ACTIVE' } }],
+        },
+      },
+    });
+  }
   if (query.minPrice) and.push({ sellingPricePaise: { gte: query.minPrice } });
   if (query.maxPrice) and.push({ sellingPricePaise: { lte: query.maxPrice } });
   if (query.featured) and.push({ isFeatured: true });
@@ -82,6 +101,8 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
     and.push({
       OR: [
         { name: { contains: query.q, mode: 'insensitive' } },
+        { sku: { contains: query.q, mode: 'insensitive' } },
+        { variants: { some: { status: 'ACTIVE', sku: { contains: query.q, mode: 'insensitive' } } } },
         { shortDescription: { contains: query.q, mode: 'insensitive' } },
         { brand: { name: { contains: query.q, mode: 'insensitive' } } },
         { category: { name: { contains: query.q, mode: 'insensitive' } } },
@@ -100,7 +121,9 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
         ? [{ sellingPricePaise: 'desc' }, { name: 'asc' }]
         : query.sort === 'newest'
           ? [{ publishedAt: 'desc' }, { createdAt: 'desc' }]
-          : [{ isFeatured: 'desc' }, { publishedAt: 'desc' }];
+          : query.sort === 'name_asc'
+            ? [{ name: 'asc' }]
+            : [{ isFeatured: 'desc' }, { publishedAt: 'desc' }, { name: 'asc' }];
 
   const [rows, total] = await Promise.all([
     prisma.product.findMany({ where, orderBy, skip: (query.page - 1) * query.pageSize, take: query.pageSize, select: cardSelect }),
@@ -221,10 +244,56 @@ export async function searchSuggestions(q: string, limit = 8) {
   const term = q.trim().slice(0, 60);
   if (term.length < 2) return [];
   const rows = await prisma.product.findMany({
-    where: { AND: [visibleProductWhere, { OR: [{ name: { contains: term, mode: 'insensitive' } }, { brand: { name: { contains: term, mode: 'insensitive' } } }] }] },
+    where: {
+      AND: [
+        visibleProductWhere,
+        {
+          OR: [
+            { name: { contains: term, mode: 'insensitive' } },
+            { sku: { contains: term, mode: 'insensitive' } },
+            { brand: { name: { contains: term, mode: 'insensitive' } } },
+            { category: { name: { contains: term, mode: 'insensitive' } } },
+          ],
+        },
+      ],
+    },
     orderBy: [{ isFeatured: 'desc' }, { name: 'asc' }],
     take: Math.min(limit, 10),
     select: { slug: true, name: true, sellingPricePaise: true, images: { where: { isPrimary: true }, take: 1, select: { url: true } } },
   });
   return rows.map((r) => ({ slug: r.slug, name: r.name, sellingPricePaise: r.sellingPricePaise, imageUrl: r.images[0]?.url ?? null }));
+}
+
+/** Active brands that have at least one visible product (for the storefront brand filter). */
+export async function listPublicBrands() {
+  const rows = await prisma.brand.findMany({
+    where: { status: 'ACTIVE', products: { some: visibleProductWhere } },
+    orderBy: { name: 'asc' },
+    select: { name: true, slug: true, _count: { select: { products: { where: visibleProductWhere } } } },
+  });
+  return rows.map((b) => ({ name: b.name, slug: b.slug, productCount: b._count.products }));
+}
+
+export async function listPublicPricePoints() {
+  return prisma.pricePoint.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: 'asc' }, { amountPaise: 'asc' }], select: { amountPaise: true, label: true } });
+}
+
+/**
+ * Popular = most units sold in confirmed/paid orders over the last 30 days.
+ * Falls back to featured/newest when there is no sales history yet (no invented data).
+ */
+export async function listPopularProducts(limit = 10): Promise<StorefrontProduct[]> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const top = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    where: { order: { createdAt: { gte: since }, status: { in: ['CONFIRMED', 'PROCESSING', 'PACKED', 'READY_FOR_DISPATCH', 'OUT_FOR_DELIVERY', 'DELIVERED'] } } },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: 'desc' } },
+    take: limit * 2,
+  });
+  const ranked = await getPublicProductsByIds(top.map((t) => t.productId));
+  if (ranked.length >= limit) return ranked.slice(0, limit);
+  const filler = await listPublicProducts({ sort: 'featured', pageSize: limit, inStock: true });
+  const seen = new Set(ranked.map((p) => p.id));
+  return [...ranked, ...filler.items.filter((p) => !seen.has(p.id))].slice(0, limit);
 }
