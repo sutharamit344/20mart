@@ -1,6 +1,8 @@
 import * as React from 'react';
 // React.cache ships with the React canary bundled by Next 14 but is absent from @types/react@18.
-const cache = (React as unknown as { cache: <T extends (...args: never[]) => unknown>(fn: T) => T }).cache;
+// Outside Next (e.g. unit tests) fall back to no memoisation.
+type CacheFn = <T extends (...args: never[]) => unknown>(fn: T) => T;
+const cache: CacheFn = (React as unknown as { cache?: CacheFn }).cache ?? ((fn) => fn);
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { adminSessionCookie, customerSessionCookie } from '../cookies';

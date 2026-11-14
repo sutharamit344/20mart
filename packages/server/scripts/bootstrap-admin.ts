@@ -15,7 +15,8 @@ import path from 'node:path';
 import { hash } from '@node-rs/argon2';
 
 const envFile = path.resolve(__dirname, '../../database/.env');
-if (existsSync(envFile)) process.loadEnvFile(envFile);
+// Only fall back to the database package's .env when no DATABASE_URL was provided explicitly.
+if (!process.env.DATABASE_URL && existsSync(envFile)) process.loadEnvFile(envFile);
 
 const MIN = 12;
 
