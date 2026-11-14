@@ -57,7 +57,7 @@ export default async function RootLayout({
         <StoreProvider>
           <Header categories={categories} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer categories={categories} />
           <MobileBottomNav />
         </StoreProvider>
       </body>

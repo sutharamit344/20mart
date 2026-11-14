@@ -7,7 +7,7 @@ import {
   Headphones,
 } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> = ({ categories }) => {
   return (
     <footer className="mt-10 sm:mt-14 bg-white border-t border-gray-100">
       {/* 1. Value Pillars Row */}
@@ -71,31 +71,13 @@ export const Footer: React.FC = () => {
           <div className="space-y-2.5">
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">Categories</h4>
             <ul className="space-y-1.5 text-xs text-gray-500">
-              <li>
-                <Link href="/category/kitchen-home" className="hover:text-[#FF7A00] transition-colors">
-                  Kitchen & Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/cleaning-care" className="hover:text-[#FF7A00] transition-colors">
-                  Cleaning & Care
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/stationery-school" className="hover:text-[#FF7A00] transition-colors">
-                  Stationery & School
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/daily-use" className="hover:text-[#FF7A00] transition-colors">
-                  Daily Use Items
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/personal-care" className="hover:text-[#FF7A00] transition-colors">
-                  Personal Care
-                </Link>
-              </li>
+              {categories.slice(0, 6).map((c) => (
+                <li key={c.slug}>
+                  <Link href={`/category/${c.slug}`} className="hover:text-[#FF7A00] transition-colors">
+                    {c.name}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/shop" className="hover:text-[#FF7A00] transition-colors">
                   All Products

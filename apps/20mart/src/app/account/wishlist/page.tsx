@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@20mart/ui';
 import { AccountLayout } from '../../../components/AccountLayout';
 import { useStore } from '../../../lib/store';
-import { mockProducts } from '@20mart/shared';
+import type { Product } from '@20mart/shared';
+import { useWishlistProducts } from '../../../lib/useWishlistProducts';
 import { Heart, Trash2, ShoppingCart, CheckSquare, Square } from 'lucide-react';
 
 export default function AccountWishlistPage() {
@@ -15,9 +16,7 @@ export default function AccountWishlistPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Resolve full product objects from wishlist IDs
-  const wishlistProducts = wishlist
-    .map((id) => mockProducts.find((p) => p.id === id))
-    .filter(Boolean) as typeof mockProducts;
+  const { products: wishlistProducts } = useWishlistProducts();
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -33,7 +32,7 @@ export default function AccountWishlistPage() {
     }
   };
 
-  const handleAddToCart = (product: (typeof mockProducts)[0]) => {
+  const handleAddToCart = (product: Product) => {
     addToCart(product);
     toggleWishlist(product.id);
     showToast(`Added ${product.name} to cart!`);

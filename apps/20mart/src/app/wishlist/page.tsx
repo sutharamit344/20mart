@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { mockProducts, Product } from '@20mart/shared';
+import type { Product } from '@20mart/shared';
+import { useWishlistProducts } from '../../lib/useWishlistProducts';
 import { Breadcrumb, Button, ProductImage } from '@20mart/ui';
 import { useStore } from '../../lib/store';
 import {
@@ -24,7 +25,7 @@ export default function WishlistPage() {
   const router = useRouter();
   const { wishlist, toggleWishlist, addToCart, showToast } = useStore();
 
-  const wishlistedProducts = mockProducts.filter((p) => wishlist.includes(p.id));
+  const { products: wishlistedProducts } = useWishlistProducts();
   const [selectedIds, setSelectedIds] = useState<string[]>(wishlist);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -282,7 +283,7 @@ export default function WishlistPage() {
                         {product.name}
                       </h3>
 
-                      {product.rating && (
+                      {product.rating > 0 && (
                         <div className="mt-1 flex items-center gap-1">
                           <Star className="h-3 w-3 fill-current text-amber-500" />
                           <span className="text-[10px] font-bold text-gray-700">{product.rating}</span>
@@ -368,7 +369,7 @@ export default function WishlistPage() {
                     <h3 className="text-xs sm:text-sm font-bold text-gray-900 truncate group-hover:text-[#0B5D3B] transition-colors">
                       {product.name}
                     </h3>
-                    {product.rating && (
+                    {product.rating > 0 && (
                       <div className="flex items-center gap-1 mt-0.5">
                         <Star className="h-3 w-3 fill-current text-amber-500" />
                         <span className="text-[10px] font-bold text-gray-700">{product.rating}</span>

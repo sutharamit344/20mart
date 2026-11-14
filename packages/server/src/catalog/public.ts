@@ -53,6 +53,9 @@ function toCard(p: CardRow): StorefrontProduct {
   };
 }
 
+// Query-string booleans: only true/'true'/'1' count (z.coerce.boolean would treat 'false' as true).
+const flag = z.preprocess((v) => v === true || v === 'true' || v === '1', z.boolean()).optional();
+
 export const publicProductQuery = z.object({
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(1).max(48).default(24),
@@ -60,9 +63,10 @@ export const publicProductQuery = z.object({
   category: z.string().trim().max(80).optional(),
   brand: z.string().trim().max(80).optional(),
   sort: z.enum(['popular', 'newest', 'price_asc', 'price_desc']).default('popular'),
+  minPrice: z.coerce.number().int().min(0).max(10_000_000).optional(),
   maxPrice: z.coerce.number().int().min(1).max(10_000_000).optional(),
-  featured: z.coerce.boolean().optional(),
-  deals: z.coerce.boolean().optional(),
+  featured: flag,
+  deals: flag,
 });
 export type PublicProductQuery = z.input<typeof publicProductQuery>;
 
@@ -71,6 +75,7 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
   const and: Prisma.ProductWhereInput[] = [visibleProductWhere];
   if (query.category) and.push({ OR: [{ category: { slug: query.category } }, { category: { parent: { slug: query.category } } }] });
   if (query.brand) and.push({ brand: { slug: query.brand } });
+  if (query.minPrice) and.push({ sellingPricePaise: { gte: query.minPrice } });
   if (query.maxPrice) and.push({ sellingPricePaise: { lte: query.maxPrice } });
   if (query.featured) and.push({ isFeatured: true });
   if (query.q) {
@@ -83,11 +88,11 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
       ],
     });
   }
-  const where: Prisma.ProductWhereInput = { AND: and };
   if (query.deals) {
     // "Deal" = selling price below MRP (column comparison via field reference).
     and.push({ sellingPricePaise: { lt: prisma.product.fields.mrpPaise } });
   }
+  const where: Prisma.ProductWhereInput = { AND: and };
   const orderBy: Prisma.ProductOrderByWithRelationInput[] =
     query.sort === 'price_asc'
       ? [{ sellingPricePaise: 'asc' }, { name: 'asc' }]

@@ -1,55 +1,32 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import {
-  mockCategories,
-  mockProducts,
-} from '@20mart/shared';
-import {
-  ProductCard,
-  Button,
-} from '@20mart/ui';
-import { useStore } from '../lib/store';
-import {
-  ArrowRight,
-  Sparkles,
-  Flame,
-  Gift,
-  Truck,
-  CookingPot,
-  BookOpen,
-  Layers,
-  Heart,
-  Grid as GridIcon,
-} from 'lucide-react';
+import { ArrowRight, Sparkles, Flame, Gift, Truck, PackageSearch } from 'lucide-react';
+import { getCategories, getProducts } from '../lib/catalog';
+import { getCategoryTheme } from '../lib/category-theme';
+import { ProductGrid } from '../components/StoreProductCard';
 
-const getCategoryTheme = (slug: string) => {
-  switch (slug) {
-    case 'kitchen-home':
-      return { bg: '#FFEED9', iconColor: '#FF7A00', icon: CookingPot };
-    case 'cleaning-care':
-      return { bg: '#DCFCE7', iconColor: '#0B5D3B', icon: Sparkles };
-    case 'stationery-school':
-      return { bg: '#F3E8FF', iconColor: '#9333EA', icon: BookOpen };
-    case 'daily-use':
-      return { bg: '#FEF3C7', iconColor: '#D97706', icon: Layers };
-    case 'personal-care':
-      return { bg: '#FCE7F3', iconColor: '#DB2777', icon: Heart };
-    case 'storage-organisation':
-    default:
-      return { bg: '#FFEED9', iconColor: '#EA580C', icon: GridIcon };
+// Statically rendered and refreshed every minute (plus on-demand revalidation from the admin).
+export const revalidate = 60;
+
+async function loadHome() {
+  try {
+    const [categories, featured, deals] = await Promise.all([
+      getCategories(),
+      getProducts({ featured: true, pageSize: 10 }),
+      getProducts({ deals: true, maxPrice: 5000, sort: 'price_asc', pageSize: 5 }),
+    ]);
+    // Fall back to newest products when nothing is marked featured yet.
+    const trending = featured.items.length ? featured.items : (await getProducts({ sort: 'newest', pageSize: 10 })).items;
+    return { categories, trending, deals: deals.items, error: false };
+  } catch (e) {
+    console.error('[home] catalog unavailable:', (e as Error).message);
+    return { categories: [], trending: [], deals: [], error: true };
   }
-};
+}
 
-export default function HomePage() {
-  const router = useRouter();
-  const { addToCart, toggleWishlist, isWishlisted, getItemQuantity, updateItemQuantity } = useStore();
-
-  const trendingProducts = mockProducts.filter((p) => p.trending);
-  const dailyDeals = mockProducts.filter((p) => p.dailyDeal);
+export default async function HomePage() {
+  const { categories, trending, deals, error } = await loadHome();
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-8">
@@ -58,14 +35,13 @@ export default function HomePage() {
         {/* 1. Category Scroll Strip (Amazon-style: compact spacing, gap, font-size) */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-1 sm:pt-1.5 pb-0">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto whitespace-nowrap scrollbar-none py-0.5">
-            {mockCategories.map((cat) => {
+            {categories.map((cat) => {
               const theme = getCategoryTheme(cat.slug);
               const Icon = theme.icon;
               return (
-                <button
+                <Link
                   key={cat.id}
-                  type="button"
-                  onClick={() => router.push(`/category/${cat.slug}`)}
+                  href={`/category/${cat.slug}`}
                   className="group flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white hover:bg-orange-50/20 border border-gray-200/90 hover:border-[#FF7A00]/50 shadow-2xs hover:shadow-xs shrink-0 cursor-pointer select-none transition-all duration-150"
                 >
                   <div
@@ -80,7 +56,7 @@ export default function HomePage() {
                   <span className="text-[13px] sm:text-sm font-medium text-gray-700 group-hover:text-[#FF7A00] transition-colors whitespace-nowrap">
                     {cat.name}
                   </span>
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -120,20 +96,20 @@ export default function HomePage() {
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-1 flex-wrap">
-                <button
-                  onClick={() => router.push('/shop')}
+                <Link
+                  href="/shop"
                   className="group flex items-center gap-2 rounded-full font-bold px-6 py-2.5 sm:py-3 text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
                 >
                   <span>Explore Products</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  onClick={() => router.push('/early-access')}
+                </Link>
+                <Link
+                  href="/early-access"
                   className="flex items-center gap-2 px-4 py-2.5 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-amber-200 hover:text-white transition-all text-xs sm:text-sm font-bold shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <Gift className="w-4 h-4 text-amber-300" />
                   <span>Claim ₹50 Coupon</span>
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -205,31 +181,30 @@ export default function HomePage() {
             </div>
           </div>
           <Link
-            href="/shop?filter=trending"
+            href="/shop"
             className="text-xs sm:text-sm font-bold text-[#FF7A00] hover:underline"
           >
             See More →
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
-          {trendingProducts.slice(0, 10).map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              quantity={getItemQuantity(product.id)}
-              isWishlisted={isWishlisted(product.id)}
-              onAddToCart={() => updateItemQuantity(product.id, 1)}
-              onIncrement={() => updateItemQuantity(product.id, 1)}
-              onDecrement={() => updateItemQuantity(product.id, -1)}
-              onToggleWishlist={() => toggleWishlist(product.id)}
-              onClick={() => router.push(`/product/${product.slug}`)}
-            />
-          ))}
-        </div>
+        {trending.length ? (
+          <ProductGrid
+            products={trending}
+            priorityCount={2}
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 gap-2 sm:gap-2.5"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white py-10 text-center">
+            <PackageSearch className="mb-2 h-8 w-8 text-[#FF7A00]" />
+            <p className="text-sm font-bold text-gray-900">{error ? 'Products are temporarily unavailable' : 'New products are on their way'}</p>
+            <p className="mt-1 text-xs text-gray-500">{error ? 'Please refresh in a moment.' : 'Check back soon — we are stocking the shelves.'}</p>
+          </div>
+        )}
       </section>
 
-      {/* 5. Steal Deals Under ₹50 */}
+      {/* 5. Steal Deals Under ₹50 (only when real below-MRP products exist) */}
+      {deals.length > 0 && (
       <section className="max-w-7xl mx-auto px-0 sm:px-6">
         <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] px-3.5 py-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border-y sm:border border-white/20">
           {/* Subtle ambient light */}
@@ -240,7 +215,7 @@ export default function HomePage() {
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white text-[#FF7A00] text-xs font-black shadow-xs">
                 <Flame className="w-3.5 h-3.5 fill-current text-[#FF7A00]" />
-                <span>Today's Steal Deals</span>
+                <span>Today&apos;s Steal Deals</span>
               </div>
               <h2 className="text-lg sm:text-2xl font-black tracking-tight">Under ₹50 Everyday Essentials</h2>
             </div>
@@ -252,23 +227,15 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-2.5">
-            {dailyDeals.slice(0, 5).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                quantity={getItemQuantity(product.id)}
-                isWishlisted={isWishlisted(product.id)}
-                onAddToCart={() => updateItemQuantity(product.id, 1)}
-                onIncrement={() => updateItemQuantity(product.id, 1)}
-                onDecrement={() => updateItemQuantity(product.id, -1)}
-                onToggleWishlist={() => toggleWishlist(product.id)}
-                onClick={() => router.push(`/product/${product.slug}`)}
-              />
-            ))}
+          <div className="relative z-10">
+            <ProductGrid
+              products={deals}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 gap-2 sm:gap-2.5"
+            />
           </div>
         </div>
       </section>
+      )}
 
       {/* 6. Early Access Campaign Promo Banner (Screen 16 Desktop & Mobile Screen 14) */}
       <section className="max-w-7xl mx-auto px-0 sm:px-6">
@@ -305,13 +272,13 @@ export default function HomePage() {
             </div>
 
             {/* CTA Button */}
-            <button
-              onClick={() => router.push('/survey')}
+            <Link
+              href="/survey"
               className="w-full sm:w-auto h-11 px-6 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 whitespace-nowrap hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <span>Join Early Access</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>

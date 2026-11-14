@@ -7,12 +7,40 @@ import {
   DeliveryAddress,
   Order,
   Coupon,
-  mockProducts,
-  mockCartItems,
   mockAddresses,
   mockCoupons,
   mockOrders,
+  type StorefrontProduct,
 } from '@20mart/shared';
+
+/**
+ * Adapter: the cart/checkout screens (mock until the orders phase) still use the
+ * legacy display shape. Prices there are display-only; they are never trusted
+ * by the server. Real checkout will re-price from the database in paise.
+ */
+export function toCartProduct(p: StorefrontProduct): Product {
+  return {
+    id: p.id,
+    sku: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.shortDescription ?? '',
+    category: p.category.name,
+    categorySlug: p.category.slug,
+    brand: p.brand?.name ?? '',
+    price: p.sellingPricePaise / 100,
+    originalPrice: p.mrpPaise / 100,
+    discountPercent: p.discountPercent,
+    rating: 0,
+    reviewCount: 0,
+    stock: p.stockState === 'OUT' ? 0 : 1,
+    inStock: p.stockState !== 'OUT',
+    images: p.image ? [p.image.url] : [],
+    tags: [],
+  };
+}
+
+const WISHLIST_KEY = '20mart_wishlist';
 
 interface StoreContextType {
   // Cart
@@ -22,7 +50,8 @@ interface StoreContextType {
   removeFromCart: (cartItemId: string) => void;
   clearCart: () => void;
   getItemQuantity: (productId: string) => number;
-  updateItemQuantity: (productId: string, delta: number) => void;
+  /** Pass the product to allow adding it; an id only changes an existing line. */
+  updateItemQuantity: (product: StorefrontProduct | string, delta: number) => void;
   cartCount: number;
   cartSubtotal: number;
   cartDeliveryCharge: number;
@@ -84,8 +113,28 @@ export interface CustomerUser {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>(mockCartItems);
-  const [wishlist, setWishlist] = useState<string[]>(['prod-1', 'prod-2', 'prod-3']);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const wishlistLoaded = React.useRef(false);
+
+  // Wishlist is a per-device convenience (no account sync in P0).
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(WISHLIST_KEY) ?? '[]');
+      if (Array.isArray(saved)) setWishlist(saved.filter((x) => typeof x === 'string').slice(0, 100));
+    } catch {
+      /* storage unavailable */
+    }
+    wishlistLoaded.current = true;
+  }, []);
+  useEffect(() => {
+    if (!wishlistLoaded.current) return;
+    try {
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    } catch {
+      /* ignore */
+    }
+  }, [wishlist]);
   const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -108,6 +157,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Cart logic
   const addToCart = useCallback((product: Product, quantity = 1) => {
+    if (!product.inStock) {
+      showToast('Sorry, this item is out of stock');
+      return;
+    }
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
       if (existing) {
@@ -160,35 +213,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return item ? item.quantity : 0;
   }, [cart]);
 
-  const updateItemQuantity = useCallback((productId: string, delta: number) => {
+  const updateItemQuantity = useCallback((target: StorefrontProduct | string, delta: number) => {
+    const productId = typeof target === 'string' ? target : target.id;
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === productId);
       if (existing) {
         const newQty = existing.quantity + delta;
         if (newQty <= 0) {
-          showToast(`Removed from cart`);
+          showToast('Removed from cart');
           return prev.filter((item) => item.productId !== productId);
         }
-        return prev.map((item) =>
-          item.productId === productId ? { ...item, quantity: newQty } : item
-        );
+        return prev.map((item) => (item.productId === productId ? { ...item, quantity: newQty } : item));
       }
-      if (delta > 0) {
-        const product = mockProducts.find((p) => p.id === productId);
-        if (product) {
-          showToast(`Added ${product.name} to cart!`);
-          return [
-            ...prev,
-            {
-              id: `cart-${Date.now()}`,
-              productId,
-              product,
-              quantity: delta,
-              price: product.price,
-              selected: true,
-            },
-          ];
+      if (delta > 0 && typeof target !== 'string') {
+        if (target.stockState === 'OUT') {
+          showToast('Sorry, this item is out of stock');
+          return prev;
         }
+        const product = toCartProduct(target);
+        showToast(`Added ${product.name} to cart!`);
+        return [
+          ...prev,
+          { id: `cart-${productId}`, productId, product, quantity: delta, price: product.price, selected: true },
+        ];
       }
       return prev;
     });
