@@ -2,41 +2,34 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  Product,
   Order,
   Coupon,
   SurveyQuestion,
-  AdminUser,
   AuditLogEntry,
   ContactInquiry,
-  mockProducts,
   mockOrders,
   mockCoupons,
   mockSurveyQuestions,
-  mockAdminUsers,
   mockAuditLogs,
   mockContactInquiries,
   BusinessConfigurations,
   defaultBusinessConfigurations,
 } from '@20mart/shared';
 
+/**
+ * Client-side state for modules that are NOT yet backed by the database
+ * (orders, coupons, questions, configurations, inquiries). Catalog, inventory,
+ * admin users and roles are server-backed and do not live here.
+ */
 interface AdminContextType {
-  // Current admin
-  currentUser: AdminUser;
-  setCurrentUserRole: (role: AdminUser['role']) => void;
+  /** Display name of the signed-in admin (from the server session). */
+  adminName: string;
 
   // Inquiries / Customer Messages
   inquiries: ContactInquiry[];
   updateInquiryStatus: (id: string, status: ContactInquiry['status'], notes?: string) => void;
   addInquiry: (inquiry: Omit<ContactInquiry, 'id' | 'ticketNumber' | 'createdAt'>) => void;
   deleteInquiry: (id: string) => void;
-
-  // Products
-  products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  updateProduct: (id: string, updates: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  adjustStock: (productId: string, delta: number, note?: string) => void;
 
   // Orders
   orders: Order[];
@@ -68,9 +61,7 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<AdminUser>(mockAdminUsers[0]);
-  const [products, setProducts] = useState<Product[]>(mockProducts);
+export const AdminProvider: React.FC<{ adminName: string; children: React.ReactNode }> = ({ adminName, children }) => {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
   const [questions, setQuestions] = useState<SurveyQuestion[]>(mockSurveyQuestions);
@@ -187,67 +178,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const entry: AuditLogEntry = {
       id: `log-${Date.now()}`,
       timestamp: 'Just now',
-      adminName: currentUser.name,
+      adminName,
       action,
       category,
       details,
     };
     setAuditLogs((prev) => [entry, ...prev]);
-  };
-
-  const setCurrentUserRole = (role: AdminUser['role']) => {
-    const found = mockAdminUsers.find((u) => u.role === role);
-    if (found) {
-      setCurrentUser(found);
-      showToast(`Switched active admin to ${found.name} (${role})`);
-    } else {
-      setCurrentUser((prev) => ({ ...prev, role }));
-      showToast(`Switched role to ${role}`);
-    }
-  };
-
-  // Products
-  const addProduct = (prodData: Omit<Product, 'id'>) => {
-    const newProd: Product = {
-      ...prodData,
-      id: `prod-${Date.now()}`,
-    };
-    setProducts((prev) => [newProd, ...prev]);
-    addAuditLog('Created New Product', 'PRODUCT', `Added SKU ${newProd.sku}: ${newProd.name}`);
-    showToast(`Product "${newProd.name}" created!`);
-  };
-
-  const updateProduct = (id: string, updates: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
-    );
-    addAuditLog('Updated Product', 'PRODUCT', `Modified product details for ID ${id}`);
-    showToast('Product updated successfully!');
-  };
-
-  const deleteProduct = (id: string) => {
-    const prod = products.find((p) => p.id === id);
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    addAuditLog('Deleted Product', 'PRODUCT', `Removed product ${prod?.name || id}`);
-    showToast('Product removed');
-  };
-
-  const adjustStock = (productId: string, delta: number, note?: string) => {
-    setProducts((prev) =>
-      prev.map((p) => {
-        if (p.id === productId) {
-          const newStock = Math.max(0, p.stock + delta);
-          return { ...p, stock: newStock, inStock: newStock > 0 };
-        }
-        return p;
-      })
-    );
-    addAuditLog(
-      'Adjusted Stock',
-      'PRODUCT',
-      `Modified stock by ${delta > 0 ? `+${delta}` : delta} for product ID ${productId}. Note: ${note || 'Manual adjustment'}`
-    );
-    showToast('Stock level adjusted!');
   };
 
   // Orders
@@ -303,7 +239,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {
         timestamp: 'Just now',
         section,
-        admin: currentUser.name,
+        admin: adminName,
         changeNote: `Updated ${section} configuration rules`,
       },
       ...prev,
@@ -315,17 +251,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <AdminContext.Provider
       value={{
-        currentUser,
-        setCurrentUserRole,
+        adminName,
         inquiries,
         updateInquiryStatus,
         addInquiry,
         deleteInquiry,
-        products,
-        addProduct,
-        updateProduct,
-        deleteProduct,
-        adjustStock,
         orders,
         updateOrderStatus,
         coupons,

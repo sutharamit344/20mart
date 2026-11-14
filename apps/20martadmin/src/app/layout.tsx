@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { AdminProvider } from '../lib/admin-store';
-import { AdminShell } from '../components/AdminShell';
 
 export const metadata: Metadata = {
   title: '20Mart Admin – Control Center',
+  robots: { index: false, follow: false },
   description: 'Operations, Catalog, Inventory, and Business Configurations for 20Mart.',
   icons: {
     icon: [
@@ -33,17 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased overflow-x-clip">
-        <AdminProvider>
-          <AdminShell
-            user={{ name: 'Pooja Sharma', roleLabel: 'Super Admin' }}
-            permissions={['dashboard.view','products.view','categories.view','brands.view','inventory.view','users.view','settings.view','audit.view']}
-            storefrontUrl="http://localhost:3000"
-          >
-            {children}
-          </AdminShell>
-        </AdminProvider>
-      </body>
+      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased overflow-x-clip">{children}</body>
     </html>
   );
 }

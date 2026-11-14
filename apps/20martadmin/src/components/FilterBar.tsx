@@ -17,8 +17,10 @@ export interface FilterSelect {
 export function FilterBar({
   placeholder = 'Search…',
   selects = [],
+  search = true,
   children,
 }: {
+  search?: boolean;
   placeholder?: string;
   selects?: FilterSelect[];
   children?: React.ReactNode;
@@ -55,21 +57,23 @@ export function FilterBar({
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center rounded-xl border border-gray-200/80 bg-white p-2.5 shadow-2xs">
-      <div className="relative flex-1 min-w-[180px]">
-        {pending ? (
-          <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />
-        ) : (
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-        )}
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#0B5D3B] focus:outline-none"
-        />
-      </div>
+      {search && (
+        <div className="relative flex-1 min-w-[180px]">
+          {pending ? (
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          )}
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={placeholder}
+            aria-label={placeholder}
+            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#0B5D3B] focus:outline-none"
+          />
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         {selects.map((s) => (
           <select

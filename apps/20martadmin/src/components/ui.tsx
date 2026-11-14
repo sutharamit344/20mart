@@ -98,7 +98,7 @@ export function StatCard({
         <p className={`mt-1 text-lg sm:text-xl font-extrabold leading-none ${toneText[tone]}`}>{value}</p>
         {hint && <p className="mt-1.5 text-[10px] text-gray-400 truncate">{hint}</p>}
       </div>
-      {icon && <div className={`shrink-0 rounded-lg p-1.5 ${toneIcon[tone]}`}>{icon}</div>}
+      {icon && <div className={`hidden sm:block shrink-0 rounded-lg p-1.5 ${toneIcon[tone]}`}>{icon}</div>}
     </div>
   );
   return href ? (

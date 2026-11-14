@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { adminRoute } from '@20mart/server/next';
 import fs from 'fs';
 import path from 'path';
 import { mockContactInquiries, ContactInquiry } from '@20mart/shared';
@@ -30,44 +30,6 @@ function saveInquiries(inquiries: ContactInquiry[]) {
   }
 }
 
-export async function GET() {
-  const list = getInquiries();
-  return NextResponse.json(list);
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { name, email, phone, subject, message } = body;
-
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Name, email, and message are required' }, { status: 400 });
-    }
-
-    const currentList = getInquiries();
-    const newInquiry: ContactInquiry = {
-      id: `inq-${Date.now()}`,
-      ticketNumber: `INQ-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: String(name).trim(),
-      email: String(email).trim(),
-      phone: phone ? String(phone).trim() : undefined,
-      subject: subject || 'Order & Delivery Inquiry',
-      message: String(message).trim(),
-      createdAt: 'Just now',
-      status: 'NEW',
-      priority:
-        String(subject).toLowerCase().includes('damage') ||
-        String(subject).toLowerCase().includes('bulk')
-          ? 'HIGH'
-          : 'NORMAL',
-    };
-
-    const updatedList = [newInquiry, ...currentList];
-    saveInquiries(updatedList);
-
-    return NextResponse.json({ success: true, inquiry: newInquiry }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
-  }
-}
-
+// Inquiries hold customer PII: readable only by authenticated admins with settings.view.
+// (Customers submit inquiries through the storefront's POST /api/inquiries.)
+export const GET = adminRoute('settings.view', async () => getInquiries());
