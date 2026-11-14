@@ -90,27 +90,28 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
   ]);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(mockAuditLogs);
-  const [inquiries, setInquiries] = useState<ContactInquiry[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('20mart_admin_inquiries');
-        if (saved) return JSON.parse(saved);
-      } catch (e) {
-        // fallback to mock
-      }
-    }
-    return mockContactInquiries;
-  });
+  // Start from deterministic data so server and client render identically;
+  // persisted inquiries are loaded after mount to avoid hydration mismatches.
+  const [inquiries, setInquiries] = useState<ContactInquiry[]>(mockContactInquiries);
+  const inquiriesLoaded = React.useRef(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  // Sync inquiries to localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('20mart_admin_inquiries', JSON.stringify(inquiries));
-      } catch (e) {
-        // ignore storage quota error
-      }
+    try {
+      const saved = localStorage.getItem('20mart_admin_inquiries');
+      if (saved) setInquiries(JSON.parse(saved));
+    } catch {
+      // storage unavailable or corrupt: keep defaults
+    }
+    inquiriesLoaded.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!inquiriesLoaded.current) return;
+    try {
+      localStorage.setItem('20mart_admin_inquiries', JSON.stringify(inquiries));
+    } catch {
+      // ignore storage quota error
     }
   }, [inquiries]);
 

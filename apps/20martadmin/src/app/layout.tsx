@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AdminProvider } from '../lib/admin-store';
-import { AdminSidebar } from '../components/AdminSidebar';
-import { AdminHeader } from '../components/AdminHeader';
+import { AdminShell } from '../components/AdminShell';
 
 export const metadata: Metadata = {
   title: '20Mart Admin – Control Center',
@@ -34,13 +33,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased flex overflow-x-clip">
+      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased overflow-x-clip">
         <AdminProvider>
-          <AdminSidebar />
-          <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-            <AdminHeader />
-            <main className="p-4 sm:p-6 lg:p-8 flex-1">{children}</main>
-          </div>
+          <AdminShell
+            user={{ name: 'Pooja Sharma', roleLabel: 'Super Admin' }}
+            permissions={['dashboard.view','products.view','categories.view','brands.view','inventory.view','users.view','settings.view','audit.view']}
+            storefrontUrl="http://localhost:3000"
+          >
+            {children}
+          </AdminShell>
         </AdminProvider>
       </body>
     </html>

@@ -10,7 +10,8 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, label, checked, onChange, id, ...props }, ref) => {
-    const internalId = id || `checkbox-${Math.random().toString(36).substring(2, 7)}`;
+    const autoId = React.useId();
+    const internalId = id || `checkbox-${autoId}`;
 
     return (
       <label htmlFor={internalId} className="inline-flex items-center gap-2.5 cursor-pointer select-none">
@@ -42,7 +43,8 @@ export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   ({ className, label, checked, onChange, id, ...props }, ref) => {
-    const internalId = id || `radio-${Math.random().toString(36).substring(2, 7)}`;
+    const autoId = React.useId();
+    const internalId = id || `radio-${autoId}`;
 
     return (
       <label htmlFor={internalId} className="inline-flex items-center gap-2.5 cursor-pointer select-none">

@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@20mart/ui';
-import { useAdmin } from '../lib/admin-store';
 import {
   LayoutDashboard,
   Package,
@@ -19,90 +18,165 @@ import {
   FileText,
   ExternalLink,
   MessageSquare,
+  FolderTree,
+  BadgeCheck,
+  X,
+  LogOut,
 } from 'lucide-react';
 
-export const AdminSidebar: React.FC = () => {
-  const pathname = usePathname();
-  const { currentUser, setCurrentUserRole, inquiries } = useAdmin();
-  const newInquiriesCount = inquiries ? inquiries.filter((i) => i.status === 'NEW').length : 0;
+export interface SidebarUser {
+  name: string;
+  roleLabel: string;
+}
 
-  const navSections = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  /** Permission required to see the link. Server routes enforce it independently. */
+  permission?: string;
+  badge?: number;
+}
+
+interface AdminSidebarProps {
+  user: SidebarUser;
+  permissions: string[];
+  open: boolean;
+  onClose: () => void;
+  onLogout?: () => void;
+  storefrontUrl?: string;
+  inquiriesBadge?: number;
+}
+
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join('');
+
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({
+  user,
+  permissions,
+  open,
+  onClose,
+  onLogout,
+  storefrontUrl = 'http://localhost:3000',
+  inquiriesBadge = 0,
+}) => {
+  const pathname = usePathname();
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const can = (perm?: string) => !perm || permissions.includes(perm);
+
+  const navSections: { title: string; items: NavItem[] }[] = [
     {
       title: 'Overview',
+      items: [{ label: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard.view' }],
+    },
+    {
+      title: 'Catalog & Stock',
       items: [
-        { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+        { label: 'Products', href: '/products', icon: Package, permission: 'products.view' },
+        { label: 'Categories', href: '/categories', icon: FolderTree, permission: 'categories.view' },
+        { label: 'Brands', href: '/brands', icon: BadgeCheck, permission: 'brands.view' },
+        { label: 'Inventory', href: '/inventory', icon: Boxes, permission: 'inventory.view' },
       ],
     },
     {
-      title: 'Operations & Catalog',
+      title: 'Operations',
       items: [
-        { label: 'Products', href: '/products', icon: Package },
-        { label: 'Inventory', href: '/inventory', icon: Boxes },
-        { label: 'Orders', href: '/orders', icon: ShoppingBag },
-        { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, badge: newInquiriesCount },
-        { label: 'Customers', href: '/customers', icon: Users },
+        { label: 'Orders', href: '/orders', icon: ShoppingBag, permission: 'settings.view' },
+        { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, permission: 'settings.view', badge: inquiriesBadge },
+        { label: 'Customers', href: '/customers', icon: Users, permission: 'users.view' },
       ],
     },
     {
       title: 'Growth & Rewards',
       items: [
-        { label: 'Coupons', href: '/coupons', icon: Tag },
-        { label: 'Product Questions', href: '/questions', icon: HelpCircle },
-        { label: 'Promotions', href: '/promotions', icon: Megaphone },
+        { label: 'Coupons', href: '/coupons', icon: Tag, permission: 'settings.view' },
+        { label: 'Product Questions', href: '/questions', icon: HelpCircle, permission: 'settings.view' },
+        { label: 'Promotions', href: '/promotions', icon: Megaphone, permission: 'settings.view' },
       ],
     },
     {
       title: 'Settings & Security',
       items: [
-        { label: 'Configurations', href: '/configurations', icon: Sliders },
-        { label: 'Access Management', href: '/access', icon: ShieldCheck },
-        { label: 'Audit Logs', href: '/audit', icon: FileText },
+        { label: 'Configurations', href: '/configurations', icon: Sliders, permission: 'settings.view' },
+        { label: 'Access Management', href: '/access', icon: ShieldCheck, permission: 'users.view' },
+        { label: 'Audit Logs', href: '/audit', icon: FileText, permission: 'audit.view' },
       ],
     },
-  ];
+  ]
+    .map((s) => ({ ...s, items: s.items.filter((i) => can(i.permission)) }))
+    .filter((s) => s.items.length > 0);
 
   return (
-    <aside className="w-60 bg-[#074028] text-white flex flex-col justify-between shrink-0 h-screen sticky top-0 overflow-y-auto z-40 select-none">
-      <div className="p-4 space-y-5">
-        {/* Brand Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-white/10">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo size="sm" inverted={true} />
-          </Link>
-          <span className="px-2 py-0.5 rounded-md bg-[#FF7A00] text-[9px] font-black uppercase tracking-wider text-white">
-            Admin
-          </span>
-        </div>
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] transition-opacity lg:hidden ${
+          open ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-60 bg-[#074028] text-white flex flex-col justify-between shrink-0 h-screen overflow-y-auto select-none transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+          open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+        aria-label="Admin navigation"
+      >
+        <div className="p-3.5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <Link href="/" className="flex items-center gap-2">
+              <Logo size="sm" inverted={true} />
+            </Link>
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-md bg-[#FF7A00] text-[9px] font-black uppercase tracking-wider text-white">
+                Admin
+              </span>
+              <button
+                type="button"
+                onClick={onClose}
+                className="lg:hidden rounded-lg p-1 text-emerald-100 hover:bg-white/10"
+                aria-label="Close menu"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-        {/* Navigation Groups */}
-        <div className="space-y-4">
-          {navSections.map((section) => (
-            <div key={section.title} className="space-y-1">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-300/60 px-2.5">
-                {section.title}
-              </p>
-              <div className="space-y-0.5">
+          <nav className="space-y-3.5">
+            {navSections.map((section) => (
+              <div key={section.title} className="space-y-0.5">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-300/60 px-2.5 pb-0.5">
+                  {section.title}
+                </p>
                 {section.items.map((item) => {
-                  const isActive =
-                    item.href === '/'
-                      ? pathname === '/'
-                      : pathname.startsWith(item.href);
+                  const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                   const Icon = item.icon;
-
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                         isActive
-                          ? 'bg-[#FF7A00] text-white shadow-xs font-bold'
+                          ? 'bg-[#FF7A00] text-white shadow-xs'
                           : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
                       <span className="truncate">{item.label}</span>
-                      {item.badge !== undefined && item.badge > 0 && (
-                        <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-400 text-gray-950 text-[10px] font-black leading-none shrink-0 shadow-xs">
+                      {!!item.badge && item.badge > 0 && (
+                        <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-400 text-gray-950 text-[10px] font-black leading-none shrink-0">
                           {item.badge}
                         </span>
                       )}
@@ -110,55 +184,42 @@ export const AdminSidebar: React.FC = () => {
                   );
                 })}
               </div>
-            </div>
-          ))}
+            ))}
+          </nav>
         </div>
-      </div>
 
-      {/* Footer / Current Admin Card & Role Switcher */}
-      <div className="p-3.5 border-t border-white/10 bg-[#042819] space-y-2.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">
-              {currentUser.name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
+        <div className="p-3 border-t border-white/10 bg-[#042819] space-y-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-7 w-7 shrink-0 rounded-lg bg-emerald-700 flex items-center justify-center text-[11px] font-bold text-white">
+              {initials(user.name)}
             </div>
-            <div className="text-left">
-              <p className="text-xs font-bold text-white leading-tight">{currentUser.name}</p>
-              <p className="text-[10px] text-emerald-300/70">{currentUser.role.replace('_', ' ')}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-white leading-tight truncate">{user.name}</p>
+              <p className="text-[10px] text-emerald-300/70 truncate">{user.roleLabel}</p>
             </div>
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="rounded-lg p-1.5 text-emerald-200 hover:bg-white/10 hover:text-white"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
-        </div>
-
-        {/* Quick Role Switcher for Testing Authorization */}
-        <div>
-          <label className="block text-[9px] uppercase font-bold text-emerald-400/80 mb-1">
-            Simulate Role:
-          </label>
-          <select
-            value={currentUser.role}
-            onChange={(e) => setCurrentUserRole(e.target.value as any)}
-            className="w-full rounded-lg bg-white/10 border border-white/20 px-2 py-1 text-[11px] font-semibold text-white focus:outline-none"
+          <a
+            href={storefrontUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-emerald-200 transition-colors"
           >
-            <option value="SUPER_ADMIN" className="bg-[#074028]">Super Admin</option>
-            <option value="OPERATIONS" className="bg-[#074028]">Operations</option>
-            <option value="CATALOG_MANAGER" className="bg-[#074028]">Catalog Manager</option>
-            <option value="SUPPORT_AGENT" className="bg-[#074028]">Support Agent</option>
-          </select>
+            <span>Storefront</span>
+            <ExternalLink className="w-3 h-3 text-[#FF7A00]" />
+          </a>
         </div>
-
-        <a
-          href="http://localhost:3000"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-emerald-200 transition-colors"
-        >
-          <span>Storefront Portal</span>
-          <ExternalLink className="w-3 h-3 text-[#FF7A00]" />
-        </a>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
