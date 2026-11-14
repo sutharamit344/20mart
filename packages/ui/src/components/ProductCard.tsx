@@ -19,7 +19,7 @@ export interface ProductCardProps {
   className?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+const ProductCardComponent: React.FC<ProductCardProps> = ({
   product,
   quantity = 0,
   onAddToCart,
@@ -181,3 +181,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     </div>
   );
 };
+
+export const ProductCard = React.memo(ProductCardComponent, (prev, next) => {
+  return (
+    prev.product.id === next.product.id &&
+    prev.quantity === next.quantity &&
+    prev.isWishlisted === next.isWishlisted &&
+    prev.compact === next.compact &&
+    prev.className === next.className
+  );
+});
+
+ProductCard.displayName = 'ProductCard';

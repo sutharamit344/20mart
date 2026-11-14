@@ -1,5 +1,17 @@
 [
   {
+    "id": "inq-1794662798411",
+    "ticketNumber": "INQ-9102",
+    "name": "AMIT KUMAR",
+    "email": "sutharamit344@gmail.com",
+    "phone": "+917665399227",
+    "subject": "Order & Delivery Inquiry",
+    "message": "jhgjhghj",
+    "createdAt": "Just now",
+    "status": "NEW",
+    "priority": "NORMAL"
+  },
+  {
     "id": "inq-101",
     "ticketNumber": "INQ-2849",
     "name": "Priya Sharma",

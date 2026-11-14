@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Product,
   CartItem,
@@ -102,7 +102,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Cart logic
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = useCallback((product: Product, quantity = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
       if (existing) {
@@ -125,9 +125,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ];
     });
     showToast(`Added ${product.name} to cart!`);
-  };
+  }, []);
 
-  const updateCartQuantity = (cartItemId: string, delta: number) => {
+  const updateCartQuantity = useCallback((cartItemId: string, delta: number) => {
     setCart((prev) =>
       prev
         .map((item) => {
@@ -139,23 +139,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         })
         .filter(Boolean) as CartItem[]
     );
-  };
+  }, []);
 
-  const removeFromCart = (cartItemId: string) => {
+  const removeFromCart = useCallback((cartItemId: string) => {
     setCart((prev) => prev.filter((item) => item.id !== cartItemId));
     showToast('Item removed from cart');
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
-  const getItemQuantity = (productId: string) => {
+  const getItemQuantity = useCallback((productId: string) => {
     const item = cart.find((i) => i.productId === productId);
     return item ? item.quantity : 0;
-  };
+  }, [cart]);
 
-  const updateItemQuantity = (productId: string, delta: number) => {
+  const updateItemQuantity = useCallback((productId: string, delta: number) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === productId);
       if (existing) {
@@ -187,16 +187,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       return prev;
     });
-  };
+  }, []);
 
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const cartSubtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const cartDeliveryCharge = cartSubtotal >= 199 || cartSubtotal === 0 ? 0 : 40;
-  const cartDiscount = appliedCoupon ? appliedCoupon.discountValue : 0;
-  const cartTotal = Math.max(0, cartSubtotal + cartDeliveryCharge - cartDiscount);
+  const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+  const cartSubtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
+  const cartDeliveryCharge = useMemo(() => (cartSubtotal >= 199 || cartSubtotal === 0 ? 0 : 40), [cartSubtotal]);
+  const cartDiscount = useMemo(() => (appliedCoupon ? appliedCoupon.discountValue : 0), [appliedCoupon]);
+  const cartTotal = useMemo(() => Math.max(0, cartSubtotal + cartDeliveryCharge - cartDiscount), [cartSubtotal, cartDeliveryCharge, cartDiscount]);
 
   // Wishlist
-  const toggleWishlist = (productId: string) => {
+  const toggleWishlist = useCallback((productId: string) => {
     setWishlist((prev) => {
       const exists = prev.includes(productId);
       if (exists) {
@@ -207,12 +207,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return [...prev, productId];
       }
     });
-  };
+  }, []);
 
-  const isWishlisted = (productId: string) => wishlist.includes(productId);
+  const isWishlisted = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
   // Coupons
-  const applyCoupon = (code: string) => {
+  const applyCoupon = useCallback((code: string) => {
     const found = coupons.find(
       (c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isUnlocked
     );
@@ -228,19 +228,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAppliedCoupon(found);
     showToast(`Coupon ${found.code} applied! Saved ₹${found.discountValue}`);
     return { success: true, message: `Coupon ${found.code} applied successfully!` };
-  };
+  }, [coupons, cartSubtotal]);
 
-  const removeCoupon = () => {
+  const removeCoupon = useCallback(() => {
     setAppliedCoupon(null);
     showToast('Coupon removed');
-  };
+  }, []);
 
-  const unlockCoupon = (source: 'SURVEY' | 'LAUNCH') => {
+  const unlockCoupon = useCallback((source: 'SURVEY' | 'LAUNCH') => {
     setCoupons((prev) =>
       prev.map((c) => (c.source === source ? { ...c, isUnlocked: true } : c))
     );
     showToast('New coupon unlocked! Added to your wallet.');
-  };
+  }, []);
 
   // Orders
   const placeOrder = (
@@ -348,49 +348,91 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     unlockCoupon('SURVEY');
   };
 
+  const storeValue = useMemo(
+    () => ({
+      cart,
+      addToCart,
+      updateCartQuantity,
+      removeFromCart,
+      clearCart,
+      getItemQuantity,
+      updateItemQuantity,
+      cartCount,
+      cartSubtotal,
+      cartDeliveryCharge,
+      cartDiscount,
+      cartTotal,
+      wishlist,
+      toggleWishlist,
+      isWishlisted,
+      coupons,
+      appliedCoupon,
+      applyCoupon,
+      removeCoupon,
+      unlockCoupon,
+      orders,
+      placeOrder,
+      user,
+      loginUser,
+      logoutUser,
+      addresses,
+      selectedAddress,
+      addAddress,
+      selectAddress,
+      surveyCompleted,
+      completeSurvey,
+      surveyAnswers,
+      searchQuery,
+      setSearchQuery,
+      selectedCity,
+      setSelectedCity,
+      toastMessage,
+      showToast,
+    }),
+    [
+      cart,
+      addToCart,
+      updateCartQuantity,
+      removeFromCart,
+      clearCart,
+      getItemQuantity,
+      updateItemQuantity,
+      cartCount,
+      cartSubtotal,
+      cartDeliveryCharge,
+      cartDiscount,
+      cartTotal,
+      wishlist,
+      toggleWishlist,
+      isWishlisted,
+      coupons,
+      appliedCoupon,
+      applyCoupon,
+      removeCoupon,
+      unlockCoupon,
+      orders,
+      placeOrder,
+      user,
+      loginUser,
+      logoutUser,
+      addresses,
+      selectedAddress,
+      addAddress,
+      selectAddress,
+      surveyCompleted,
+      completeSurvey,
+      surveyAnswers,
+      searchQuery,
+      setSearchQuery,
+      selectedCity,
+      setSelectedCity,
+      toastMessage,
+      showToast,
+    ]
+  );
+
   return (
-    <StoreContext.Provider
-      value={{
-        cart,
-        addToCart,
-        updateCartQuantity,
-        removeFromCart,
-        clearCart,
-        getItemQuantity,
-        updateItemQuantity,
-        cartCount,
-        cartSubtotal,
-        cartDeliveryCharge,
-        cartDiscount,
-        cartTotal,
-        wishlist,
-        toggleWishlist,
-        isWishlisted,
-        coupons,
-        appliedCoupon,
-        applyCoupon,
-        removeCoupon,
-        unlockCoupon,
-        orders,
-        placeOrder,
-        user,
-        loginUser,
-        logoutUser,
-        addresses,
-        selectedAddress,
-        addAddress,
-        selectAddress,
-        surveyCompleted,
-        completeSurvey,
-        surveyAnswers,
-        searchQuery,
-        setSearchQuery,
-        selectedCity,
-        setSelectedCity,
-        toastMessage,
-        showToast,
-      }}
-    >
+    <StoreContext.Provider value={storeValue}>
       {children}
       {/* Global floating toast notification */}
       {toastMessage && (

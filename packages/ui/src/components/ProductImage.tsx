@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { cn } from '../lib/utils';
 import { ShoppingBag } from 'lucide-react';
 
@@ -13,6 +14,7 @@ export interface ProductImageProps {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   priority?: boolean;
   objectFit?: 'cover' | 'contain';
+  sizes?: string;
 }
 
 export const ProductImage: React.FC<ProductImageProps> = ({
@@ -24,6 +26,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
   padding = 'none',
   priority = false,
   objectFit = 'cover',
+  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw',
 }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -51,14 +54,6 @@ export const ProductImage: React.FC<ProductImageProps> = ({
         paddingClass,
         className
       )}
-      style={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        background: '#ffffff',
-      }}
     >
       {showPlaceholder ? (
         <div className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-[#FFF6E9]/60 p-3 text-center border border-orange-100/50">
@@ -71,27 +66,21 @@ export const ProductImage: React.FC<ProductImageProps> = ({
           <span className="text-[9px] text-gray-400 font-medium">Daily Value</span>
         </div>
       ) : (
-        <img
+        <Image
           src={src}
           alt={alt}
-          loading={priority ? 'eager' : 'lazy'}
+          fill
+          priority={priority}
+          sizes={sizes}
           onError={() => setHasError(true)}
           onLoad={() => setIsLoaded(true)}
           className={cn(
-            'w-full h-full max-h-full max-w-full object-center transition-all duration-300',
+            'transition-all duration-300',
             objectFit === 'contain' ? 'object-contain' : 'object-cover',
             !isLoaded && 'opacity-0 scale-95',
             isLoaded && 'opacity-100 scale-100',
             imgClassName
           )}
-          style={{
-            width: '100%',
-            height: '100%',
-            maxHeight: '100%',
-            maxWidth: '100%',
-            objectFit: objectFit,
-            objectPosition: 'center',
-          }}
         />
       )}
     </div>

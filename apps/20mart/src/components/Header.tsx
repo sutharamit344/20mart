@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Logo, Button, cn } from '@20mart/ui';
 import { useStore } from '../lib/store';
@@ -124,9 +125,11 @@ export const Header: React.FC = () => {
                   className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FFF6E9]/60 cursor-pointer transition-colors group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <img
+                    <Image
                       src={prod.images[0]}
                       alt={prod.name}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-lg object-cover bg-gray-50 shrink-0 border border-gray-100"
                     />
                     <div className="min-w-0">
@@ -201,9 +204,11 @@ export const Header: React.FC = () => {
                   }}
                   className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 hover:bg-emerald-50/60 text-left transition-colors cursor-pointer group"
                 >
-                  <img
+                  <Image
                     src={cat.image}
                     alt={cat.name}
+                    width={20}
+                    height={20}
                     className="w-5 h-5 rounded-md object-cover bg-white"
                   />
                   <span className="text-xs font-bold text-gray-800 group-hover:text-[#0B5D3B] truncate">

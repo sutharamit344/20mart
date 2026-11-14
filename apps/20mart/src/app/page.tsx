@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   mockCategories,
@@ -149,21 +150,31 @@ export default function HomePage() {
                 <span>Free Delivery &gt; ₹199</span>
               </div>
 
-              {/* Mobile Hero Image: Centered, prominent, no left negative space */}
+              {/* Mobile Hero Image: Centered, prominent, no left negative space with Next.js Image LCP priority */}
               <div className="md:hidden relative z-0 w-full flex items-center justify-center overflow-hidden px-1 pt-2 pb-1">
-                <img
+                <Image
                   src="/hero-group-mobile.png"
                   alt="20Mart Household & Kitchen Essentials Cluster"
+                  width={390}
+                  height={260}
+                  priority
+                  sizes="(max-width: 768px) 100vw, 390px"
                   className="w-full max-w-[390px] h-auto max-h-[260px] object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
                 />
               </div>
 
-              {/* Desktop Hero Image: Existing desktop image unchanged */}
-              <img
-                src="/hero-group-transparent.png"
-                alt="20Mart Household & Kitchen Essentials Cluster"
-                className="hidden md:block relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
-              />
+              {/* Desktop Hero Image: Next.js Image with LCP priority */}
+              <div className="hidden md:block relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto">
+                <Image
+                  src="/hero-group-transparent.png"
+                  alt="20Mart Household & Kitchen Essentials Cluster"
+                  width={600}
+                  height={380}
+                  priority
+                  sizes="(min-width: 768px) 50vw, 600px"
+                  className="relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
+                />
+              </div>
 
               {/* Floating Price Pill */}
               <div className="absolute bottom-2 sm:bottom-4 right-3 sm:right-6 z-10 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white rounded-full px-4 py-1.5 text-xs sm:text-sm font-black shadow-xl shadow-orange-950/35 border-2 border-white/90">

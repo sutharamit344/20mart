@@ -2,6 +2,7 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@20mart/ui';
 import { CheckCircle2, Truck, ArrowRight, ShoppingBag } from 'lucide-react';
@@ -16,9 +17,12 @@ function OrderSuccessContent() {
       {/* Celebration Bag & Checkmark Graphic (Screen 07 Reference) */}
       <div className="relative mx-auto flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center">
         <div className="absolute inset-0 rounded-full bg-amber-200/60 blur-xl animate-pulse" />
-        <img
+        <Image
           src="/order-success-bag.png"
           alt="Order Successful"
+          width={128}
+          height={128}
+          priority
           className="relative z-10 h-24 sm:h-32 w-auto object-contain drop-shadow-md"
         />
       </div>

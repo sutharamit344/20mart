@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter, Poppins } from 'next/font/google';
 import './globals.css';
 import { StoreProvider } from '../lib/store';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { MobileBottomNav } from '../components/MobileBottomNav';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading',
+  weight: ['500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
   title: '20Mart – Your Everyday Value Market',
@@ -35,8 +50,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-clip">
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+      <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-clip font-sans">
         <StoreProvider>
           <Header />
           <main className="flex-1">{children}</main>
