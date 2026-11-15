@@ -1,15 +1,10 @@
 import { prisma } from '@20mart/database';
 import { z } from 'zod';
+import { INDIAN_STATE_NAMES } from '@20mart/shared';
 import { AppError, notFound } from './errors';
 import { PINCODE_REGEX } from './settings';
 
-export const INDIAN_STATES = [
-  'Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Chhattisgarh',
-  'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu and Kashmir',
-  'Jharkhand', 'Karnataka', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya',
-  'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-] as const;
+export const INDIAN_STATES = INDIAN_STATE_NAMES;
 
 export const MAX_ADDRESSES = 10;
 

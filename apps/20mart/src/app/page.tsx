@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, Flame, Gift, Truck, PackageSearch } from 'lucide-react';
-import { getCategories, getProducts } from '../lib/catalog';
+import { getCategories, getPopular, getPricePoints, getProducts } from '../lib/catalog';
 import { getCategoryTheme } from '../lib/category-theme';
 import { ProductGrid } from '../components/StoreProductCard';
 
@@ -11,22 +11,22 @@ export const revalidate = 60;
 
 async function loadHome() {
   try {
-    const [categories, featured, deals] = await Promise.all([
+    const [categories, popular, newest, deals, pricePoints] = await Promise.all([
       getCategories(),
-      getProducts({ featured: true, pageSize: 10 }),
-      getProducts({ deals: true, maxPrice: 5000, sort: 'price_asc', pageSize: 5 }),
+      getPopular(10),
+      getProducts({ sort: 'newest', pageSize: 5, inStock: true }),
+      getProducts({ deals: true, maxPrice: 5000, sort: 'price_asc', pageSize: 5, inStock: true }),
+      getPricePoints(),
     ]);
-    // Fall back to newest products when nothing is marked featured yet.
-    const trending = featured.items.length ? featured.items : (await getProducts({ sort: 'newest', pageSize: 10 })).items;
-    return { categories, trending, deals: deals.items, error: false };
+    return { categories, trending: popular, newest: newest.items, deals: deals.items, pricePoints, error: false };
   } catch (e) {
     console.error('[home] catalog unavailable:', (e as Error).message);
-    return { categories: [], trending: [], deals: [], error: true };
+    return { categories: [], trending: [], newest: [], deals: [], pricePoints: [], error: true };
   }
 }
 
 export default async function HomePage() {
-  const { categories, trending, deals, error } = await loadHome();
+  const { categories, trending, newest, deals, pricePoints, error } = await loadHome();
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-8">
@@ -168,7 +168,26 @@ export default async function HomePage() {
       </section>
     </div>
 
-      {/* 3. Trending Everyday Finds (Screen 01) */}
+      {/* Shop by price — real price-point collections */}
+      {pricePoints.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h2 className="mb-2 text-base sm:text-lg font-bold text-gray-900">Shop by price</h2>
+          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            {pricePoints.map((pp) => (
+              <Link
+                key={pp.amountPaise}
+                href={`/shop?pricePoint=${pp.amountPaise}`}
+                className="group flex flex-col items-center justify-center rounded-2xl border border-orange-100 bg-gradient-to-br from-[#FFF6E9] to-white py-3 sm:py-4 shadow-2xs transition-all hover:border-[#FF7A00]/50 hover:shadow-xs"
+              >
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-500">Everything at</span>
+                <span className="text-lg sm:text-2xl font-black text-[#FF7A00] group-hover:scale-105 transition-transform">{pp.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 3. Popular (by real units sold; falls back to featured) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -176,8 +195,8 @@ export default async function HomePage() {
               <Sparkles className="w-4 h-4 fill-current" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-gray-900">Trending Finds</h2>
-              <p className="text-xs text-gray-500">Popular items customers in Ahmedabad are buying right now</p>
+              <h2 className="text-base sm:text-lg font-bold text-gray-900">Popular right now</h2>
+              <p className="text-xs text-gray-500">Everyday favourites from the 20Mart shelves</p>
             </div>
           </div>
           <Link
@@ -202,6 +221,19 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* New arrivals */}
+      {newest.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">New arrivals</h2>
+            <Link href="/shop?sort=newest" className="text-xs sm:text-sm font-bold text-[#FF7A00] hover:underline">
+              See all →
+            </Link>
+          </div>
+          <ProductGrid products={newest} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 gap-2 sm:gap-2.5" />
+        </section>
+      )}
 
       {/* 5. Steal Deals Under ₹50 (only when real below-MRP products exist) */}
       {deals.length > 0 && (

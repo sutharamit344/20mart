@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { AccountLayout } from '../../../components/AccountLayout';
-import { useStore } from '../../../lib/store';
+import { storeApi, StoreApiError, useStore } from '../../../lib/store';
 import { Button, Input } from '@20mart/ui';
 import { CheckCircle2, ShieldCheck } from 'lucide-react';
 
 export default function EditProfilePage() {
-  const { user, showToast } = useStore();
+  const { user, showToast, refreshUser } = useStore();
 
   const [name, setName] = useState(user?.name ?? '');
-  const [phone] = useState('');
+  const [phone, setPhone] = useState('');
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [email, setEmail] = useState(user?.email ?? '');
 
   // The session user loads asynchronously; sync the form once it arrives.
@@ -20,17 +21,32 @@ export default function EditProfilePage() {
       setEmail(user.email ?? '');
     }
   }, [user]);
+  useEffect(() => {
+    storeApi<{ name: string | null; profile: { phone: string | null } | null }>('/api/account/profile')
+      .then((p) => {
+        setName(p.name ?? '');
+        setPhone(p.profile?.phone ?? '');
+      })
+      .catch(() => undefined);
+  }, []);
   const [language, setLanguage] = useState('English');
   const [city, setCity] = useState('Ahmedabad');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
+    setErrors({});
+    try {
+      await storeApi('/api/account/profile', { method: 'PATCH', body: { name, phone } });
+      await refreshUser();
+      showToast('Profile saved');
+    } catch (err) {
+      if (err instanceof StoreApiError) setErrors(err.fieldErrors);
+      showToast(err instanceof Error ? err.message : 'Could not save profile');
+    } finally {
       setIsSaving(false);
-      showToast('Profile information saved successfully!');
-    }, 500);
+    }
   };
 
   return (
@@ -50,14 +66,18 @@ export default function EditProfilePage() {
         <div>
           <label className="block text-xs font-bold text-gray-700 mb-1">Mobile Number</label>
           <div className="relative flex items-center">
+            <span className="absolute left-3 text-xs sm:text-sm font-semibold text-gray-500">+91</span>
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
               value={phone}
-              placeholder="Not added yet"
-              disabled
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-gray-50 px-3 text-xs sm:text-sm text-gray-700 font-semibold"
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              placeholder="10-digit mobile number"
+              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white pl-11 pr-3 text-xs sm:text-sm text-gray-900 font-semibold focus:border-[#FF7A00] focus:outline-none"
             />
           </div>
+          {errors.phone?.[0] && <p className="mt-1 text-[11px] font-medium text-red-600">{errors.phone[0]}</p>}
         </div>
 
         <div>

@@ -1,185 +1,105 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { SavedAddress } from '@20mart/shared';
+import { Loader2, MapPin, Pencil, Plus, Star, Trash2 } from 'lucide-react';
 import { AccountLayout } from '../../../components/AccountLayout';
-import { useStore } from '../../../lib/store';
-import { Button, Modal, Input } from '@20mart/ui';
-import { MapPin, Plus, Trash2, Edit2, CheckCircle2 } from 'lucide-react';
+import { AddressForm } from '../../../components/AddressForm';
+import { storeApi, useStore } from '../../../lib/store';
 
-export default function ManageAddressesPage() {
-  const { addresses, addAddress, selectAddress, selectedAddress, showToast } = useStore();
+export default function AddressBookPage() {
+  const { showToast } = useStore();
+  const [items, setItems] = useState<SavedAddress[] | null>(null);
+  const [editing, setEditing] = useState<SavedAddress | 'new' | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [name, setName] = useState('Amit Kumar');
-  const [phone, setPhone] = useState('+91 98765 43210');
-  const [line1, setLine1] = useState('');
-  const [locality, setLocality] = useState('Chanakyapuri');
-  const [city, setCity] = useState('Ahmedabad');
-  const [pincode, setPincode] = useState('380061');
-  const [type, setType] = useState<'Home' | 'Work' | 'Other'>('Home');
+  const load = useCallback(async () => {
+    try {
+      setItems((await storeApi<{ items: SavedAddress[] }>('/api/account/addresses')).items);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Could not load addresses');
+      setItems([]);
+    }
+  }, [showToast]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!line1.trim()) return;
-    addAddress({
-      name,
-      phone,
-      addressLine1: line1,
-      locality,
-      city,
-      state: 'Gujarat',
-      pincode,
-      type,
-      isDefault: addresses.length === 0,
-    });
-    setModalOpen(false);
-    setLine1('');
-    showToast('Address added successfully!');
+  const act = async (id: string, fn: () => Promise<unknown>, ok: string) => {
+    setBusy(id);
+    try {
+      await fn();
+      showToast(ok);
+      await load();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Something went wrong');
+    } finally {
+      setBusy(null);
+    }
   };
 
   return (
-    <AccountLayout
-      title="Manage Addresses"
-      subtitle="Save your home, office, and family delivery locations for 1-click checkout."
-      activeKey="addresses"
-    >
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => setModalOpen(true)}
-            className="font-bold gap-1"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add New Address</span>
-          </Button>
+    <AccountLayout title="My Addresses" subtitle="Saved delivery addresses. Past orders keep their own copy." activeKey="addresses">
+      {editing ? (
+        <div className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
+          <h2 className="mb-2.5 text-sm font-bold text-gray-900">{editing === 'new' ? 'Add address' : 'Edit address'}</h2>
+          <AddressForm
+            address={editing === 'new' ? null : editing}
+            onCancel={() => setEditing(null)}
+            onSaved={() => {
+              setEditing(null);
+              showToast('Address saved');
+              void load();
+            }}
+          />
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {addresses.map((addr) => {
-            const isSelected = selectedAddress?.id === addr.id;
-            return (
-              <div
-                key={addr.id}
-                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
-                  isSelected
-                    ? 'border-[#0B5D3B] bg-emerald-50/20 ring-1 ring-[#0B5D3B]'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-md uppercase">
-                      {addr.type}
-                    </span>
-                    {addr.isDefault && (
-                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                        <span>Default</span>
-                      </span>
-                    )}
-                  </div>
-                  <h4 className="text-xs sm:text-sm font-bold text-gray-900">{addr.name}</h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">
-                    {addr.addressLine1}, {addr.locality ? `${addr.locality}, ` : ''}
-                    {addr.city} – {addr.pincode}
-                  </p>
-                  <p className="text-[11px] text-gray-500 font-medium">{addr.phone}</p>
+      ) : items === null ? (
+        <div className="flex items-center justify-center py-12 text-xs text-gray-400">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {items.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center">
+              <MapPin className="mx-auto mb-2 h-7 w-7 text-gray-300" />
+              <p className="text-sm font-bold text-gray-900">No saved addresses</p>
+            </div>
+          )}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {items.map((a) => (
+              <li key={a.id} className={`rounded-2xl border bg-white p-3 text-xs shadow-xs ${a.isDefault ? 'border-[#FF7A00]/50' : 'border-gray-100'} ${busy === a.id ? 'opacity-60' : ''}`}>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-gray-900">{a.name}</span>
+                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gray-500">{a.type}</span>
+                  {a.isDefault && <span className="text-[9px] font-bold uppercase text-[#0B5D3B]">Default</span>}
                 </div>
-
-                <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => selectAddress(addr.id)}
-                    className="text-xs font-bold text-[#FF7A00] hover:underline"
-                  >
-                    {isSelected ? 'Selected' : 'Set as Default'}
+                <p className="mt-1 leading-relaxed text-gray-600">
+                  {a.addressLine1}
+                  {a.addressLine2 ? `, ${a.addressLine2}` : ''}
+                  {a.landmark ? `, near ${a.landmark}` : ''}, {a.city}, {a.state} – {a.pincode}
+                </p>
+                <p className="text-gray-500">+91 {a.phone}</p>
+                <div className="mt-2 flex items-center gap-3 border-t border-gray-100 pt-2 font-semibold">
+                  <button type="button" onClick={() => setEditing(a)} className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900">
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                  {!a.isDefault && (
+                    <button type="button" disabled={!!busy} onClick={() => act(a.id, () => storeApi(`/api/account/addresses/${a.id}/default`, { body: {} }), 'Default address updated')} className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900">
+                      <Star className="h-3 w-3" /> Make default
+                    </button>
+                  )}
+                  <button type="button" disabled={!!busy} onClick={() => act(a.id, () => storeApi(`/api/account/addresses/${a.id}`, { method: 'DELETE' }), 'Address removed')} className="ml-auto inline-flex items-center gap-1 text-red-600">
+                    <Trash2 className="h-3 w-3" /> Delete
                   </button>
                 </div>
-              </div>
-            );
-          })}
+              </li>
+            ))}
+          </ul>
+          <button type="button" onClick={() => setEditing('new')} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+            <Plus className="h-3.5 w-3.5" /> Add new address
+          </button>
         </div>
-      </div>
-
-      {/* Add Address Modal */}
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Add Delivery Address"
-      >
-        <form onSubmit={handleSave} className="space-y-3">
-          <Input
-            label="Full Name"
-            placeholder="Recipient's Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            label="Phone Number"
-            placeholder="+91 98765 43210"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <Input
-            label="House / Flat / Building / Street"
-            placeholder="A-21, Chanakyapuri"
-            value={line1}
-            onChange={(e) => setLine1(e.target.value)}
-            required
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              label="City"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
-            />
-            <Input
-              label="Pincode"
-              value={pincode}
-              onChange={(e) => setPincode(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Address Type</label>
-            <div className="flex gap-2">
-              {(['Home', 'Work', 'Other'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`flex-1 py-1.5 rounded-xl border text-xs font-semibold ${
-                    type === t
-                      ? 'border-[#0B5D3B] bg-emerald-50 text-[#0B5D3B] font-bold'
-                      : 'border-gray-200 text-gray-600'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="pt-2 flex justify-end gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" variant="primary">
-              Save Address
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      )}
     </AccountLayout>
   );
 }
-

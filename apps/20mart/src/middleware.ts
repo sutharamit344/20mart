@@ -12,7 +12,9 @@ const SAFE = new Set(['GET', 'HEAD', 'OPTIONS']);
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith('/api/') && !SAFE.has(req.method) && pathname !== '/api/revalidate') {
+  // Server-to-server endpoints authenticate with signatures/secrets instead of browser origin.
+  const machineEndpoint = pathname === '/api/revalidate' || pathname === '/api/payments/razorpay/webhook' || pathname.startsWith('/api/cron/');
+  if (pathname.startsWith('/api/') && !SAFE.has(req.method) && !machineEndpoint) {
     const origin = req.headers.get('origin');
     const site = req.headers.get('sec-fetch-site');
     const allowed = new Set([req.nextUrl.origin, process.env.APP_URL && new URL(process.env.APP_URL).origin].filter(Boolean));
@@ -21,7 +23,7 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  if (pathname.startsWith('/account')) {
+  if (pathname.startsWith('/account') || pathname.startsWith('/checkout')) {
     const hasSession = SESSION_COOKIES.some((n) => req.cookies.has(n));
     if (!hasSession) {
       const url = new URL('/auth', req.url);
@@ -33,5 +35,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/account/:path*'],
+  matcher: ['/api/:path*', '/account/:path*', '/checkout/:path*', '/checkout'],
 };

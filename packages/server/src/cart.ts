@@ -1,5 +1,5 @@
 import { prisma, Prisma } from '@20mart/database';
-import { formatPaise } from '@20mart/shared';
+import { formatPaise, type CartLine, type CartLineState, type CartView } from '@20mart/shared';
 import { z } from 'zod';
 import { randomToken, sha256 } from './crypto';
 import { AppError, badRequest, conflict, notFound } from './errors';
@@ -9,40 +9,7 @@ type Db = Prisma.TransactionClient | typeof prisma;
 
 export type CartOwner = { userId: string; guestToken?: never } | { guestToken: string; userId?: never };
 
-export type CartLineState = 'ok' | 'insufficient' | 'out_of_stock' | 'unavailable';
-
-export interface CartLine {
-  id: string;
-  productId: string;
-  variantId: string | null;
-  inventoryId: string | null;
-  slug: string;
-  name: string;
-  sku: string;
-  variantName: string | null;
-  brandName: string | null;
-  imageUrl: string | null;
-  unitPricePaise: number;
-  mrpPaise: number;
-  addedPricePaise: number;
-  quantity: number;
-  lineTotalPaise: number;
-  /** Max quantity the customer may set right now (stock and per-line cap). Never the raw stock figure above the cap. */
-  maxQty: number;
-  state: CartLineState;
-  priceChanged: boolean;
-  message: string | null;
-}
-
-export interface CartView {
-  id: string | null;
-  lines: CartLine[];
-  totalQuantity: number;
-  /** Subtotal of lines that can be purchased as-is (state 'ok'). Integer paise, computed on the server. */
-  subtotalPaise: number;
-  hasIssues: boolean;
-  maxQtyPerLine: number;
-}
+export type { CartLine, CartLineState, CartView } from '@20mart/shared';
 
 export const addItemInput = z.object({
   productId: z.string().uuid(),

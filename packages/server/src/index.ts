@@ -28,3 +28,4 @@ export * from './orders';
 export * from './admin-orders';
 export * from './payments';
 export * from './payments/webhook';
+export * from './checkout';

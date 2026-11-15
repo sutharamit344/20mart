@@ -1,193 +1,262 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Button } from '@20mart/ui';
-import { AccountLayout } from './AccountLayout';
-import { useStore } from '../lib/store';
-import {
-  CheckCircle2,
-  Clock,
-  Truck,
-  MapPin,
-  ArrowLeft,
-} from 'lucide-react';
+import { FULFILMENT_STEPS, formatPaise, PAYMENT_STATUS_LABEL, type OrderStatusCode, type PaymentStatusCode } from '@20mart/shared';
+import { Check, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
+import { storeApi, useStore } from '../lib/store';
+import { payWithRazorpay, type CheckoutPaymentParams } from '../lib/razorpay';
 
-interface OrderDetailViewProps {
-  orderId: string;
+export interface CustomerOrderDetail {
+  orderNumber: string;
+  createdAt: string;
+  status: OrderStatusCode;
+  statusLabel: string;
+  paymentStatus: PaymentStatusCode;
+  paymentMethod: string;
+  subtotalPaise: number;
+  deliveryChargePaise: number;
+  discountPaise: number;
+  totalPaise: number;
+  shipName: string;
+  shipPhone: string;
+  shipLine1: string;
+  shipLine2: string | null;
+  shipLandmark: string | null;
+  shipCity: string;
+  shipState: string;
+  shipPincode: string;
+  deliveryEstimate: string | null;
+  reservationExpiresAt: string | null;
+  cancelReason: string | null;
+  items: {
+    id: string;
+    productName: string;
+    variantName: string | null;
+    productImage: string | null;
+    brandName: string | null;
+    quantity: number;
+    unitPricePaise: number;
+    totalPricePaise: number;
+    product: { slug: string } | null;
+  }[];
+  history: { status: OrderStatusCode; label: string; at: string; note: string | null }[];
+  refunds: { status: string; amountPaise: number }[];
+  canCancel: boolean;
+  canPay: boolean;
 }
 
-export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ orderId }) => {
+const fmtDate = (d: string) => new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
+
+/** Real order details: timeline comes only from recorded status history (no simulated tracking). */
+export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrderDetail; autoPay?: boolean }) {
   const router = useRouter();
-  const { orders } = useStore();
+  const { showToast } = useStore();
+  const [busy, setBusy] = useState<'pay' | 'cancel' | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [reason, setReason] = useState('');
 
-  const order =
-    orders.find((o) => o.orderNumber.toUpperCase() === orderId?.toUpperCase()) ||
-    orders[0];
+  const terminal = order.status === 'CANCELLED' || order.status === 'FAILED';
+  const reached = new Map(order.history.map((h) => [h.status, h.at]));
+  const currentIdx = FULFILMENT_STEPS.findIndex((s) => s.status === order.status);
 
-  if (!order) {
-    return (
-      <AccountLayout title="Order Details" activeKey="orders">
-        <div className="rounded-3xl border border-gray-100 bg-white p-10 text-center">
-          <p className="text-gray-500 text-sm">Order not found.</p>
-          <Button size="sm" className="mt-4 cursor-pointer" onClick={() => router.push('/account/orders')}>
-            Back to Orders
-          </Button>
-        </div>
-      </AccountLayout>
-    );
-  }
+  const pay = async () => {
+    setBusy('pay');
+    try {
+      const params = await storeApi<CheckoutPaymentParams>(`/api/orders/${order.orderNumber}/pay`, { body: {} });
+      const outcome = await payWithRazorpay(params);
+      if (outcome === 'paid') router.replace(`/order-success?order=${order.orderNumber}`);
+      router.refresh();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Payment could not be completed');
+      router.refresh();
+    } finally {
+      setBusy(null);
+    }
+  };
+  React.useEffect(() => {
+    if (autoPay && order.canPay) void pay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cancel = async () => {
+    setBusy('cancel');
+    try {
+      await storeApi(`/api/orders/${order.orderNumber}/cancel`, { body: { reason } });
+      showToast('Order cancelled');
+      setCancelOpen(false);
+      router.refresh();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Could not cancel the order');
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
-    <AccountLayout
-      title={`Order #${order.orderNumber}`}
-      subtitle={`Placed on ${order.createdAt}`}
-      activeKey="orders"
-    >
-      <div className="space-y-5">
-        {/* Top Control Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/account/orders"
-              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-gray-900">
-                  Order #{order.orderNumber}
-                </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60">
-                  {order.status.replace('_', ' ')}
-                </span>
-              </div>
-              <p className="text-[11px] text-gray-400">Placed on {order.createdAt}</p>
-            </div>
-          </div>
-
-          <Link
-            href={`/account/tracking?order=${order.orderNumber}`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0B5D3B] text-white text-xs font-bold hover:bg-[#094c30] transition-colors shadow-xs"
-          >
-            <Truck className="w-3.5 h-3.5" />
-            <span>Track Live</span>
-          </Link>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Order</p>
+          <h2 className="text-base sm:text-lg font-black text-gray-900">#{order.orderNumber}</h2>
+          <p className="text-[11px] text-gray-500">Placed {fmtDate(order.createdAt)}</p>
         </div>
-
-        {/* Stepper Status (Screen 11 Reference) */}
-        <div className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 sm:p-6 shadow-xs space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-            Delivery Progress
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 relative">
-            {order.timeline.map((event, idx) => (
-              <div key={idx} className="relative flex sm:flex-col items-start gap-3 sm:gap-2">
-                <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white z-10 ${
-                    event.completed ? 'bg-[#0B5D3B] shadow-xs' : 'bg-gray-200 text-gray-400'
-                  }`}
-                >
-                  {event.completed ? (
-                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                  ) : (
-                    <Clock className="w-3.5 h-3.5" />
-                  )}
-                </div>
-
-                <div className="space-y-0.5 min-w-0">
-                  <h4
-                    className={`text-xs font-bold leading-tight ${
-                      event.completed ? 'text-gray-900' : 'text-gray-400'
-                    }`}
-                  >
-                    {event.title}
-                  </h4>
-                  <p className="text-[10px] text-gray-400">{event.timestamp}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 2-Column: Items List & Order Breakdown */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Items */}
-          <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 shadow-xs space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-gray-900 pb-2 border-b border-gray-100">
-              Purchased Items ({order.items.length})
-            </h3>
-
-            <div className="divide-y divide-gray-100">
-              {order.items.map((item) => (
-                <div key={item.id} className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-12 w-12 shrink-0 rounded-xl bg-gray-50 p-1 border border-gray-100 flex items-center justify-center overflow-hidden">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-900 line-clamp-1">{item.name}</h4>
-                      <p className="text-[11px] text-gray-400">Qty: {item.quantity} × ₹{item.price}</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black text-gray-900">₹{item.price * item.quantity}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Breakdown & Address */}
-          <div className="lg:col-span-5 space-y-4">
-            {/* Delivery Address */}
-            <div className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 shadow-xs space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-gray-900 font-bold">
-                <MapPin className="w-4 h-4 text-[#FF7A00]" />
-                <span>Delivery Address</span>
-              </div>
-              <p className="font-bold text-gray-900">{order.deliveryAddress.name}</p>
-              <p className="text-gray-600 leading-relaxed">
-                {order.deliveryAddress.addressLine1}, {order.deliveryAddress.city} – {order.deliveryAddress.pincode}
-              </p>
-              <p className="text-gray-500 font-medium">Contact: {order.deliveryAddress.phone}</p>
-            </div>
-
-            {/* Price Summary */}
-            <div className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-5 shadow-xs space-y-2.5 text-xs">
-              <h4 className="font-bold text-gray-900 pb-2 border-b border-gray-100">Summary</h4>
-              <div className="flex justify-between text-gray-600">
-                <span>Items Subtotal</span>
-                <span className="font-bold text-gray-900">₹{order.subtotal}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Delivery Charge</span>
-                <span className="font-bold text-[#0B5D3B]">
-                  {order.deliveryCharge === 0 ? 'FREE' : `₹${order.deliveryCharge}`}
-                </span>
-              </div>
-              {order.discount > 0 && (
-                <div className="flex justify-between text-[#FF7A00]">
-                  <span>Voucher Discount</span>
-                  <span className="font-bold">-₹{order.discount}</span>
-                </div>
-              )}
-              <div className="pt-2 border-t border-gray-100 flex justify-between text-sm font-black text-gray-900">
-                <span>Total Amount</span>
-                <span className="text-[#0B5D3B]">₹{order.total}</span>
-              </div>
-            </div>
-          </div>
+        <div className="text-right">
+          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${terminal ? 'bg-red-50 text-red-700' : order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-[#E66E00]'}`}>
+            {order.statusLabel}
+          </span>
+          <p className="mt-1 text-[11px] text-gray-500">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</p>
         </div>
       </div>
-    </AccountLayout>
+
+      {order.canPay && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-orange-200 bg-orange-50 p-3 text-xs text-[#9E4B00]">
+          <span>
+            Payment pending. Items are held for you
+            {order.reservationExpiresAt ? ` until ${new Date(order.reservationExpiresAt).toLocaleTimeString('en-IN', { timeStyle: 'short', timeZone: 'Asia/Kolkata' })}` : ''}.
+          </span>
+          <button type="button" onClick={pay} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 font-bold text-white disabled:opacity-60">
+            {busy === 'pay' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Pay {formatPaise(order.totalPaise)}
+          </button>
+        </div>
+      )}
+
+      {/* Timeline */}
+      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
+        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-gray-500">Order status</h3>
+        {terminal ? (
+          <div className="flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-800">
+            <XCircle className="h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-bold">{order.statusLabel}</p>
+              {order.cancelReason && <p className="mt-0.5">Reason: {order.cancelReason}</p>}
+              {order.refunds.length > 0 && (
+                <p className="mt-0.5">
+                  Refund: {order.refunds.map((r) => `${formatPaise(r.amountPaise)} (${r.status === 'PROCESSED' ? 'completed' : 'in progress'})`).join(', ')}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <ol className="relative space-y-3 pl-6">
+            <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-gray-100" aria-hidden="true" />
+            {FULFILMENT_STEPS.map((s, i) => {
+              const done = reached.has(s.status) || i <= currentIdx;
+              const at = reached.get(s.status);
+              return (
+                <li key={s.status} className="relative">
+                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-[#0B5D3B] bg-[#0B5D3B] text-white' : 'border-gray-200 bg-white'}`}>
+                    {done && <Check className="h-3 w-3" />}
+                  </span>
+                  <p className={`text-xs font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{s.label}</p>
+                  {at && <p className="text-[10px] text-gray-500">{fmtDate(at)}</p>}
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        {!terminal && order.status !== 'DELIVERED' && order.deliveryEstimate && (
+          <p className="mt-3 rounded-lg bg-emerald-50 p-2 text-[11px] font-semibold text-emerald-800">{order.deliveryEstimate}</p>
+        )}
+      </section>
+
+      {/* Items */}
+      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
+        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
+          <Package className="h-3.5 w-3.5" /> Items
+        </h3>
+        <ul className="divide-y divide-gray-100">
+          {order.items.map((it) => (
+            <li key={it.id} className="flex items-center gap-3 py-2">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                {it.productImage ? <Image src={it.productImage} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
+              </div>
+              <div className="min-w-0 flex-1">
+                {it.product?.slug ? (
+                  <Link href={`/product/${it.product.slug}`} className="block truncate text-xs font-bold text-gray-900 hover:text-[#0B5D3B]">
+                    {it.productName}
+                  </Link>
+                ) : (
+                  <p className="truncate text-xs font-bold text-gray-900">{it.productName}</p>
+                )}
+                <p className="text-[11px] text-gray-500">
+                  {it.variantName ? `${it.variantName} · ` : ''}
+                  {it.quantity} × {formatPaise(it.unitPricePaise)}
+                </p>
+              </div>
+              <span className="text-xs font-black text-gray-900">{formatPaise(it.totalPricePaise)}</span>
+            </li>
+          ))}
+        </ul>
+        <dl className="mt-2 space-y-1 border-t border-gray-100 pt-2 text-xs">
+          <div className="flex justify-between">
+            <dt className="text-gray-500">Subtotal</dt>
+            <dd>{formatPaise(order.subtotalPaise)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-gray-500">Delivery</dt>
+            <dd>{order.deliveryChargePaise ? formatPaise(order.deliveryChargePaise) : 'Free'}</dd>
+          </div>
+          <div className="flex justify-between text-sm font-black text-gray-900">
+            <dt>Total</dt>
+            <dd>{formatPaise(order.totalPaise)}</dd>
+          </div>
+          <p className="text-[10px] text-gray-400">{order.paymentMethod === 'CASH_ON_DELIVERY' ? 'Cash on delivery' : 'Paid online'}</p>
+        </dl>
+      </section>
+
+      {/* Address */}
+      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 text-xs shadow-xs">
+        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
+          <MapPin className="h-3.5 w-3.5" /> Delivery address
+        </h3>
+        <p className="font-bold text-gray-900">{order.shipName}</p>
+        <p className="text-gray-600">
+          {order.shipLine1}
+          {order.shipLine2 ? `, ${order.shipLine2}` : ''}
+          {order.shipLandmark ? `, near ${order.shipLandmark}` : ''}, {order.shipCity}, {order.shipState} – {order.shipPincode}
+        </p>
+        <p className="text-gray-500">+91 {order.shipPhone}</p>
+      </section>
+
+      {order.canCancel && (
+        <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
+          {cancelOpen ? (
+            <div className="space-y-2">
+              <label htmlFor="cancel-reason" className="block text-xs font-bold text-gray-700">
+                Why are you cancelling?
+              </label>
+              <select
+                id="cancel-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm"
+              >
+                <option value="">Select a reason</option>
+                <option>Ordered by mistake</option>
+                <option>Found a better price</option>
+                <option>Delivery time is too long</option>
+                <option>Need to change items or address</option>
+                <option>Other</option>
+              </select>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setCancelOpen(false)} className="h-9 rounded-xl px-3 text-xs font-semibold text-gray-600">
+                  Keep order
+                </button>
+                <button type="button" disabled={!reason || !!busy} onClick={cancel} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-xs font-bold text-white disabled:opacity-50">
+                  {busy === 'cancel' && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Cancel order
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setCancelOpen(true)} className="text-xs font-bold text-red-600 hover:underline">
+              Cancel this order
+            </button>
+          )}
+        </section>
+      )}
+    </div>
   );
-};
+}

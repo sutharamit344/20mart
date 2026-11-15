@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ProductGallery, Breadcrumb } from '@20mart/ui';
 import { discountPercent, formatPaise, type StorefrontProduct, type StorefrontProductDetail } from '@20mart/shared';
 import { ShieldCheck, Truck, Heart, Plus, Minus, Sparkles } from 'lucide-react';
-import { toCartProduct, useStore } from '../lib/store';
+import { useStore } from '../lib/store';
 import { ProductGrid } from './StoreProductCard';
 
 interface ProductDetailViewProps {
@@ -15,7 +15,7 @@ interface ProductDetailViewProps {
 const MAX_QTY = 10;
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, relatedProducts }) => {
-  const { addToCart, toggleWishlist, isWishlisted } = useStore();
+  const { addToCart, toggleWishlist, isWishlisted, cartBusy } = useStore();
   const [variantId, setVariantId] = useState<string | null>(
     product.variants.find((v) => v.stockState !== 'OUT')?.id ?? product.variants[0]?.id ?? null
   );
@@ -41,13 +41,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const add = () => {
-    if (outOfStock) return;
-    const base = toCartProduct({ ...product, sellingPricePaise: price, mrpPaise: mrp, stockState });
-    addToCart(
-      variant ? { ...base, id: `${product.id}:${variant.id}`, name: `${product.name} – ${variant.name}` } : base,
-      quantity
-    );
+  // The server re-prices and checks stock; quantities above what is available are rejected with a clear message.
+  const add = async () => {
+    if (outOfStock || cartBusy) return;
+    if (await addToCart(product.id, quantity, variant?.id ?? null)) setQuantity(1);
   };
 
   const images = product.images.length ? product.images.map((i) => i.url) : [];

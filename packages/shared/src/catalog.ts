@@ -19,6 +19,8 @@ export interface StorefrontProduct {
   image: { url: string; alt: string } | null;
   stockState: StockState;
   isFeatured: boolean;
+  /** Product must be opened to choose an option before adding to cart. */
+  hasVariants: boolean;
 }
 
 export interface StorefrontVariant {

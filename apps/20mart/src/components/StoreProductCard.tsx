@@ -15,10 +15,10 @@ export function StoreProductCard({ product, compact, priority }: { product: Stor
       product={product}
       compact={compact}
       priority={priority}
-      quantity={getItemQuantity(product.id)}
+      quantity={product.hasVariants ? 0 : getItemQuantity(product.id)}
       isWishlisted={isWishlisted(product.id)}
       onClick={(p) => router.push(`/product/${p.slug}`)}
-      onAddToCart={(p) => updateItemQuantity(p, 1)}
+      onAddToCart={(p) => (p.hasVariants ? router.push(`/product/${p.slug}`) : updateItemQuantity(p, 1))}
       onIncrement={(p) => updateItemQuantity(p, 1)}
       onDecrement={(p) => updateItemQuantity(p, -1)}
       onToggleWishlist={(p) => toggleWishlist(p.id)}

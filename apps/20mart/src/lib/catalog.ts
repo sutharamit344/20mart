@@ -4,7 +4,10 @@ import {
   getPublicCategory,
   getPublicProduct,
   getRelatedProducts,
+  listPublicBrands,
   listPublicCategories,
+  listPopularProducts,
+  listPublicPricePoints,
   listPublicProducts,
   type PublicProductQuery,
 } from '@20mart/server';
@@ -42,6 +45,10 @@ export const getRelated = unstable_cache(
   ['public-related'],
   { revalidate: REVALIDATE, tags: ['catalog'] }
 );
+
+export const getBrands = unstable_cache(async () => listPublicBrands(), ['public-brands'], { revalidate: REVALIDATE, tags: ['catalog'] });
+export const getPricePoints = unstable_cache(async () => listPublicPricePoints(), ['public-price-points'], { revalidate: REVALIDATE, tags: ['catalog'] });
+export const getPopular = unstable_cache(async (limit: number) => listPopularProducts(limit), ['public-popular'], { revalidate: 300, tags: ['catalog'] });
 
 /** Header categories; never let a DB outage break every page. */
 export async function getHeaderCategories() {

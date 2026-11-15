@@ -32,6 +32,7 @@ const cardSelect = {
     where: { OR: [{ variantId: null }, { variant: { status: 'ACTIVE' } }] },
     select: { productId: true, variantId: true, availableQuantity: true, reservedQuantity: true, lowStockThreshold: true },
   },
+  _count: { select: { variants: { where: { status: 'ACTIVE' } } } },
 } satisfies Prisma.ProductSelect;
 
 type CardRow = Prisma.ProductGetPayload<{ select: typeof cardSelect }>;
@@ -50,6 +51,7 @@ function toCard(p: CardRow): StorefrontProduct {
     image: p.images[0] ? { url: p.images[0].url, alt: p.images[0].altText || p.name } : null,
     stockState: summariseStock(p.inventories).state,
     isFeatured: p.isFeatured,
+    hasVariants: p._count.variants > 0,
   };
 }
 

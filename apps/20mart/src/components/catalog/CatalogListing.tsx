@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
 import { PackageSearch } from 'lucide-react';
 import type { PublicProductQuery } from '@20mart/server';
-import { getCategories, getProducts } from '../../lib/catalog';
+import { getBrands, getCategories, getPricePoints, getProducts } from '../../lib/catalog';
 import { ProductGrid } from '../StoreProductCard';
 import { CatalogPagination, FilterSidebar, MobileFilterButton, SortSelect } from './CatalogControls';
 import { PRICE_BUCKETS } from './price-buckets';
@@ -20,7 +20,10 @@ export function queryFromSearchParams(sp: SP, fixed: Partial<PublicProductQuery>
   return {
     q: one(sp.q)?.slice(0, 80) || undefined,
     category: one(sp.category) || undefined,
-    sort: sort === 'newest' || sort === 'price_asc' || sort === 'price_desc' ? sort : 'popular',
+    sort: sort === 'newest' || sort === 'price_asc' || sort === 'price_desc' || sort === 'name_asc' ? sort : 'featured',
+    brand: one(sp.brand) || undefined,
+    pricePoint: Number(one(sp.pricePoint)) || undefined,
+    inStock: one(sp.inStock) === '1' ? true : undefined,
     page: Math.max(1, Math.min(500, Number(one(sp.page)) || 1)),
     pageSize: PAGE_SIZE,
     minPrice: bucket?.min,
@@ -55,14 +58,21 @@ export async function CatalogListing({
   const query = queryFromSearchParams(searchParams, fixed);
   let result: Awaited<ReturnType<typeof getProducts>> | null = null;
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let brands: Awaited<ReturnType<typeof getBrands>> = [];
+  let pricePoints: Awaited<ReturnType<typeof getPricePoints>> = [];
   try {
-    [result, categories] = await Promise.all([getProducts(query), getCategories()]);
+    [result, categories, brands, pricePoints] = await Promise.all([getProducts(query), getCategories(), getBrands(), getPricePoints()]);
   } catch (e) {
     console.error('[catalog] listing failed:', (e as Error).message);
   }
   const total = result?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const filterProps = { categories: categories.map((c) => ({ slug: c.slug, name: c.name, productCount: c.productCount })), showCategories: showCategoryFilter };
+  const filterProps = {
+    categories: categories.map((c) => ({ slug: c.slug, name: c.name, productCount: c.productCount })),
+    brands,
+    pricePoints,
+    showCategories: showCategoryFilter,
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10">

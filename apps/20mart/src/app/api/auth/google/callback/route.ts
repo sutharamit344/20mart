@@ -4,6 +4,8 @@ import {
   createCustomerSession,
   customerSessionCookie,
   deleteCustomerSession,
+  guestCartCookie,
+  mergeGuestCart,
   oauthStateCookie,
   rateLimit,
   toAppError,
@@ -48,8 +50,13 @@ export async function GET(req: NextRequest) {
     await deleteCustomerSession(req.cookies.get(sessionCookie.name)?.value);
     const { token, expiresAt } = await createCustomerSession(userId, meta);
 
+    // Bring the guest cart along (merged, capped by stock; the customer's cart is never overwritten).
+    const cartCookie = guestCartCookie();
+    await mergeGuestCart(req.cookies.get(cartCookie.name)?.value, userId).catch((e) => console.error('[auth] cart merge failed', e));
+
     const res = NextResponse.redirect(new URL(returnTo, req.url));
     res.cookies.set(sessionCookie.name, token, { ...sessionCookie.options, expires: expiresAt });
+    res.cookies.set(cartCookie.name, '', { ...cartCookie.options, maxAge: 0 });
     res.cookies.delete(stateCookie.name);
     res.headers.set('cache-control', 'no-store');
     return res;

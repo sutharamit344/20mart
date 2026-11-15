@@ -33,10 +33,10 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logoutUser, orders, coupons, wishlist } = useStore();
+  const { user, logoutUser, coupons, wishlist } = useStore();
 
   const navItems = [
-    { key: 'orders', label: 'My Orders', href: '/account/orders', icon: ShoppingBag, badge: String(orders.length) },
+    { key: 'orders', label: 'My Orders', href: '/account/orders', icon: ShoppingBag },
     { key: 'tracking', label: 'Track Active Order', href: '/account/tracking', icon: Truck },
     { key: 'coupons', label: 'My Rewards & Coupons', href: '/account/coupons', icon: Tag, badge: String(coupons.length) },
     { key: 'wishlist', label: 'My Wishlist', href: '/account/wishlist', icon: Heart, badge: String(wishlist.length) },

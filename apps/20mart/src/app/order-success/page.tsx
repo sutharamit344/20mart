@@ -1,77 +1,58 @@
-'use client';
-
-import React, { Suspense } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button } from '@20mart/ui';
-import { CheckCircle2, Truck, ArrowRight, ShoppingBag } from 'lucide-react';
+import { formatPaise, PAYMENT_STATUS_LABEL } from '@20mart/shared';
+import { getCustomerOrder } from '@20mart/server';
+import { getCurrentCustomer } from '@20mart/server/next';
+import { ArrowRight, Truck } from 'lucide-react';
 
-function OrderSuccessContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId') || 'ZM78321';
+export const dynamic = 'force-dynamic';
+export const metadata: Metadata = { title: 'Order placed – 20Mart', robots: { index: false } };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center space-y-6">
-      {/* Celebration Bag & Checkmark Graphic (Screen 07 Reference) */}
-      <div className="relative mx-auto flex h-28 w-28 sm:h-36 sm:w-36 items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-amber-200/60 blur-xl animate-pulse" />
-        <Image
-          src="/order-success-bag.png"
-          alt="Order Successful"
-          width={128}
-          height={128}
-          priority
-          className="relative z-10 h-24 sm:h-32 w-auto object-contain drop-shadow-md"
-        />
+/** Confirmation page — shows the real order owned by the signed-in customer, or nothing. */
+export default async function OrderSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
+  const customer = await getCurrentCustomer();
+  const order = customer && searchParams.order ? await getCustomerOrder(customer.id, searchParams.order).catch(() => null) : null;
+  if (!order) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16 text-center">
+        <p className="text-sm font-bold text-gray-900">We couldn&apos;t find that order.</p>
+        <Link href="/account/orders" className="mt-3 inline-flex text-xs font-bold text-[#FF7A00]">
+          View my orders →
+        </Link>
       </div>
-
-      <div className="space-y-1.5">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-          Order Placed Successfully!
-        </h1>
-        <p className="text-xs sm:text-sm text-gray-600">
-          Your order <span className="font-bold text-[#0B5D3B]">#{orderId}</span> has been received.
+    );
+  }
+  const awaitingPayment = order.status === 'PENDING' && order.paymentMethod === 'ONLINE';
+  const confirmed = order.status !== 'PENDING';
+  return (
+    <div className="max-w-md mx-auto px-4 py-10 sm:py-14 text-center space-y-5">
+      <div className="relative mx-auto flex h-28 w-28 items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-amber-200/60 blur-xl" />
+        <Image src="/order-success-bag.png" alt="" width={112} height={112} priority className="relative z-10 h-24 w-auto object-contain" />
+      </div>
+      <div className="space-y-1">
+        <h1 className="text-xl font-black text-gray-900">{awaitingPayment ? 'Order created — payment pending' : 'Order placed!'}</h1>
+        <p className="text-xs text-gray-500">
+          Order <b className="text-gray-900">#{order.orderNumber}</b> · {formatPaise(order.totalPaise)} ·{' '}
+          {order.paymentMethod === 'CASH_ON_DELIVERY' ? 'Cash on delivery' : PAYMENT_STATUS_LABEL[order.paymentStatus]}
         </p>
       </div>
-
-      <div className="mx-auto max-w-sm rounded-2xl bg-white border border-gray-100 p-3.5 shadow-xs flex items-center justify-center gap-3 text-xs">
-        <div className="p-2 rounded-xl bg-[#FFF6E9] text-[#FF7A00]">
-          <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
-        </div>
-        <div className="text-left">
-          <span className="text-[10px] text-gray-400 font-medium">Estimated Arrival</span>
-          <p className="font-bold text-gray-900">Delivery by 05 Nov 2026</p>
-        </div>
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3 text-left text-xs text-emerald-900">
+        <p className="flex items-center gap-1.5 font-bold">
+          <Truck className="h-4 w-4" />
+          {confirmed ? 'Your order is confirmed.' : awaitingPayment ? 'Complete payment to confirm your order.' : 'We will confirm your order shortly.'}
+        </p>
+        {order.deliveryEstimate && <p className="mt-1">{order.deliveryEstimate}</p>}
       </div>
-
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-3 max-w-sm mx-auto">
-        <Button
-          size="md"
-          variant="primary"
-          onClick={() => router.push(`/account/orders/${orderId}`)}
-          className="w-full sm:w-auto font-bold px-7 rounded-xl shadow-xs"
-        >
-          Track Order
-        </Button>
-        <Button
-          size="md"
-          variant="outline"
-          onClick={() => router.push('/shop')}
-          className="w-full sm:w-auto font-bold px-6 rounded-xl"
-        >
-          Continue Shopping
-        </Button>
+      <div className="flex flex-col sm:flex-row gap-2 justify-center">
+        <Link href={`/account/orders/${order.orderNumber}`} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0B5D3B] px-5 text-sm font-bold text-white">
+          Track order <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link href="/shop" className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-300 px-5 text-sm font-semibold text-gray-700">
+          Continue shopping
+        </Link>
       </div>
     </div>
-  );
-}
-
-export default function OrderSuccessPage() {
-  return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-gray-400">Loading order status...</div>}>
-      <OrderSuccessContent />
-    </Suspense>
   );
 }

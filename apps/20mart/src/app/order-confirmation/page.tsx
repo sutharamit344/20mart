@@ -1,13 +1,7 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import React, { Suspense } from 'react';
-import OrderSuccessPage from '../order-success/page';
-
-export default function OrderConfirmationPage() {
-  return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-gray-400">Loading order confirmation...</div>}>
-      <OrderSuccessPage />
-    </Suspense>
-  );
+/** Legacy URL → the real order confirmation page. */
+export default function OrderConfirmationPage({ searchParams }: { searchParams: { order?: string; orderId?: string } }) {
+  const order = searchParams.order ?? searchParams.orderId;
+  redirect(order ? `/order-success?order=${encodeURIComponent(order)}` : '/account/orders');
 }
-

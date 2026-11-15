@@ -1,107 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  Product,
-  CartItem,
-  DeliveryAddress,
-  Order,
-  Coupon,
-  mockAddresses,
-  mockCoupons,
-  mockOrders,
-  type StorefrontProduct,
-} from '@20mart/shared';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { EMPTY_CART, mockCoupons, type CartView, type Coupon, type StorefrontProduct } from '@20mart/shared';
 
 /**
- * Adapter: the cart/checkout screens (mock until the orders phase) still use the
- * legacy display shape. Prices there are display-only; they are never trusted
- * by the server. Real checkout will re-price from the database in paise.
+ * Client state for the storefront.
+ * - Cart and wishlist are SERVER-backed (database); this context only mirrors them.
+ *   Prices, totals and stock checks always come from the server responses.
+ * - Coupons/survey remain the pre-existing mock modules (out of P1 scope).
  */
-export function toCartProduct(p: StorefrontProduct): Product {
-  return {
-    id: p.id,
-    sku: p.id,
-    name: p.name,
-    slug: p.slug,
-    description: p.shortDescription ?? '',
-    category: p.category.name,
-    categorySlug: p.category.slug,
-    brand: p.brand?.name ?? '',
-    price: p.sellingPricePaise / 100,
-    originalPrice: p.mrpPaise / 100,
-    discountPercent: p.discountPercent,
-    rating: 0,
-    reviewCount: 0,
-    stock: p.stockState === 'OUT' ? 0 : 1,
-    inStock: p.stockState !== 'OUT',
-    images: p.image ? [p.image.url] : [],
-    tags: [],
-  };
-}
-
-const WISHLIST_KEY = '20mart_wishlist';
-
-interface StoreContextType {
-  // Cart
-  cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  updateCartQuantity: (cartItemId: string, delta: number) => void;
-  removeFromCart: (cartItemId: string) => void;
-  clearCart: () => void;
-  getItemQuantity: (productId: string) => number;
-  /** Pass the product to allow adding it; an id only changes an existing line. */
-  updateItemQuantity: (product: StorefrontProduct | string, delta: number) => void;
-  cartCount: number;
-  cartSubtotal: number;
-  cartDeliveryCharge: number;
-  cartDiscount: number;
-  cartTotal: number;
-
-  // Wishlist
-  wishlist: string[]; // product IDs
-  toggleWishlist: (productId: string) => void;
-  isWishlisted: (productId: string) => boolean;
-
-  // Coupons
-  coupons: Coupon[];
-  appliedCoupon: Coupon | null;
-  applyCoupon: (code: string) => { success: boolean; message: string };
-  removeCoupon: () => void;
-  unlockCoupon: (source: 'SURVEY' | 'LAUNCH') => void;
-
-  // Orders
-  orders: Order[];
-  placeOrder: (
-    deliveryMethod: 'HOME_DELIVERY' | 'STORE_PICKUP',
-    paymentMethod: 'ONLINE_UPI' | 'CARD' | 'CASH_ON_DELIVERY'
-  ) => Order;
-
-  // Customer session (Google sign-in). Source of truth is the server session cookie.
-  user: CustomerUser | null;
-  authStatus: 'loading' | 'authenticated' | 'guest';
-  refreshUser: () => Promise<void>;
-  logoutUser: () => Promise<void>;
-  addresses: DeliveryAddress[];
-  selectedAddress: DeliveryAddress | null;
-  addAddress: (addr: Omit<DeliveryAddress, 'id'>) => void;
-  selectAddress: (id: string) => void;
-
-  // Survey
-  surveyCompleted: boolean;
-  completeSurvey: (answers: Record<string, string>) => void;
-  surveyAnswers: Record<string, string>;
-
-  // Search & Navigation
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedCity: string;
-  setSelectedCity: (city: string) => void;
-
-  // Notification Toast state
-  toastMessage: string | null;
-  showToast: (msg: string) => void;
-}
 
 export interface CustomerUser {
   id: string;
@@ -110,263 +17,111 @@ export interface CustomerUser {
   image: string | null;
 }
 
+export class StoreApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code: string,
+    public fieldErrors: Record<string, string[]> = {},
+    public issues: string[] = []
+  ) {
+    super(message);
+  }
+}
+
+/** Same-origin JSON call to the storefront API; throws StoreApiError with the server's message. */
+export async function storeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  const res = await fetch(path, {
+    method: init.method ?? (init.body !== undefined ? 'POST' : 'GET'),
+    headers: init.body !== undefined ? { 'content-type': 'application/json' } : undefined,
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+    credentials: 'same-origin',
+    cache: 'no-store',
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = data?.error ?? {};
+    throw new StoreApiError(err.message ?? 'Something went wrong', res.status, err.code ?? 'ERROR', err.details?.fieldErrors ?? {}, err.details?.issues ?? []);
+  }
+  return data as T;
+}
+
+const LEGACY_WISHLIST_KEY = '20mart_wishlist';
+
+interface StoreContextType {
+  // Cart (server)
+  cart: CartView;
+  cartReady: boolean;
+  cartCount: number;
+  cartBusy: boolean;
+  refreshCart: () => Promise<void>;
+  addToCart: (productId: string, quantity?: number, variantId?: string | null) => Promise<boolean>;
+  setLineQuantity: (lineId: string, quantity: number) => Promise<void>;
+  removeLine: (lineId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  getItemQuantity: (productId: string) => number;
+  /** Product cards: +1 / −1 on the product's (variant-less) cart line. */
+  updateItemQuantity: (product: StorefrontProduct, delta: number) => Promise<void>;
+
+  // Wishlist (server, signed-in customers)
+  wishlist: string[];
+  toggleWishlist: (productId: string) => Promise<void>;
+  isWishlisted: (productId: string) => boolean;
+  refreshWishlist: () => Promise<void>;
+
+  // Coupons (mock module)
+  coupons: Coupon[];
+  applyCoupon: (code: string) => { success: boolean; message: string };
+  unlockCoupon: (source: 'SURVEY' | 'LAUNCH') => void;
+
+  // Customer session
+  user: CustomerUser | null;
+  authStatus: 'loading' | 'authenticated' | 'guest';
+  refreshUser: () => Promise<void>;
+  logoutUser: () => Promise<void>;
+
+  // Survey (mock module)
+  surveyCompleted: boolean;
+  completeSurvey: (answers: Record<string, string>) => void;
+  surveyAnswers: Record<string, string>;
+
+  // Search & navigation
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  selectedCity: string;
+  setSelectedCity: (city: string) => void;
+
+  toastMessage: string | null;
+  showToast: (msg: string) => void;
+}
+
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartView>(EMPTY_CART);
+  const [cartReady, setCartReady] = useState(false);
+  const [cartBusy, setCartBusy] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const wishlistLoaded = React.useRef(false);
-
-  // Wishlist is a per-device convenience (no account sync in P0).
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(WISHLIST_KEY) ?? '[]');
-      if (Array.isArray(saved)) setWishlist(saved.filter((x) => typeof x === 'string').slice(0, 100));
-    } catch {
-      /* storage unavailable */
-    }
-    wishlistLoaded.current = true;
-  }, []);
-  useEffect(() => {
-    if (!wishlistLoaded.current) return;
-    try {
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
-    } catch {
-      /* ignore */
-    }
-  }, [wishlist]);
   const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'guest'>('loading');
-  const [addresses, setAddresses] = useState<DeliveryAddress[]>(mockAddresses);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(mockAddresses[0]?.id || '');
-  const [surveyCompleted, setSurveyCompleted] = useState<boolean>(false);
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string>>({});
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCity, setSelectedCity] = useState<string>('Ahmedabad');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState('Ahmedabad');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
-  };
-
-  // Cart logic
-  const addToCart = useCallback((product: Product, quantity = 1) => {
-    if (!product.inStock) {
-      showToast('Sorry, this item is out of stock');
-      return;
-    }
-    setCart((prev) => {
-      const existing = prev.find((item) => item.productId === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.productId === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [
-        ...prev,
-        {
-          id: `cart-${Date.now()}`,
-          productId: product.id,
-          product,
-          quantity,
-          price: product.price,
-          selected: true,
-        },
-      ];
-    });
-    showToast(`Added ${product.name} to cart!`);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 3000);
   }, []);
 
-  const updateCartQuantity = useCallback((cartItemId: string, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === cartItemId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  }, []);
-
-  const removeFromCart = useCallback((cartItemId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== cartItemId));
-    showToast('Item removed from cart');
-  }, []);
-
-  const clearCart = useCallback(() => {
-    setCart([]);
-  }, []);
-
-  const getItemQuantity = useCallback((productId: string) => {
-    const item = cart.find((i) => i.productId === productId);
-    return item ? item.quantity : 0;
-  }, [cart]);
-
-  const updateItemQuantity = useCallback((target: StorefrontProduct | string, delta: number) => {
-    const productId = typeof target === 'string' ? target : target.id;
-    setCart((prev) => {
-      const existing = prev.find((item) => item.productId === productId);
-      if (existing) {
-        const newQty = existing.quantity + delta;
-        if (newQty <= 0) {
-          showToast('Removed from cart');
-          return prev.filter((item) => item.productId !== productId);
-        }
-        return prev.map((item) => (item.productId === productId ? { ...item, quantity: newQty } : item));
-      }
-      if (delta > 0 && typeof target !== 'string') {
-        if (target.stockState === 'OUT') {
-          showToast('Sorry, this item is out of stock');
-          return prev;
-        }
-        const product = toCartProduct(target);
-        showToast(`Added ${product.name} to cart!`);
-        return [
-          ...prev,
-          { id: `cart-${productId}`, productId, product, quantity: delta, price: product.price, selected: true },
-        ];
-      }
-      return prev;
-    });
-  }, []);
-
-  const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
-  const cartSubtotal = useMemo(() => cart.reduce((acc, item) => acc + item.price * item.quantity, 0), [cart]);
-  const cartDeliveryCharge = useMemo(() => (cartSubtotal >= 199 || cartSubtotal === 0 ? 0 : 40), [cartSubtotal]);
-  const cartDiscount = useMemo(() => (appliedCoupon ? appliedCoupon.discountValue : 0), [appliedCoupon]);
-  const cartTotal = useMemo(() => Math.max(0, cartSubtotal + cartDeliveryCharge - cartDiscount), [cartSubtotal, cartDeliveryCharge, cartDiscount]);
-
-  // Wishlist
-  const toggleWishlist = useCallback((productId: string) => {
-    setWishlist((prev) => {
-      const exists = prev.includes(productId);
-      if (exists) {
-        showToast('Removed from wishlist');
-        return prev.filter((id) => id !== productId);
-      } else {
-        showToast('Saved to wishlist');
-        return [...prev, productId];
-      }
-    });
-  }, []);
-
-  const isWishlisted = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
-
-  // Coupons
-  const applyCoupon = useCallback((code: string) => {
-    const found = coupons.find(
-      (c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isUnlocked
-    );
-    if (!found) {
-      return { success: false, message: 'Invalid or locked coupon code' };
-    }
-    if (cartSubtotal < found.minOrderValue) {
-      return {
-        success: false,
-        message: `Minimum order value ₹${found.minOrderValue} required for this coupon`,
-      };
-    }
-    setAppliedCoupon(found);
-    showToast(`Coupon ${found.code} applied! Saved ₹${found.discountValue}`);
-    return { success: true, message: `Coupon ${found.code} applied successfully!` };
-  }, [coupons, cartSubtotal]);
-
-  const removeCoupon = useCallback(() => {
-    setAppliedCoupon(null);
-    showToast('Coupon removed');
-  }, []);
-
-  const unlockCoupon = useCallback((source: 'SURVEY' | 'LAUNCH') => {
-    setCoupons((prev) =>
-      prev.map((c) => (c.source === source ? { ...c, isUnlocked: true } : c))
-    );
-    showToast('New coupon unlocked! Added to your wallet.');
-  }, []);
-
-  // Orders
-  const placeOrder = (
-    deliveryMethod: 'HOME_DELIVERY' | 'STORE_PICKUP',
-    paymentMethod: 'ONLINE_UPI' | 'CARD' | 'CASH_ON_DELIVERY'
-  ) => {
-    const activeAddress = addresses.find((a) => a.id === selectedAddressId) || addresses[0] || mockAddresses[0];
-    const newOrderNumber = `ZM${Math.floor(10000 + Math.random() * 90000)}`;
-
-    const newOrder: Order = {
-      id: `ord-${Date.now()}`,
-      orderNumber: newOrderNumber,
-      createdAt: 'Just now',
-      status: 'PROCESSING',
-      items: cart.map((item, idx) => ({
-        id: `oi-${Date.now()}-${idx}`,
-        productId: item.productId,
-        name: item.product.name,
-        image: item.product.images[0] || '',
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      itemCount: cart.length,
-      subtotal: cartSubtotal,
-      deliveryCharge: deliveryMethod === 'STORE_PICKUP' ? 0 : cartDeliveryCharge,
-      discount: cartDiscount,
-      total:
-        deliveryMethod === 'STORE_PICKUP'
-          ? Math.max(0, cartSubtotal - cartDiscount)
-          : cartTotal,
-      deliveryAddress: activeAddress,
-      deliveryMethod,
-      paymentMethod,
-      paymentStatus: 'PAID',
-      estimatedDelivery: '05 Nov 2026',
-      timeline: [
-        {
-          status: 'CONFIRMED',
-          title: 'Order Placed',
-          timestamp: 'Today, Just now',
-          completed: true,
-        },
-        {
-          status: 'PROCESSING',
-          title: 'Processing',
-          timestamp: 'Today, Assigned to Hub',
-          completed: true,
-        },
-        {
-          status: 'OUT_FOR_DELIVERY',
-          title: 'Out for Delivery',
-          timestamp: 'Expected 04 Nov',
-          completed: false,
-        },
-        {
-          status: 'DELIVERED',
-          title: 'Delivered',
-          timestamp: 'Expected 05 Nov',
-          completed: false,
-        },
-      ],
-    };
-
-    setOrders((prev) => [newOrder, ...prev]);
-    clearCart();
-    setAppliedCoupon(null);
-    return newOrder;
-  };
-
-  // Customer session: read from the server (HTTP-only cookie is not readable by JS).
+  /* ───────────── Session ───────────── */
   const refreshUser = useCallback(async () => {
     try {
-      const res = await fetch('/api/auth/me', { cache: 'no-store', credentials: 'same-origin' });
-      const data = res.ok ? ((await res.json()) as { user: CustomerUser | null }) : { user: null };
+      const data = await storeApi<{ user: CustomerUser | null }>('/api/auth/me');
       setUser(data.user);
       setAuthStatus(data.user ? 'authenticated' : 'guest');
     } catch {
@@ -375,75 +130,195 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  useEffect(() => {
-    void refreshUser();
-  }, [refreshUser]);
-
-  const logoutUser = useCallback(async () => {
+  /* ───────────── Cart ───────────── */
+  const refreshCart = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      setCart(await storeApi<CartView>('/api/cart'));
+    } catch {
+      /* keep last known cart */
     } finally {
-      setUser(null);
-      setAuthStatus('guest');
-      showToast('Signed out');
+      setCartReady(true);
     }
   }, []);
 
-  const addAddress = (addr: Omit<DeliveryAddress, 'id'>) => {
-    const newAddr: DeliveryAddress = {
-      ...addr,
-      id: `addr-${Date.now()}`,
-    };
-    setAddresses((prev) => [...prev, newAddr]);
-    setSelectedAddressId(newAddr.id);
-    showToast('Address added successfully!');
-  };
+  const runCart = useCallback(
+    async (fn: () => Promise<CartView>, ok?: string) => {
+      setCartBusy(true);
+      try {
+        setCart(await fn());
+        if (ok) showToast(ok);
+        return true;
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : 'Could not update your cart');
+        await refreshCart();
+        return false;
+      } finally {
+        setCartBusy(false);
+      }
+    },
+    [refreshCart, showToast]
+  );
 
-  const selectAddress = (id: string) => {
-    setSelectedAddressId(id);
-  };
+  const addToCart = useCallback(
+    (productId: string, quantity = 1, variantId: string | null = null) =>
+      runCart(() => storeApi<CartView>('/api/cart/items', { body: { productId, variantId, quantity } }), 'Added to cart'),
+    [runCart]
+  );
+  const setLineQuantity = useCallback(
+    async (lineId: string, quantity: number) => {
+      await runCart(() => storeApi<CartView>(`/api/cart/items/${lineId}`, { method: 'PATCH', body: { quantity } }));
+    },
+    [runCart]
+  );
+  const removeLine = useCallback(
+    async (lineId: string) => {
+      await runCart(() => storeApi<CartView>(`/api/cart/items/${lineId}`, { method: 'DELETE' }), 'Removed from cart');
+    },
+    [runCart]
+  );
+  const clearCart = useCallback(async () => {
+    await runCart(() => storeApi<CartView>('/api/cart', { method: 'DELETE' }), 'Cart cleared');
+  }, [runCart]);
 
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || addresses[0] || null;
+  const getItemQuantity = useCallback(
+    (productId: string) => cart.lines.filter((l) => l.productId === productId).reduce((a, l) => a + l.quantity, 0),
+    [cart]
+  );
 
-  // Survey
-  const completeSurvey = (answers: Record<string, string>) => {
-    setSurveyAnswers(answers);
-    setSurveyCompleted(true);
-    unlockCoupon('SURVEY');
-  };
+  const updateItemQuantity = useCallback(
+    async (product: StorefrontProduct, delta: number) => {
+      const line = cart.lines.find((l) => l.productId === product.id && !l.variantId);
+      if (line) {
+        await setLineQuantity(line.id, Math.max(0, line.quantity + delta));
+      } else if (delta > 0) {
+        await addToCart(product.id, delta);
+      }
+    },
+    [cart, setLineQuantity, addToCart]
+  );
 
-  const storeValue = useMemo(
+  /* ───────────── Wishlist ───────────── */
+  const refreshWishlist = useCallback(async () => {
+    try {
+      const data = await storeApi<{ productIds: string[] }>('/api/wishlist');
+      setWishlist(data.productIds);
+    } catch {
+      setWishlist([]);
+    }
+  }, []);
+
+  const toggleWishlist = useCallback(
+    async (productId: string) => {
+      if (authStatus !== 'authenticated') {
+        showToast('Sign in to save items to your wishlist');
+        return;
+      }
+      const had = wishlist.includes(productId);
+      setWishlist((w) => (had ? w.filter((id) => id !== productId) : [...w, productId])); // optimistic
+      try {
+        const data = had
+          ? await storeApi<{ productIds: string[] }>(`/api/wishlist/${productId}`, { method: 'DELETE' })
+          : await storeApi<{ productIds: string[] }>('/api/wishlist', { body: { productId } });
+        setWishlist(data.productIds);
+        showToast(had ? 'Removed from wishlist' : 'Saved to wishlist');
+      } catch (e) {
+        await refreshWishlist();
+        showToast(e instanceof Error ? e.message : 'Could not update wishlist');
+      }
+    },
+    [authStatus, wishlist, refreshWishlist, showToast]
+  );
+  const isWishlisted = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
+
+  // Initial load: session + cart. After sign-in, import any pre-login (P0 localStorage) wishlist once.
+  useEffect(() => {
+    void refreshUser();
+    void refreshCart();
+  }, [refreshUser, refreshCart]);
+
+  useEffect(() => {
+    if (authStatus !== 'authenticated') {
+      if (authStatus === 'guest') setWishlist([]);
+      return;
+    }
+    (async () => {
+      try {
+        const legacy = JSON.parse(localStorage.getItem(LEGACY_WISHLIST_KEY) ?? '[]');
+        if (Array.isArray(legacy) && legacy.length) {
+          await storeApi('/api/wishlist/import', { body: { ids: legacy.filter((x) => typeof x === 'string').slice(0, 100) } }).catch(() => undefined);
+        }
+        localStorage.removeItem(LEGACY_WISHLIST_KEY);
+      } catch {
+        /* storage unavailable */
+      }
+      await refreshWishlist();
+    })();
+  }, [authStatus, refreshWishlist]);
+
+  const logoutUser = useCallback(async () => {
+    try {
+      await storeApi('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+      setAuthStatus('guest');
+      setWishlist([]);
+      setCart(EMPTY_CART); // customer cart stays in the DB; guests start fresh
+      showToast('Signed out');
+    }
+  }, [showToast]);
+
+  /* ───────────── Coupons & survey (mock modules) ───────────── */
+  const applyCoupon = useCallback(
+    (code: string) => {
+      const found = coupons.find((c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isUnlocked);
+      const message = found
+        ? `Coupon ${found.code} is saved to your wallet. Redemption at checkout is coming soon.`
+        : 'Invalid or locked coupon code';
+      showToast(message);
+      return { success: false, message };
+    },
+    [coupons, showToast]
+  );
+  const unlockCoupon = useCallback(
+    (source: 'SURVEY' | 'LAUNCH') => {
+      setCoupons((prev) => prev.map((c) => (c.source === source ? { ...c, isUnlocked: true } : c)));
+      showToast('New coupon unlocked! Added to your wallet.');
+    },
+    [showToast]
+  );
+  const completeSurvey = useCallback(
+    (answers: Record<string, string>) => {
+      setSurveyAnswers(answers);
+      setSurveyCompleted(true);
+      unlockCoupon('SURVEY');
+    },
+    [unlockCoupon]
+  );
+
+  const value = useMemo<StoreContextType>(
     () => ({
       cart,
+      cartReady,
+      cartCount: cart.totalQuantity,
+      cartBusy,
+      refreshCart,
       addToCart,
-      updateCartQuantity,
-      removeFromCart,
+      setLineQuantity,
+      removeLine,
       clearCart,
       getItemQuantity,
       updateItemQuantity,
-      cartCount,
-      cartSubtotal,
-      cartDeliveryCharge,
-      cartDiscount,
-      cartTotal,
       wishlist,
       toggleWishlist,
       isWishlisted,
+      refreshWishlist,
       coupons,
-      appliedCoupon,
       applyCoupon,
-      removeCoupon,
       unlockCoupon,
-      orders,
-      placeOrder,
       user,
       authStatus,
       refreshUser,
       logoutUser,
-      addresses,
-      selectedAddress,
-      addAddress,
-      selectAddress,
       surveyCompleted,
       completeSurvey,
       surveyAnswers,
@@ -454,57 +329,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toastMessage,
       showToast,
     }),
-    [
-      cart,
-      addToCart,
-      updateCartQuantity,
-      removeFromCart,
-      clearCart,
-      getItemQuantity,
-      updateItemQuantity,
-      cartCount,
-      cartSubtotal,
-      cartDeliveryCharge,
-      cartDiscount,
-      cartTotal,
-      wishlist,
-      toggleWishlist,
-      isWishlisted,
-      coupons,
-      appliedCoupon,
-      applyCoupon,
-      removeCoupon,
-      unlockCoupon,
-      orders,
-      placeOrder,
-      user,
-      authStatus,
-      refreshUser,
-      logoutUser,
-      addresses,
-      selectedAddress,
-      addAddress,
-      selectAddress,
-      surveyCompleted,
-      completeSurvey,
-      surveyAnswers,
-      searchQuery,
-      setSearchQuery,
-      selectedCity,
-      setSelectedCity,
-      toastMessage,
-      showToast,
-    ]
+    [cart, cartReady, cartBusy, refreshCart, addToCart, setLineQuantity, removeLine, clearCart, getItemQuantity, updateItemQuantity, wishlist, toggleWishlist, isWishlisted, refreshWishlist, coupons, applyCoupon, unlockCoupon, user, authStatus, refreshUser, logoutUser, surveyCompleted, completeSurvey, surveyAnswers, searchQuery, selectedCity, toastMessage, showToast]
   );
 
   return (
-    <StoreContext.Provider value={storeValue}>
+    <StoreContext.Provider value={value}>
       {children}
-      {/* Global floating toast notification */}
       {toastMessage && (
-        <div className="fixed bottom-20 sm:bottom-6 right-6 z-50 animate-in slide-in-from-bottom duration-200">
-          <div className="flex items-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl">
-            <span className="h-2 w-2 rounded-full bg-[#FF7A00]" />
+        <div role="status" aria-live="polite" className="fixed bottom-20 sm:bottom-6 right-4 left-4 sm:left-auto sm:right-6 z-50 animate-in slide-in-from-bottom duration-200">
+          <div className="flex items-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl sm:max-w-sm">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-[#FF7A00]" />
             <span>{toastMessage}</span>
           </div>
         </div>
@@ -515,9 +349,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 export const useStore = () => {
   const context = useContext(StoreContext);
-  if (!context) {
-    throw new Error('useStore must be used within a StoreProvider');
-  }
+  if (!context) throw new Error('useStore must be used within a StoreProvider');
   return context;
 };
-

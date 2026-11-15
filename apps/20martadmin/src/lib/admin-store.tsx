@@ -2,12 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
-  Order,
   Coupon,
   SurveyQuestion,
   AuditLogEntry,
   ContactInquiry,
-  mockOrders,
   mockCoupons,
   mockSurveyQuestions,
   mockAuditLogs,
@@ -18,7 +16,7 @@ import {
 
 /**
  * Client-side state for modules that are NOT yet backed by the database
- * (orders, coupons, questions, configurations, inquiries). Catalog, inventory,
+ * (coupons, questions, configurations, inquiries). Catalog, inventory, orders,
  * admin users and roles are server-backed and do not live here.
  */
 interface AdminContextType {
@@ -31,9 +29,6 @@ interface AdminContextType {
   addInquiry: (inquiry: Omit<ContactInquiry, 'id' | 'ticketNumber' | 'createdAt'>) => void;
   deleteInquiry: (id: string) => void;
 
-  // Orders
-  orders: Order[];
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
 
   // Coupons
   coupons: Coupon[];
@@ -62,7 +57,6 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ adminName: string; children: React.ReactNode }> = ({ adminName, children }) => {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
   const [questions, setQuestions] = useState<SurveyQuestion[]>(mockSurveyQuestions);
   const [configs, setConfigs] = useState<BusinessConfigurations>(defaultBusinessConfigurations);
@@ -186,15 +180,6 @@ export const AdminProvider: React.FC<{ adminName: string; children: React.ReactN
     setAuditLogs((prev) => [entry, ...prev]);
   };
 
-  // Orders
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId || o.orderNumber === orderId ? { ...o, status } : o))
-    );
-    addAuditLog('Updated Order Status', 'ORDER', `Order #${orderId} marked as ${status}`);
-    showToast(`Order #${orderId} updated to ${status}`);
-  };
-
   // Coupons
   const addCoupon = (couponData: Omit<Coupon, 'id'>) => {
     const newCoupon: Coupon = {
@@ -256,8 +241,6 @@ export const AdminProvider: React.FC<{ adminName: string; children: React.ReactN
         updateInquiryStatus,
         addInquiry,
         deleteInquiry,
-        orders,
-        updateOrderStatus,
         coupons,
         addCoupon,
         toggleCouponActive,

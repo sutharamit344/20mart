@@ -22,6 +22,7 @@ import {
   BadgeCheck,
   X,
   LogOut,
+  Truck,
 } from 'lucide-react';
 
 export interface SidebarUser {
@@ -92,9 +93,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     {
       title: 'Operations',
       items: [
-        { label: 'Orders', href: '/orders', icon: ShoppingBag, permission: 'settings.view' },
+        { label: 'Orders', href: '/orders', icon: ShoppingBag, permission: 'orders.view' },
         { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, permission: 'settings.view', badge: inquiriesBadge },
-        { label: 'Customers', href: '/customers', icon: Users, permission: 'users.view' },
+        { label: 'Customers', href: '/customers', icon: Users, permission: 'customers.view' },
+        { label: 'Delivery & Payments', href: '/delivery', icon: Truck, permission: 'delivery.manage' },
       ],
     },
     {

@@ -1,171 +1,74 @@
-'use client';
-
-import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@20mart/ui';
+import Image from 'next/image';
+import { formatPaise, PAYMENT_STATUS_LABEL } from '@20mart/shared';
+import { listCustomerOrders } from '@20mart/server';
+import { getCurrentCustomer } from '@20mart/server/next';
+import { ChevronRight, ShoppingBag } from 'lucide-react';
 import { AccountLayout } from '../../../components/AccountLayout';
-import { useStore } from '../../../lib/store';
-import {
-  Package,
-  Clock,
-  CheckCircle2,
-  ChevronRight,
-  Truck,
-} from 'lucide-react';
-import { OrderStatus } from '@20mart/shared';
 
-export default function MyOrdersPage() {
-  const router = useRouter();
-  const { orders } = useStore();
-  const [statusFilter, setStatusFilter] = useState<'ALL' | OrderStatus>('ALL');
+export const dynamic = 'force-dynamic';
 
-  const filteredOrders = orders.filter((o) => {
-    if (statusFilter === 'ALL') return true;
-    return o.status === statusFilter;
-  });
+const tone = (s: string) =>
+  s === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : s === 'CANCELLED' || s === 'FAILED' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-[#E66E00]';
 
-  const getStatusBadge = (status: OrderStatus) => {
-    switch (status) {
-      case 'PROCESSING':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-            <span>Processing</span>
-          </span>
-        );
-      case 'OUT_FOR_DELIVERY':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
-            <Truck className="w-3.5 h-3.5" />
-            <span>Out for Delivery</span>
-          </span>
-        );
-      case 'DELIVERED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Delivered</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-700">
-            <span>{status}</span>
-          </span>
-        );
-    }
-  };
+export default async function MyOrdersPage({ searchParams }: { searchParams: { page?: string } }) {
+  const customer = (await getCurrentCustomer())!;
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const data = await listCustomerOrders(customer.id, page, 10);
+  const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
 
   return (
-    <AccountLayout
-      title="My Orders"
-      subtitle="Track active deliveries and review your order history"
-      activeKey="orders"
-    >
-      <div className="space-y-4">
-        {/* Status Filter Tabs (Screen 10 & Mobile 08) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
-          {[
-            { id: 'ALL', label: 'All Orders' },
-            { id: 'PROCESSING', label: 'Processing' },
-            { id: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
-            { id: 'DELIVERED', label: 'Delivered' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setStatusFilter(tab.id as any)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                statusFilter === tab.id
-                  ? 'bg-[#FF7A00] text-white shadow-xs'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+    <AccountLayout title="My Orders" subtitle="Your order history and status." activeKey="orders">
+      {data.items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
+          <ShoppingBag className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+          <p className="text-sm font-bold text-gray-900">No orders yet</p>
+          <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+            Start shopping
+          </Link>
         </div>
-
-        {filteredOrders.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-gray-200 bg-white p-10 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-gray-800">No orders found</h3>
-            <p className="text-xs text-gray-500 max-w-xs mx-auto mt-1 mb-5">
-              You don't have any orders matching this status filter.
-            </p>
-            <Button size="sm" onClick={() => router.push('/shop')}>
-              Browse Products
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3.5">
-            {filteredOrders.map((order) => (
-              <div
-                key={order.id}
-                onClick={() => router.push(`/account/orders/${order.orderNumber}`)}
-                className="rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs hover:border-orange-200 hover:shadow-sm transition-all cursor-pointer space-y-3.5"
-              >
-                {/* Order Top Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-gray-100 text-xs">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-gray-900 text-sm sm:text-base">
-                        #{order.orderNumber}
-                      </span>
-                      {getStatusBadge(order.status)}
-                    </div>
-                    <p className="text-[11px] text-gray-400">Placed on {order.createdAt}</p>
+      ) : (
+        <ul className="space-y-2.5">
+          {data.items.map((o) => (
+            <li key={o.orderNumber}>
+              <Link href={`/account/orders/${o.orderNumber}`} className="block rounded-2xl border border-gray-100 bg-white p-3 shadow-xs hover:border-orange-200">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-black text-gray-900">#{o.orderNumber}</p>
+                    <p className="text-[11px] text-gray-500">
+                      {new Date(o.createdAt).toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' })} · {o._count.items} item{o._count.items === 1 ? '' : 's'}
+                    </p>
                   </div>
-
-                  <div className="text-right">
-                    <span className="text-base sm:text-lg font-black text-[#0B5D3B]">
-                      ₹{order.total}
-                    </span>
-                    <p className="text-[10px] text-gray-400">{order.items.length} items</p>
-                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tone(o.status)}`}>{o.statusLabel}</span>
                 </div>
-
-                {/* Items Preview */}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2.5 overflow-x-auto py-1">
-                    {order.items.slice(0, 4).map((item) => (
-                      <div
-                        key={item.id}
-                        className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-xl bg-gray-50 p-1 border border-gray-100 flex items-center justify-center"
-                        title={item.name}
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-contain"
-                        />
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="flex -space-x-2">
+                    {o.items.map((it, i) => (
+                      <div key={i} className="relative h-9 w-9 overflow-hidden rounded-lg border-2 border-white bg-gray-50">
+                        {it.productImage ? <Image src={it.productImage} alt="" fill sizes="36px" className="object-contain" /> : null}
                       </div>
                     ))}
-                    {order.items.length > 0 && (
-                      <div className="text-xs text-gray-700 min-w-0">
-                        <p className="font-bold text-gray-900 truncate max-w-[180px] sm:max-w-[260px]">
-                          {order.items[0]?.name}
-                        </p>
-                        {order.items.length > 1 && (
-                          <p className="text-[11px] text-gray-400 font-medium">
-                            +{order.items.length - 1} more items
-                          </p>
-                        )}
-                      </div>
-                    )}
                   </div>
-
-                  <div className="flex items-center gap-1 text-xs font-bold text-[#FF7A00] shrink-0">
-                    <span>Details</span>
-                    <ChevronRight className="w-4 h-4" />
+                  <div className="flex items-center gap-1 text-right">
+                    <div>
+                      <p className="text-sm font-black text-gray-900">{formatPaise(o.totalPaise)}</p>
+                      <p className="text-[10px] text-gray-500">{PAYMENT_STATUS_LABEL[o.paymentStatus]}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-gray-300" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      {pages > 1 && (
+        <div className="mt-3 flex items-center justify-between text-xs">
+          {page > 1 ? <Link href={`/account/orders?page=${page - 1}`} className="font-bold text-[#FF7A00]">← Newer</Link> : <span />}
+          <span className="text-gray-500">Page {page} of {pages}</span>
+          {page < pages ? <Link href={`/account/orders?page=${page + 1}`} className="font-bold text-[#FF7A00]">Older →</Link> : <span />}
+        </div>
+      )}
     </AccountLayout>
   );
 }
