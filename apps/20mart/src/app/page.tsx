@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Sparkles, Flame, Gift, Truck, PackageSearch } from 'lucide-react';
+import { ArrowRight, Sparkles, Flame, Truck, PackageSearch } from 'lucide-react';
 import { getCategories, getPopular, getPricePoints, getProducts } from '../lib/catalog';
 import { getCategoryTheme } from '../lib/category-theme';
 import { ProductGrid } from '../components/StoreProductCard';
@@ -102,13 +102,6 @@ export default async function HomePage() {
                 >
                   <span>Explore Products</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/early-access"
-                  className="flex items-center gap-2 px-4 py-2.5 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 text-amber-200 hover:text-white transition-all text-xs sm:text-sm font-bold shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <Gift className="w-4 h-4 text-amber-300" />
-                  <span>Claim ₹50 Coupon</span>
                 </Link>
               </div>
             </div>
@@ -269,51 +262,6 @@ export default async function HomePage() {
       </section>
       )}
 
-      {/* 6. Early Access Campaign Promo Banner (Screen 16 Desktop & Mobile Screen 14) */}
-      <section className="max-w-7xl mx-auto px-0 sm:px-6">
-        <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-br from-[#064E2E] via-[#0B5D38] to-[#04341E] text-white p-5 sm:p-8 shadow-xl shadow-emerald-950/15 border-y sm:border border-emerald-600/20 flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Ambient lighting */}
-          <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none" />
-          <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 space-y-2 max-w-xl text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[#FFD027] to-[#FFA200] text-gray-950 text-[11px] font-black uppercase tracking-wider shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 fill-current" />
-              <span>Early Access</span>
-            </div>
-            <h3 className="text-xl sm:text-3xl font-black tracking-tight">Join 20Mart Early!</h3>
-            <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-              Add your favourite products and answer a few quick questions to unlock an extra{' '}
-              <strong className="text-amber-300 font-black">₹50 welcome coupon</strong> for your first order.
-            </p>
-          </div>
-
-          {/* Unified Bonus Voucher Ticket */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center bg-white/10 backdrop-blur-md rounded-2xl border-2 border-dashed border-amber-300/90 p-3 sm:p-3.5 shadow-inner gap-3 sm:gap-4 shrink-0">
-            {/* Voucher Value */}
-            <div className="text-center sm:text-left sm:pr-4 sm:border-r sm:border-dashed sm:border-amber-300/60">
-              <span className="text-[10px] uppercase font-black text-amber-200 tracking-wider block leading-none mb-1">
-                Bonus Voucher
-              </span>
-              <div className="text-2xl sm:text-3xl font-black text-white leading-tight">
-                ₹50 OFF
-              </div>
-              <span className="text-[10px] text-emerald-200 font-medium block leading-none mt-1">
-                Min. order ₹99
-              </span>
-            </div>
-
-            {/* CTA Button */}
-            <Link
-              href="/survey"
-              className="w-full sm:w-auto h-11 px-6 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 whitespace-nowrap hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <span>Join Early Access</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

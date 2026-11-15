@@ -28,6 +28,8 @@ export const PERMISSIONS = {
   'orders.cancel': { group: 'Orders', description: 'Cancel eligible orders' },
   'orders.refund': { group: 'Orders', description: 'Initiate and record refunds' },
   'customers.view': { group: 'Customers', description: 'View customer accounts' },
+  'inquiries.view': { group: 'Customers', description: 'Read customer contact messages' },
+  'inquiries.manage': { group: 'Customers', description: 'Update status, priority and notes of contact messages' },
   'delivery.manage': { group: 'Settings', description: 'Manage delivery areas, charges and payment methods' },
   'users.view': { group: 'Administration', description: 'View admin users and customers' },
   'users.manage': { group: 'Administration', description: 'Create, activate and deactivate admin users' },
@@ -88,7 +90,7 @@ export const ROLE_DEFINITIONS: Record<
   ORDER_MANAGER: {
     name: 'Order Manager',
     description: 'Processes and fulfils customer orders. Cannot refund or change catalog.',
-    permissions: ['dashboard.view', 'orders.view', 'orders.update', 'orders.cancel', 'customers.view', 'products.view', 'inventory.view'],
+    permissions: ['dashboard.view', 'orders.view', 'orders.update', 'orders.cancel', 'customers.view', 'inquiries.view', 'inquiries.manage', 'products.view', 'inventory.view'],
   },
   CONTENT_MANAGER: {
     name: 'Content Manager',

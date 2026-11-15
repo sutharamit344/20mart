@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumb } from '@20mart/ui';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { getCategories } from '../../lib/catalog';
 import { getCategoryTheme } from '../../lib/category-theme';
 
@@ -75,22 +75,6 @@ export default async function CategoryListingPage() {
         </div>
       )}
 
-      <div className="rounded-2xl sm:rounded-3xl bg-[#0B5D3B] text-white p-5 sm:p-7 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="space-y-1 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400 text-[#0B5D3B] text-[10px] font-bold uppercase tracking-wider">
-            <Sparkles className="w-3 h-3 fill-current" />
-            <span>Curated For Your Home</span>
-          </div>
-          <h2 className="text-lg sm:text-xl font-bold">Can&apos;t find what you are looking for?</h2>
-          <p className="text-xs text-emerald-100">Tell us in our 1-minute product interest survey and get a ₹50 discount coupon.</p>
-        </div>
-        <Link
-          href="/survey"
-          className="inline-flex h-10 items-center rounded-xl bg-[#FF7A00] px-4 text-sm font-bold text-white whitespace-nowrap shadow-xs hover:bg-[#E66E00]"
-        >
-          Take Survey &amp; Claim ₹50 →
-        </Link>
-      </div>
     </div>
   );
 }

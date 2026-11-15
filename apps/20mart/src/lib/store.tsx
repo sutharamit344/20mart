@@ -1,13 +1,12 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { EMPTY_CART, mockCoupons, type CartView, type Coupon, type StorefrontProduct } from '@20mart/shared';
+import { EMPTY_CART, type CartView, type StorefrontProduct } from '@20mart/shared';
 
 /**
  * Client state for the storefront.
  * - Cart and wishlist are SERVER-backed (database); this context only mirrors them.
  *   Prices, totals and stock checks always come from the server responses.
- * - Coupons/survey remain the pre-existing mock modules (out of P1 scope).
  */
 
 export interface CustomerUser {
@@ -69,21 +68,11 @@ interface StoreContextType {
   isWishlisted: (productId: string) => boolean;
   refreshWishlist: () => Promise<void>;
 
-  // Coupons (mock module)
-  coupons: Coupon[];
-  applyCoupon: (code: string) => { success: boolean; message: string };
-  unlockCoupon: (source: 'SURVEY' | 'LAUNCH') => void;
-
   // Customer session
   user: CustomerUser | null;
   authStatus: 'loading' | 'authenticated' | 'guest';
   refreshUser: () => Promise<void>;
   logoutUser: () => Promise<void>;
-
-  // Survey (mock module)
-  surveyCompleted: boolean;
-  completeSurvey: (answers: Record<string, string>) => void;
-  surveyAnswers: Record<string, string>;
 
   // Search & navigation
   searchQuery: string;
@@ -102,11 +91,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [cartReady, setCartReady] = useState(false);
   const [cartBusy, setCartBusy] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons);
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'guest'>('loading');
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
-  const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('Ahmedabad');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -267,34 +253,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [showToast]);
 
-  /* ───────────── Coupons & survey (mock modules) ───────────── */
-  const applyCoupon = useCallback(
-    (code: string) => {
-      const found = coupons.find((c) => c.code.toUpperCase() === code.trim().toUpperCase() && c.isUnlocked);
-      const message = found
-        ? `Coupon ${found.code} is saved to your wallet. Redemption at checkout is coming soon.`
-        : 'Invalid or locked coupon code';
-      showToast(message);
-      return { success: false, message };
-    },
-    [coupons, showToast]
-  );
-  const unlockCoupon = useCallback(
-    (source: 'SURVEY' | 'LAUNCH') => {
-      setCoupons((prev) => prev.map((c) => (c.source === source ? { ...c, isUnlocked: true } : c)));
-      showToast('New coupon unlocked! Added to your wallet.');
-    },
-    [showToast]
-  );
-  const completeSurvey = useCallback(
-    (answers: Record<string, string>) => {
-      setSurveyAnswers(answers);
-      setSurveyCompleted(true);
-      unlockCoupon('SURVEY');
-    },
-    [unlockCoupon]
-  );
-
   const value = useMemo<StoreContextType>(
     () => ({
       cart,
@@ -312,16 +270,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toggleWishlist,
       isWishlisted,
       refreshWishlist,
-      coupons,
-      applyCoupon,
-      unlockCoupon,
       user,
       authStatus,
       refreshUser,
       logoutUser,
-      surveyCompleted,
-      completeSurvey,
-      surveyAnswers,
       searchQuery,
       setSearchQuery,
       selectedCity,
@@ -329,7 +281,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toastMessage,
       showToast,
     }),
-    [cart, cartReady, cartBusy, refreshCart, addToCart, setLineQuantity, removeLine, clearCart, getItemQuantity, updateItemQuantity, wishlist, toggleWishlist, isWishlisted, refreshWishlist, coupons, applyCoupon, unlockCoupon, user, authStatus, refreshUser, logoutUser, surveyCompleted, completeSurvey, surveyAnswers, searchQuery, selectedCity, toastMessage, showToast]
+    [cart, cartReady, cartBusy, refreshCart, addToCart, setLineQuantity, removeLine, clearCart, getItemQuantity, updateItemQuantity, wishlist, toggleWishlist, isWishlisted, refreshWishlist, user, authStatus, refreshUser, logoutUser, searchQuery, selectedCity, toastMessage, showToast]
   );
 
   return (

@@ -119,7 +119,6 @@ Copy `.env.example` into the four (git-ignored) locations it lists and fill in v
 pnpm install
 pnpm --filter @20mart/database db:deploy     # apply migrations (non-destructive)
 pnpm --filter @20mart/database db:seed       # permissions, roles, 4 categories, price points (idempotent)
-pnpm --filter @20mart/database db:seed:demo  # OPTIONAL, dev only: 9 draft demo products with 0 stock
 ```
 
 ### 4. Create the first Super Admin

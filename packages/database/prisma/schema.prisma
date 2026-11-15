@@ -89,6 +89,19 @@ enum RefundStatus {
   FAILED
 }
 
+enum InquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum InquiryPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
 enum CartStatus {
   ACTIVE
   CONVERTED
@@ -130,6 +143,7 @@ model User {
   profile     CustomerProfile?
   sessions    UserSession[]
   wishlist    WishlistItem[]
+  inquiries   ContactInquiry[]
   addresses   Address[]
   carts       Cart[]
   orders      Order[]
@@ -832,4 +846,26 @@ model ConfigurationHistory {
   createdAt  DateTime @default(now())
 
   @@index([section])
+}
+
+/// Customer messages from the storefront contact form (replaces the old JSON file).
+model ContactInquiry {
+  id           String          @id @default(uuid())
+  /// Public, non-sequential reference shown to the customer, e.g. INQ-7K3QX9
+  ticketNumber String          @unique
+  userId       String?
+  user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name         String
+  email        String
+  phone        String?
+  subject      String
+  message      String
+  status       InquiryStatus   @default(NEW)
+  priority     InquiryPriority @default(NORMAL)
+  adminNotes   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
 }

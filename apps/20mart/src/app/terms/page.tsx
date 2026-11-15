@@ -73,8 +73,8 @@ function TermsContent() {
               <h2 className="text-sm font-bold text-gray-900">3. Pricing, Discounts and Coupons</h2>
               <p>
                 All prices are stated in Indian Rupees (₹) and inclusive of all applicable taxes.
-                Coupons and promotional discounts (such as WELCOME50 and SURVEY50) are subject to
-                specified minimum order thresholds and validity windows.
+                Any promotional offers will state their own minimum order thresholds and validity
+                windows when they are introduced.
               </p>
             </section>
 

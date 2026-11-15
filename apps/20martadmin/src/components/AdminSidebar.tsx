@@ -10,10 +10,6 @@ import {
   Boxes,
   ShoppingBag,
   Users,
-  Tag,
-  HelpCircle,
-  Megaphone,
-  Sliders,
   ShieldCheck,
   FileText,
   ExternalLink,
@@ -94,23 +90,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       title: 'Operations',
       items: [
         { label: 'Orders', href: '/orders', icon: ShoppingBag, permission: 'orders.view' },
-        { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, permission: 'settings.view', badge: inquiriesBadge },
+        { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, permission: 'inquiries.view', badge: inquiriesBadge },
         { label: 'Customers', href: '/customers', icon: Users, permission: 'customers.view' },
         { label: 'Delivery & Payments', href: '/delivery', icon: Truck, permission: 'delivery.manage' },
       ],
     },
     {
-      title: 'Growth & Rewards',
-      items: [
-        { label: 'Coupons', href: '/coupons', icon: Tag, permission: 'settings.view' },
-        { label: 'Product Questions', href: '/questions', icon: HelpCircle, permission: 'settings.view' },
-        { label: 'Promotions', href: '/promotions', icon: Megaphone, permission: 'settings.view' },
-      ],
-    },
-    {
       title: 'Settings & Security',
       items: [
-        { label: 'Configurations', href: '/configurations', icon: Sliders, permission: 'settings.view' },
         { label: 'Access Management', href: '/access', icon: ShieldCheck, permission: 'users.view' },
         { label: 'Audit Logs', href: '/audit', icon: FileText, permission: 'audit.view' },
       ],

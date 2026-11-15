@@ -9,7 +9,6 @@ export * from './components/Badge';
 export * from './components/Card';
 export * from './components/ProductImage';
 export * from './components/ProductCard';
-export * from './components/CategoryCard';
 export * from './components/ProductGallery';
 export * from './components/Modal';
 export * from './components/Tabs';

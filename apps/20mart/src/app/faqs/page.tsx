@@ -22,10 +22,6 @@ const faqs = [
     a: 'We offer standard doorstep delivery for ₹40. Orders above ₹199 qualify for completely FREE doorstep delivery! Store pickup from our Ahmedabad fulfillment centers is also always free.',
   },
   {
-    q: 'How do I use a coupon?',
-    a: 'In your shopping cart or checkout page, locate the "Have a coupon code?" field, type your coupon code (e.g. WELCOME50 or SURVEY50) and tap "Apply". The discount is immediately deducted from your subtotal.',
-  },
-  {
     q: 'Can I track my order?',
     a: 'Yes! Navigate to "My Orders" from your account menu. Tap on any active order to view its real-time 4-step progress: Order Placed, Processing, Out for Delivery, and Delivered.',
   },

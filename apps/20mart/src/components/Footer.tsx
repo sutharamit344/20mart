@@ -106,11 +106,6 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
                 </Link>
               </li>
               <li>
-                <Link href="/coupons" className="hover:text-[#FF7A00] transition-colors">
-                  Coupons & Rewards
-                </Link>
-              </li>
-              <li>
                 <Link href="/faqs" className="hover:text-[#FF7A00] transition-colors">
                   FAQs & Help Center
                 </Link>
@@ -130,16 +125,6 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
               <li>
                 <Link href="/about" className="hover:text-[#FF7A00] transition-colors">
                   About 20Mart
-                </Link>
-              </li>
-              <li>
-                <Link href="/early-access" className="hover:text-[#FF7A00] transition-colors">
-                  Early Access Campaign
-                </Link>
-              </li>
-              <li>
-                <Link href="/survey" className="hover:text-[#FF7A00] transition-colors">
-                  Product Survey Reward
                 </Link>
               </li>
               <li>

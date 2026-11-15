@@ -43,8 +43,7 @@ export default function PrivacyPolicyPage() {
           </h2>
           <ul className="list-disc pl-5 space-y-1">
             <li>To dispatch, track, and deliver your grocery and home essentials packages.</li>
-            <li>To verify mobile numbers using one-time passwords (OTP) for secure account logins.</li>
-            <li>To unlock earned survey vouchers (e.g., SURVEY50) and notify you of dispatch timelines.</li>
+            <li>To sign you in securely with your Google account (we receive only your verified name, email and photo).</li>
             <li>To provide continuous customer support regarding replacements or delivery queries.</li>
           </ul>
         </section>

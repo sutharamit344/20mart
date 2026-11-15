@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Grid, Tag, Flame, User, LucideIcon } from 'lucide-react';
+import { Home, Grid, Tag, Flame, User, LucideIcon, Heart } from 'lucide-react';
 import { cn } from '@20mart/ui';
 import { useStore } from '../lib/store';
 
@@ -21,7 +21,7 @@ export const MobileBottomNav: React.FC = () => {
   const navItems: NavItem[] = [
     { label: 'Home', href: '/', icon: Home, exact: true },
     { label: 'Shop', href: '/shop', icon: Grid, exact: false },
-    { label: 'Offers', href: '/coupons', icon: Tag, exact: false },
+    { label: 'Wishlist', href: '/wishlist', icon: Heart, exact: false },
     { label: 'Deals', href: '/deals', icon: Flame, exact: false },
     { label: 'Account', href: '/account', icon: User, exact: false },
   ];

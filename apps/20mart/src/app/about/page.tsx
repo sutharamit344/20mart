@@ -77,23 +77,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Early Access Member Offer */}
-      <div className="rounded-3xl bg-gradient-to-r from-orange-500 to-amber-500 text-white p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
-        <div className="space-y-2 text-center md:text-left">
-          <h2 className="text-2xl sm:text-3xl font-black">Be an Early 20Mart Member!</h2>
-          <p className="text-xs sm:text-sm text-amber-100 max-w-md">
-            Unlock an extra ₹50 coupon by completing our short product preference survey.
-          </p>
-        </div>
-        <Link href="/survey">
-          <Button
-            size="lg"
-            className="bg-white text-gray-900 hover:bg-gray-100 font-black rounded-xl shadow-md"
-          >
-            Join Early Access →
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }

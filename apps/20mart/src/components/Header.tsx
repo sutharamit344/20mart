@@ -317,7 +317,6 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               {(() => {
                 const isShopActive = (pathname === '/shop' || pathname.startsWith('/shop')) && !pathname.includes('daily-deals') && !pathname.startsWith('/deals');
                 const isDealsActive = pathname === '/deals' || pathname.startsWith('/deals') || pathname.includes('daily-deals');
-                const isOffersActive = pathname === '/coupons' || pathname.startsWith('/coupons');
 
                 return (
                   <nav className="hidden md:flex items-center gap-3.5 lg:gap-5 text-xs font-bold shrink-0">
@@ -342,17 +341,6 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                       )}
                     >
                       Daily Deals
-                    </Link>
-                    <Link
-                      href="/coupons"
-                      className={cn(
-                        'transition-colors py-1 relative',
-                        isOffersActive
-                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
-                          : 'text-gray-700 hover:text-[#FF7A00]'
-                      )}
-                    >
-                      Offers
                     </Link>
                   </nav>
                 );
@@ -570,27 +558,6 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
               >
                 Categories
-              </Link>
-              <Link
-                href="/coupons"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
-              >
-                Coupons & Rewards
-              </Link>
-              <Link
-                href="/early-access"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
-              >
-                Early Access Campaign
-              </Link>
-              <Link
-                href="/survey"
-                onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
-              >
-                Product Survey (+₹50)
               </Link>
             </nav>
 

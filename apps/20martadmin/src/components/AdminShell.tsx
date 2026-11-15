@@ -4,21 +4,20 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminSidebar, type SidebarUser } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
-import { useAdmin } from '../lib/admin-store';
 
 interface AdminShellProps {
   user: SidebarUser;
   permissions: string[];
   storefrontUrl: string;
+  /** Count of NEW contact inquiries (from the database). */
+  newInquiries: number;
   children: React.ReactNode;
 }
 
-export const AdminShell: React.FC<AdminShellProps> = ({ user, permissions, storefrontUrl, children }) => {
+export const AdminShell: React.FC<AdminShellProps> = ({ user, permissions, storefrontUrl, newInquiries, children }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  const { inquiries } = useAdmin();
-  const newInquiries = inquiries.filter((i) => i.status === 'NEW').length;
 
   const logout = useCallback(async () => {
     try {

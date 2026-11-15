@@ -29,3 +29,4 @@ export * from './admin-orders';
 export * from './payments';
 export * from './payments/webhook';
 export * from './checkout';
+export * from './inquiries';

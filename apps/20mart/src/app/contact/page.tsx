@@ -52,49 +52,17 @@ export default function ContactPage() {
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const ticketNum = data?.inquiry?.ticketNumber || `INQ-${Math.floor(1000 + Math.random() * 9000)}`;
-
-        // Also sync to admin localStorage if on same browser session
-        if (typeof window !== 'undefined') {
-          try {
-            const existing = JSON.parse(localStorage.getItem('20mart_admin_inquiries') || '[]');
-            if (data?.inquiry) {
-              localStorage.setItem('20mart_admin_inquiries', JSON.stringify([data.inquiry, ...existing]));
-            }
-          } catch (e) {
-            // fallback
-          }
-        }
-
-        setSubmittedTicket({
-          ticketNumber: ticketNum,
-          name: name.trim(),
-          email: email.trim(),
-          subject,
-        });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.inquiry?.ticketNumber) {
+        // Only a ticket number issued by the server is ever shown.
+        const ticketNum: string = data.inquiry.ticketNumber;
+        setSubmittedTicket({ ticketNumber: ticketNum, name: name.trim(), email: email.trim(), subject });
         showToast(`Inquiry #${ticketNum} submitted successfully!`);
       } else {
-        // Fallback ticket creation
-        const fallbackTicketNum = `INQ-${Math.floor(1000 + Math.random() * 9000)}`;
-        setSubmittedTicket({
-          ticketNumber: fallbackTicketNum,
-          name: name.trim(),
-          email: email.trim(),
-          subject,
-        });
-        showToast('Your message has been received!');
+        showToast(data?.error ?? 'Your message could not be sent. Please check the form and try again.');
       }
-    } catch (err) {
-      const fallbackTicketNum = `INQ-${Math.floor(1000 + Math.random() * 9000)}`;
-      setSubmittedTicket({
-        ticketNumber: fallbackTicketNum,
-        name: name.trim(),
-        email: email.trim(),
-        subject,
-      });
-      showToast('Your message has been received!');
+    } catch {
+      showToast('Network error — your message was not sent. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

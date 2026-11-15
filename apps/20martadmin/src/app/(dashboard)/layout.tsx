@@ -1,5 +1,5 @@
 import { roleLabel } from '@20mart/shared';
-import { env } from '@20mart/server';
+import { countNewInquiries, env } from '@20mart/server';
 import { requireAdminPage } from '@20mart/server/next';
 import { AdminProvider } from '../../lib/admin-store';
 import { AdminShell } from '../../components/AdminShell';
@@ -18,9 +18,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     name: ctx.admin.name,
     roleLabel: ctx.roles.length ? ctx.roles.map(roleLabel).join(', ') : 'No role assigned',
   };
+  const newInquiries = ctx.permissions.has('inquiries.view') ? await countNewInquiries() : 0;
   return (
     <AdminProvider adminName={ctx.admin.name}>
-      <AdminShell user={user} permissions={[...ctx.permissions]} storefrontUrl={env().APP_URL}>
+      <AdminShell user={user} permissions={[...ctx.permissions]} storefrontUrl={env().APP_URL} newInquiries={newInquiries}>
         {children}
       </AdminShell>
     </AdminProvider>
