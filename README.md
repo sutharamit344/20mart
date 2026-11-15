@@ -141,6 +141,18 @@ pnpm build                           # production build of both apps
 
 ---
 
+## 🛒 Shopping, orders & payments (P1)
+
+- **Cart:** server-side and DB-backed for customers, with guest carts behind an HttpOnly `20m_cart` cookie merged on sign-in. Every read is re-priced and stock-checked on the server.
+- **Checkout:** totals are computed only on the server. Orders are placed in one transaction that reserves stock per line (no overselling) and is idempotent per checkout attempt.
+- **Delivery:** only PIN codes listed as serviceable in **Admin → Delivery & Payments** can order. The fee, free-delivery threshold, minimum order, estimate hours and operating hours are configured there.
+- **Payments:** COD and online are both **off** by default.
+  - Dev: `pnpm --filter @20mart/database db:seed:dev-delivery` enables COD and adds Ahmedabad PIN codes (dev only).
+  - Razorpay: set the env vars above, add the webhook URL in the Razorpay dashboard, then enable it in admin. Payments are confirmed only after signature + provider fetch + amount checks (or a signed webhook).
+- **Stock:** reserved at placement, committed when an order is confirmed (COD) or paid (online), and released or restocked on cancellation or expiry.
+  - Abandoned online payments expire after the configured window via `POST /api/cron/expire-reservations` (header `x-cron-secret`). This also runs opportunistically.
+- **Refunds:** cancelling a paid order creates a refund request. Admins with `orders.refund` initiate it with the provider (or record a cash refund reference). It shows as completed only after provider confirmation.
+
 ## 🔐 Google OAuth setup (customers)
 
 1. Google Cloud Console → **APIs & Services → OAuth consent screen**: External, app name "20Mart", scopes `openid`, `email`, `profile`.
