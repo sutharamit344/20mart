@@ -1,9 +1,28 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Poppins } from 'next/font/google';
+// Self-hosted (no Google Fonts download at build time, which made builds flaky).
+import localFont from 'next/font/local';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-sans', weight: ['400', '500', '600', '700'] });
-const poppins = Poppins({ subsets: ['latin'], display: 'swap', variable: '--font-heading', weight: ['500', '600', '700', '800'] });
+const inter = localFont({
+  src: [
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2', weight: '700', style: 'normal' },
+  ],
+  display: 'swap',
+  variable: '--font-sans',
+});
+const poppins = localFont({
+  src: [
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-800-normal.woff2', weight: '800', style: 'normal' },
+  ],
+  display: 'swap',
+  variable: '--font-heading',
+});
 
 export const metadata: Metadata = {
   title: '20Mart Admin – Control Center',

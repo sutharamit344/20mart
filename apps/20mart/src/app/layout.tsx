@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Poppins } from 'next/font/google';
+// Self-hosted (no Google Fonts download at build time, which made builds flaky).
+import localFont from 'next/font/local';
 import './globals.css';
 import { StoreProvider } from '../lib/store';
 import { LocationProvider } from '../lib/location';
@@ -9,21 +10,27 @@ import { MobileBottomNav } from '../components/MobileBottomNav';
 import { getHeaderCategories } from '../lib/catalog';
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME, siteOrigin } from '../lib/seo';
 
-const inter = Inter({
-  subsets: ['latin'],
+const inter = localFont({
+  src: [
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-sans',
-  weight: ['400', '500', '600', '700'],
-  // Not preloaded: with display=swap text paints immediately in the metric-matched fallback, and the
-  // font files no longer compete with CSS/JS at top priority on slow mobile connections.
   preload: false,
 });
 
-const poppins = Poppins({
-  subsets: ['latin'],
+const poppins = localFont({
+  src: [
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: '../../node_modules/@fontsource/poppins/files/poppins-latin-800-normal.woff2', weight: '800', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-heading',
-  weight: ['500', '600', '700', '800'],
   preload: false,
 });
 

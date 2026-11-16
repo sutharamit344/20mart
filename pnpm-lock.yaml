@@ -190,6 +190,12 @@ importers:
       '@20mart/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@fontsource/inter':
+        specifier: 5.3.0
+        version: 5.3.0
+      '@fontsource/poppins':
+        specifier: 5.3.0
+        version: 5.3.0
       '@node-rs/argon2':
         specifier: 2.0.2
         version: 2.0.2
@@ -254,6 +260,12 @@ importers:
       '@20mart/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@fontsource/inter':
+        specifier: 5.3.0
+        version: 5.3.0
+      '@fontsource/poppins':
+        specifier: 5.3.0
+        version: 5.3.0
       '@node-rs/argon2':
         specifier: 2.0.2
         version: 2.0.2
@@ -723,6 +735,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/inter@5.3.0':
+    resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
+
+  '@fontsource/poppins@5.3.0':
+    resolution: {integrity: sha512-cms1nM7U6SN8epIV1WMVOV8VsA645aSm3wHfzIQnkk188U341ThbJGSl2Sv54V29gnDbT2arMPfLzvVIIVCceQ==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2311,6 +2329,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.23.1':
     optional: true
+
+  '@fontsource/inter@5.3.0': {}
+
+  '@fontsource/poppins@5.3.0': {}
 
   '@img/colour@1.1.0': {}
 
