@@ -10,6 +10,12 @@
         ".next/**",
         "!.next/cache/**",
         "dist/**"
+      ],
+      "env": [
+        "INITIAL_ADMIN_USERNAME",
+        "INITIAL_ADMIN_EMAIL",
+        "INITIAL_ADMIN_PASSWORD",
+        "INITIAL_ADMIN_RECOVER"
       ]
     },
     "lint": {
