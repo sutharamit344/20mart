@@ -26,11 +26,21 @@ const run = (cmd) => {
 };
 run('pnpm --filter @20mart/database db:deploy');
 run('pnpm --filter @20mart/database db:seed');
-// Optional one-time admin provisioning: only when INITIAL_ADMIN_* are set in Vercel (remove them afterwards).
+// Optional one-time admin provisioning/recovery: only when INITIAL_ADMIN_* are set in Vercel (remove them afterwards).
+//   INITIAL_ADMIN_USERNAME + INITIAL_ADMIN_EMAIL + INITIAL_ADMIN_PASSWORD  → create the first SUPER_ADMIN (skipped if one exists)
+//   INITIAL_ADMIN_RECOVER=1 + INITIAL_ADMIN_USERNAME + INITIAL_ADMIN_PASSWORD → reset that SUPER_ADMIN's password, unlock it, revoke its sessions
 if (process.env.INITIAL_ADMIN_PASSWORD) {
+  const recover = process.env.INITIAL_ADMIN_RECOVER === '1';
+  const user = (process.env.INITIAL_ADMIN_USERNAME || '').trim().toLowerCase();
   try {
-    run('pnpm --filter @20mart/server admin:bootstrap');
-  } catch {
-    console.warn('[vercel-migrate] admin bootstrap skipped (an admin probably exists already)');
+    if (recover) {
+      if (!/^[a-z0-9._-]{3,32}$/.test(user)) throw new Error('INITIAL_ADMIN_USERNAME is required for recovery');
+      run(`pnpm --filter @20mart/server admin:bootstrap --recover ${user}`);
+    } else {
+      run('pnpm --filter @20mart/server admin:bootstrap');
+    }
+  } catch (e) {
+    console.warn(`[vercel-migrate] admin ${recover ? 'recovery' : 'bootstrap'} did not run: ${e instanceof Error ? e.message.split(/\r?\n/)[0] : e}`);
   }
+  console.warn('[vercel-migrate] REMOVE INITIAL_ADMIN_PASSWORD (and INITIAL_ADMIN_RECOVER) from Vercel now.');
 }
