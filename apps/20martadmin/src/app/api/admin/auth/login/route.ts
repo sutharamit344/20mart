@@ -19,6 +19,6 @@ export async function POST(req: NextRequest) {
     res.cookies.set(cookie.name, token, { ...cookie.options, expires: expiresAt });
     return res;
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

@@ -2,12 +2,13 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Breadcrumb } from '@20mart/ui';
+import { Breadcrumb, resolveImageSrc } from '@20mart/ui';
 import { ArrowRight } from 'lucide-react';
 import { getCategories } from '../../lib/catalog';
 import { getCategoryTheme } from '../../lib/category-theme';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/category' },
   title: 'Shop by category – 20Mart',
   description: 'Home, kitchen, stationery and daily-use essentials at everyday prices.',
 };
@@ -59,7 +60,7 @@ export default async function CategoryListingPage() {
                     style={{ backgroundColor: theme.bg }}
                   >
                     {category.imageUrl ? (
-                      <Image src={category.imageUrl} alt="" fill sizes="80px" className="object-contain p-1.5 group-hover:scale-110 transition-transform duration-300" />
+                      <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1.5 group-hover:scale-110 transition-transform duration-300" />
                     ) : (
                       <Icon className="h-8 w-8" style={{ color: theme.iconColor }} />
                     )}

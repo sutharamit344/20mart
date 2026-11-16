@@ -1,4 +1,5 @@
 export * from './lib/utils';
+export * from './lib/image-url';
 export * from './components/Logo';
 export * from './components/Button';
 export * from './components/Input';

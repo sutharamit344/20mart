@@ -40,6 +40,18 @@ export function guestCartCookie() {
   };
 }
 
+/**
+ * Selected delivery PIN code. Not a secret (readable by the page to show "Delivering to …");
+ * every server use re-validates it and it never grants access to anything.
+ */
+export function locationCookie() {
+  const secure = secureFor(env().APP_URL);
+  return {
+    name: '20m_pin',
+    options: { httpOnly: false, secure, sameSite: 'lax', path: '/', maxAge: 180 * 24 * 60 * 60 } satisfies CookieOptions,
+  };
+}
+
 export function adminSessionCookie() {
   const secure = secureFor(env().ADMIN_APP_URL);
   return {

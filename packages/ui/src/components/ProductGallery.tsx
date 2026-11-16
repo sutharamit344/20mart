@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import { resolveImageSrc } from '../lib/image-url';
 import { ProductImage } from './ProductImage';
 import {
   ZoomIn,
@@ -16,12 +17,15 @@ import {
 export interface ProductGalleryProps {
   images: string[];
   productName: string;
+  /** Per-image alt text (same order as images); falls back to the product name. */
+  alts?: (string | null | undefined)[];
   className?: string;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
   images,
   productName,
+  alts,
   className,
 }) => {
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -83,7 +87,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         >
           <ProductImage
             src={activeImage}
-            alt={productName}
+            alt={alts?.[selectedIdx] || productName}
             aspectRatio="square"
             padding="none"
             priority={true}
@@ -136,7 +140,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             >
               <ProductImage
                 src={img}
-                alt={`${productName} thumbnail ${idx + 1}`}
+                alt={alts?.[idx] ? `${alts[idx]} (thumbnail ${idx + 1})` : `${productName} thumbnail ${idx + 1}`}
                 aspectRatio="square"
                 padding="none"
                 objectFit="contain"
@@ -228,8 +232,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               style={{ transform: `scale(${lightboxScale})` }}
             >
               <img
-                src={activeImage}
-                alt={productName}
+                src={resolveImageSrc(activeImage)}
+                alt={alts?.[selectedIdx] || productName}
                 className="max-h-[75vh] max-w-full object-contain drop-shadow-2xl"
               />
             </div>
@@ -254,8 +258,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   )}
                 >
                   <img
-                    src={img}
-                    alt={`Thumb ${idx + 1}`}
+                    src={resolveImageSrc(img)}
+                    alt={alts?.[idx] ? `${alts[idx]} (thumbnail ${idx + 1})` : `${productName} thumbnail ${idx + 1}`}
                     className="h-full w-full object-contain p-1"
                   />
                 </button>

@@ -3,7 +3,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, ConfirmDialog } from '@20mart/ui';
+import { Button, ConfirmDialog, resolveImageSrc } from '@20mart/ui';
 import { discountPercent, paiseToRupeeInput, parseRupeesToPaise, slugify } from '@20mart/shared';
 import { ArrowDown, ArrowLeft, ArrowUp, ImagePlus, Loader2, Plus, Star, Trash2, Boxes } from 'lucide-react';
 import { api, ApiError, errMsg } from '../../../lib/api';
@@ -478,7 +478,7 @@ function ImageManager({ product, canEdit, canDelete }: { product: EditorProduct;
             <li key={img.id} className={`rounded-lg border bg-white p-1.5 ${img.isPrimary ? 'border-[#FF7A00] ring-1 ring-[#FF7A00]/30' : 'border-gray-200'}`}>
               <div className="relative aspect-square overflow-hidden rounded-md bg-gray-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt={img.altText ?? ''} className="h-full w-full object-contain" loading="lazy" />
+                <img src={resolveImageSrc(img.url)} alt={img.altText ?? ''} className="h-full w-full object-contain" loading="lazy" />
                 {img.isPrimary && (
                   <span className="absolute left-1 top-1 rounded bg-[#FF7A00] px-1.5 py-0.5 text-[9px] font-bold text-white">Primary</span>
                 )}
@@ -592,7 +592,8 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
             </thead>
             <tbody className="divide-y divide-gray-100">
               {product.variants.map((v) => {
-                const inv = v.inventories[0];
+                // Unreserved units summed across all warehouses (per-warehouse detail lives on the Inventory page).
+                const unreserved = v.inventories.reduce((a, i) => a + i.availableQuantity - i.reservedQuantity, 0);
                 return (
                   <tr key={v.id}>
                     <td className="py-2 pr-2 font-semibold text-gray-900">{v.name}</td>
@@ -601,7 +602,7 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
                       {formatINR(v.sellingPricePaise)}
                       {v.mrpPaise > v.sellingPricePaise && <span className="ml-1 text-[10px] text-gray-400 line-through">{formatINR(v.mrpPaise)}</span>}
                     </td>
-                    <td className="py-2 pr-2 text-right">{inv ? inv.availableQuantity - inv.reservedQuantity : 0}</td>
+                    <td className="py-2 pr-2 text-right">{unreserved}</td>
                     <td className="py-2 pr-2">
                       <StatusBadge status={v.status} />
                     </td>

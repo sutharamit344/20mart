@@ -61,6 +61,9 @@ interface StoreContextType {
   getItemQuantity: (productId: string) => number;
   /** Product cards: +1 / −1 on the product's (variant-less) cart line. */
   updateItemQuantity: (product: StorefrontProduct, delta: number) => Promise<void>;
+  /** Apply a coupon (signed-in). Resolves to an error message, or null on success. */
+  applyCoupon: (code: string) => Promise<string | null>;
+  removeCoupon: () => Promise<void>;
 
   // Wishlist (server, signed-in customers)
   wishlist: string[];
@@ -77,8 +80,6 @@ interface StoreContextType {
   // Search & navigation
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  selectedCity: string;
-  setSelectedCity: (city: string) => void;
 
   toastMessage: string | null;
   showToast: (msg: string) => void;
@@ -94,7 +95,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [user, setUser] = useState<CustomerUser | null>(null);
   const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'guest'>('loading');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState('Ahmedabad');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -164,6 +164,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
   const clearCart = useCallback(async () => {
     await runCart(() => storeApi<CartView>('/api/cart', { method: 'DELETE' }), 'Cart cleared');
+  }, [runCart]);
+
+  const applyCoupon = useCallback(
+    async (code: string) => {
+      setCartBusy(true);
+      try {
+        setCart(await storeApi<CartView>('/api/cart/coupon', { body: { code } }));
+        showToast('Coupon applied');
+        return null;
+      } catch (e) {
+        return e instanceof Error ? e.message : 'Could not apply this coupon';
+      } finally {
+        setCartBusy(false);
+      }
+    },
+    [showToast]
+  );
+  const removeCoupon = useCallback(async () => {
+    await runCart(() => storeApi<CartView>('/api/cart/coupon', { method: 'DELETE' }), 'Coupon removed');
   }, [runCart]);
 
   const getItemQuantity = useCallback(
@@ -266,6 +285,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       clearCart,
       getItemQuantity,
       updateItemQuantity,
+      applyCoupon,
+      removeCoupon,
       wishlist,
       toggleWishlist,
       isWishlisted,
@@ -276,12 +297,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       logoutUser,
       searchQuery,
       setSearchQuery,
-      selectedCity,
-      setSelectedCity,
       toastMessage,
       showToast,
     }),
-    [cart, cartReady, cartBusy, refreshCart, addToCart, setLineQuantity, removeLine, clearCart, getItemQuantity, updateItemQuantity, wishlist, toggleWishlist, isWishlisted, refreshWishlist, user, authStatus, refreshUser, logoutUser, searchQuery, selectedCity, toastMessage, showToast]
+    [cart, cartReady, cartBusy, refreshCart, addToCart, setLineQuantity, removeLine, clearCart, getItemQuantity, updateItemQuantity, applyCoupon, removeCoupon, wishlist, toggleWishlist, isWishlisted, refreshWishlist, user, authStatus, refreshUser, logoutUser, searchQuery, toastMessage, showToast]
   );
 
   return (

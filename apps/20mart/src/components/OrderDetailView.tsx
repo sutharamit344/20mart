@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { resolveImageSrc } from '@20mart/ui';
 import { useRouter } from 'next/navigation';
 import { FULFILMENT_STEPS, formatPaise, PAYMENT_STATUS_LABEL, type OrderStatusCode, type PaymentStatusCode } from '@20mart/shared';
 import { Check, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
@@ -19,6 +20,7 @@ export interface CustomerOrderDetail {
   subtotalPaise: number;
   deliveryChargePaise: number;
   discountPaise: number;
+  couponCode?: string | null;
   totalPaise: number;
   shipName: string;
   shipPhone: string;
@@ -171,7 +173,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
           {order.items.map((it) => (
             <li key={it.id} className="flex items-center gap-3 py-2">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
-                {it.productImage ? <Image src={it.productImage} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
+                {it.productImage ? <Image src={resolveImageSrc(it.productImage)} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
               </div>
               <div className="min-w-0 flex-1">
                 {it.product?.slug ? (
@@ -195,6 +197,12 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
             <dt className="text-gray-500">Subtotal</dt>
             <dd>{formatPaise(order.subtotalPaise)}</dd>
           </div>
+          {order.discountPaise > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-gray-500">Coupon{order.couponCode ? ` ${order.couponCode}` : ''}</dt>
+              <dd className="font-semibold text-emerald-700">−{formatPaise(order.discountPaise)}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-gray-500">Delivery</dt>
             <dd>{order.deliveryChargePaise ? formatPaise(order.deliveryChargePaise) : 'Free'}</dd>

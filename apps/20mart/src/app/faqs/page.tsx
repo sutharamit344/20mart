@@ -4,6 +4,7 @@ import { HelpCircle } from 'lucide-react';
 import { FaqAccordion } from '../../components/FaqAccordion';
 
 export const metadata = {
+  alternates: { canonical: '/faqs' },
   title: 'Frequently Asked Questions – 20Mart',
   description: 'Everything you need to know about shopping, delivery, and coupons at 20Mart.',
 };

@@ -3,10 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Breadcrumb } from '@20mart/ui';
+import { Breadcrumb, resolveImageSrc } from '@20mart/ui';
 import { formatPaise, type CartLine } from '@20mart/shared';
-import { AlertTriangle, ArrowRight, Loader2, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Loader2, MapPin, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Truck } from 'lucide-react';
 import { storeApi, useStore } from '../../lib/store';
+import { useLocation } from '../../lib/location';
+import { ServiceabilityNote } from '../../components/LocationPicker';
+import { CouponBox } from '../../components/CouponBox';
 
 interface StoreInfo {
   deliveryEnabled: boolean;
@@ -14,6 +17,32 @@ interface StoreInfo {
   freeDeliveryThresholdPaise: number;
   minOrderPaise: number;
   paymentMethods: string[];
+}
+
+/** Where this cart is being checked for; availability below is for this location. */
+function CartLocation() {
+  const { ready, pincode, serviceability, label, openPicker } = useLocation();
+  if (!ready) return null;
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-3 space-y-2">
+      <div className="flex items-center justify-between gap-2 text-xs">
+        <span className="flex items-center gap-1.5 min-w-0 text-gray-600">
+          <MapPin className="h-4 w-4 shrink-0 text-[#FF7A00]" />
+          {pincode ? (
+            <span className="truncate">
+              Delivering to <b className="text-gray-900">{label}</b>
+            </span>
+          ) : (
+            <span>Select your delivery location to check availability</span>
+          )}
+        </span>
+        <button type="button" onClick={openPicker} className="shrink-0 font-bold text-[#C25D00] hover:underline">
+          {pincode ? 'Change' : 'Select'}
+        </button>
+      </div>
+      {serviceability && <ServiceabilityNote s={serviceability} compact />}
+    </div>
+  );
 }
 
 export default function CartPage() {
@@ -83,6 +112,7 @@ export default function CartPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <div className="lg:col-span-8 space-y-2.5">
+          <CartLocation />
           {freeAt > 0 && (
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3">
               <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900">
@@ -103,7 +133,7 @@ export default function CartPage() {
           {cart.hasIssues && (
             <div role="alert" className="flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-px" />
-              <span>Some items changed since you added them. Update or remove them to continue to checkout.</span>
+              <span>Some items changed or are not available for your delivery location. Update or remove them, or change the location, to continue.</span>
             </div>
           )}
           <ul className={`space-y-2.5 ${cartBusy ? 'opacity-70' : ''}`}>
@@ -123,6 +153,12 @@ export default function CartPage() {
               <dt className="text-gray-500">Subtotal</dt>
               <dd className="font-bold text-gray-900">{formatPaise(cart.subtotalPaise)}</dd>
             </div>
+            {cart.discountPaise > 0 && (
+              <div className="flex justify-between">
+                <dt className="text-gray-500">Coupon {cart.coupon?.code}</dt>
+                <dd className="font-bold text-emerald-700">−{formatPaise(cart.discountPaise)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-gray-500">Delivery</dt>
               <dd className="text-gray-700">
@@ -130,10 +166,11 @@ export default function CartPage() {
               </dd>
             </div>
           </dl>
+          <CouponBox />
           {belowMin && info && <p className="rounded-lg bg-orange-50 p-2 text-[11px] font-semibold text-[#C25D00]">Minimum order value is {formatPaise(info.minOrderPaise)}.</p>}
           <div className="flex justify-between border-t border-gray-100 pt-2.5 text-sm">
             <span className="font-bold text-gray-900">Estimated total</span>
-            <span className="font-black text-gray-900">{formatPaise(cart.subtotalPaise)}</span>
+            <span className="font-black text-gray-900">{formatPaise(cart.subtotalPaise - cart.discountPaise)}</span>
           </div>
           <CheckoutButton enabled={canCheckout} guest={authStatus !== 'authenticated'} />
           <p className="flex items-center gap-1.5 text-[10px] text-gray-400">
@@ -146,8 +183,8 @@ export default function CartPage() {
       <div className="fixed inset-x-0 bottom-14 z-30 border-t border-gray-200 bg-white/95 px-4 py-2.5 backdrop-blur md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-semibold uppercase text-gray-400">Subtotal</p>
-            <p className="text-base font-black text-gray-900">{formatPaise(cart.subtotalPaise)}</p>
+            <p className="text-[10px] font-semibold uppercase text-gray-400">{cart.discountPaise > 0 ? 'After coupon' : 'Subtotal'}</p>
+            <p className="text-base font-black text-gray-900">{formatPaise(cart.subtotalPaise - cart.discountPaise)}</p>
           </div>
           <div className="flex-1 max-w-[200px]">
             <CheckoutButton enabled={canCheckout} guest={authStatus !== 'authenticated'} />
@@ -181,7 +218,7 @@ function CartRow({ line, busy, onQty, onRemove }: { line: CartLine; busy: boolea
   return (
     <li className={`flex gap-3 rounded-2xl border bg-white p-2.5 sm:p-3 shadow-xs ${line.state !== 'ok' ? 'border-amber-200' : 'border-gray-100'}`}>
       <Link href={`/product/${line.slug}`} className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50 ${blocked ? 'opacity-50 grayscale' : ''}`}>
-        {line.imageUrl ? <Image src={line.imageUrl} alt="" fill sizes="80px" className="object-contain p-1" /> : null}
+        {line.imageUrl ? <Image src={resolveImageSrc(line.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1" /> : null}
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">

@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { resolveImageSrc } from '@20mart/ui';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPaise, PAYMENT_STATUS_LABEL } from '@20mart/shared';
@@ -12,7 +14,8 @@ const tone = (s: string) =>
   s === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : s === 'CANCELLED' || s === 'FAILED' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-[#E66E00]';
 
 export default async function MyOrdersPage({ searchParams }: { searchParams: { page?: string } }) {
-  const customer = (await getCurrentCustomer())!;
+  const customer = await getCurrentCustomer();
+  if (!customer) redirect('/auth?returnTo=/account'); // layout and page render concurrently
   const page = Math.max(1, Number(searchParams.page) || 1);
   const data = await listCustomerOrders(customer.id, page, 10);
   const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
@@ -45,7 +48,7 @@ export default async function MyOrdersPage({ searchParams }: { searchParams: { p
                   <div className="flex -space-x-2">
                     {o.items.map((it, i) => (
                       <div key={i} className="relative h-9 w-9 overflow-hidden rounded-lg border-2 border-white bg-gray-50">
-                        {it.productImage ? <Image src={it.productImage} alt="" fill sizes="36px" className="object-contain" /> : null}
+                        {it.productImage ? <Image src={resolveImageSrc(it.productImage)} alt="" fill sizes="36px" className="object-contain" /> : null}
                       </div>
                     ))}
                   </div>

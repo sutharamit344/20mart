@@ -2,11 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { imageSize } from 'image-size';
 import { badRequest } from './errors';
 import { storage } from './storage';
+import { logger, serializeError } from './observability';
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const MIN_IMAGE_DIMENSION = 100;
 export const MAX_IMAGE_DIMENSION = 5000;
-export type ImagePurpose = 'products' | 'categories' | 'brands';
+export type ImagePurpose = 'products' | 'categories' | 'brands' | 'campaigns';
 
 const TYPES = {
   'image/jpeg': 'jpg',
@@ -74,6 +75,6 @@ export async function deleteStoredImage(key: string | null | undefined) {
   try {
     await storage().delete(key);
   } catch (e) {
-    console.warn('[media] orphaned object could not be deleted:', key, (e as Error).message);
+    logger.warn('storage.orphaned_object', { category: 'storage', key, error: serializeError(e) });
   }
 }

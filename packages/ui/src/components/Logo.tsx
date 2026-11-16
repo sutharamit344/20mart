@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export interface LogoProps {
   className?: string;
@@ -9,7 +10,12 @@ export interface LogoProps {
   showTagline?: boolean;
   inverted?: boolean;
   variant?: 'default' | 'icon';
+  /** Preload (above-the-fold header logo only). */
+  priority?: boolean;
 }
+
+/** Rendered CSS width per size (height × 1810/840 aspect), used to pick a small optimised file. */
+const RENDERED_WIDTH = { xs: 64, sm: 72, md: 80, lg: 104, xl: 140 } as const;
 
 export const Logo: React.FC<LogoProps> = ({
   className = '',
@@ -18,6 +24,7 @@ export const Logo: React.FC<LogoProps> = ({
   showTagline = false,
   inverted = false,
   variant = 'default',
+  priority = false,
 }) => {
   const [imgError, setImgError] = useState(false);
 
@@ -54,11 +61,15 @@ export const Logo: React.FC<LogoProps> = ({
       } ${className}`}
     >
       {!imgError ? (
-        <img
+        // The source PNG is 1810×840 (~780 KB); next/image serves a ~10 KB WebP/AVIF at the displayed size.
+        <Image
           src="/logo/20mart-logo-transparent.png"
           alt="20Mart – Your Everyday Value Market"
+          width={1810}
+          height={840}
+          sizes={`${RENDERED_WIDTH[size]}px`}
+          priority={priority}
           className={`${cur.h} w-auto object-contain shrink-0 ${imgClassName}`}
-          loading="eager"
           onError={() => setImgError(true)}
         />
       ) : (

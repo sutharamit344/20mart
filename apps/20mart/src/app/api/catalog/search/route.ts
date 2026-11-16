@@ -12,6 +12,6 @@ export async function GET(req: NextRequest) {
     const items = await searchSuggestions(q, limit);
     return NextResponse.json({ items }, { headers: { 'cache-control': 'public, max-age=30, s-maxage=60' } });
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

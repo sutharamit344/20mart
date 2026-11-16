@@ -1,4 +1,4 @@
 import { adminRoute } from '@20mart/server/next';
-import { listCustomers } from '@20mart/server';
+import { listCustomersAdmin } from '@20mart/server';
 
-export const GET = adminRoute('customers.view', async ({ req }) => listCustomers(Object.fromEntries(req.nextUrl.searchParams)));
+export const GET = adminRoute('customers.view', async ({ req }) => listCustomersAdmin(Object.fromEntries(req.nextUrl.searchParams)));

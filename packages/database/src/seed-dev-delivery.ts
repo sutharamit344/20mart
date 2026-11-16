@@ -39,14 +39,31 @@ async function main() {
     update: { codEnabled: true, deliveryEnabled: true },
     create: { id: 'default', codEnabled: true, deliveryEnabled: true },
   });
+  // P4: deliverable = PIN → active delivery area → active warehouse. Dev-only location below.
+  const zone = await prisma.deliveryZone.upsert({ where: { name: 'Ahmedabad (dev)' }, update: { isActive: true }, create: { name: 'Ahmedabad (dev)' } });
   for (const [pincode, area] of AHMEDABAD_PINS) {
     await prisma.serviceablePincode.upsert({
       where: { pincode },
-      update: {},
-      create: { pincode, area, city: 'Ahmedabad', isServiceable: true },
+      update: { zoneId: zone.id },
+      create: { pincode, area, city: 'Ahmedabad', isServiceable: true, zoneId: zone.id },
     });
   }
-  console.log(`Dev delivery seed: COD enabled, ${AHMEDABAD_PINS.length} Ahmedabad PIN codes serviceable.`);
+  // Stock recorded before P4 sits on the migration's PRIMARY placeholder (SETUP). In DEV ONLY, give it a
+  // test address and activate it so local checkout works; otherwise create a dev location.
+  const devAddress = { addressLine1: 'Dev test location (not real)', city: 'Ahmedabad', state: 'Gujarat', pinCode: '380015' };
+  const primary = await prisma.warehouse.findUnique({ where: { code: 'PRIMARY' } });
+  const wh = primary
+    ? await prisma.warehouse.update({
+        where: { id: primary.id },
+        data: primary.pinCode === '000000' ? { ...devAddress, name: 'Primary location (dev seed)', status: 'ACTIVE' } : { status: 'ACTIVE' },
+      })
+    : await prisma.warehouse.upsert({ where: { code: 'DEV-AMD' }, update: { status: 'ACTIVE' }, create: { code: 'DEV-AMD', name: 'Dev location', status: 'ACTIVE', ...devAddress } });
+  await prisma.warehouseDeliveryZone.upsert({
+    where: { warehouseId_zoneId: { warehouseId: wh.id, zoneId: zone.id } },
+    update: { isActive: true },
+    create: { warehouseId: wh.id, zoneId: zone.id, priority: 1 },
+  });
+  console.log(`Dev delivery seed: COD enabled, ${AHMEDABAD_PINS.length} Ahmedabad PIN codes in "${zone.name}", served by ${wh.code} (ACTIVE).`);
 }
 
 main()

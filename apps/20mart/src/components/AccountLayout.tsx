@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Truck,
   Compass,
+  Bell,
 } from 'lucide-react';
 
 interface AccountLayoutProps {
@@ -39,9 +40,11 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
     { key: 'orders', label: 'My Orders', href: '/account/orders', icon: ShoppingBag },
     { key: 'tracking', label: 'Track Active Order', href: '/account/tracking', icon: Truck },
     { key: 'wishlist', label: 'My Wishlist', href: '/account/wishlist', icon: Heart, badge: String(wishlist.length) },
+    { key: 'coupons', label: 'My Coupons', href: '/account/coupons', icon: Tag },
+    { key: 'notifications', label: 'Notifications', href: '/account/notifications', icon: Bell },
     { key: 'addresses', label: 'My Addresses', href: '/account/addresses', icon: MapPin },
     { key: 'profile', label: 'Profile Details', href: '/account/profile', icon: User },
-    { key: 'settings', label: 'Account Settings', href: '/account/settings', icon: Settings },
+    { key: 'settings', label: 'Email Preferences', href: '/account/settings', icon: Settings },
     { key: 'help', label: 'Help & Support', href: '/contact', icon: HelpCircle },
   ];
 

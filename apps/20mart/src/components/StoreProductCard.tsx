@@ -5,14 +5,18 @@ import { useRouter } from 'next/navigation';
 import { ProductCard } from '@20mart/ui';
 import type { StorefrontProduct } from '@20mart/shared';
 import { useStore } from '../lib/store';
+import { useProductAvailability } from '../lib/location';
 
 /** ProductCard wired to the client cart/wishlist. Safe to render from Server Components. */
 export function StoreProductCard({ product, compact, priority }: { product: StorefrontProduct; compact?: boolean; priority?: boolean }) {
   const router = useRouter();
   const { getItemQuantity, updateItemQuantity, isWishlisted, toggleWishlist } = useStore();
+  // At a served delivery location, show that location's stock instead of the cached global state.
+  const avail = useProductAvailability(product.id);
+  const shown = avail && avail.state !== product.stockState ? { ...product, stockState: avail.state } : product;
   return (
     <ProductCard
-      product={product}
+      product={shown}
       compact={compact}
       priority={priority}
       quantity={product.hasVariants ? 0 : getItemQuantity(product.id)}

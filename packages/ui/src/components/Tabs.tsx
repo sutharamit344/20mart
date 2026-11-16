@@ -129,6 +129,20 @@ export interface PaginationProps {
   className?: string;
 }
 
+/** Pages to show: first, last, current ±1, with gaps (null) — never one button per page. */
+export function paginationItems(current: number, total: number): (number | null)[] {
+  const keep = new Set([1, total, current - 1, current, current + 1].filter((p) => p >= 1 && p <= total));
+  if (current <= 3) [2, 3, 4].forEach((p) => p <= total && keep.add(p));
+  if (current >= total - 2) [total - 3, total - 2, total - 1].forEach((p) => p >= 1 && keep.add(p));
+  const sorted = [...keep].sort((a, b) => a - b);
+  const out: (number | null)[] = [];
+  sorted.forEach((p, i) => {
+    if (i > 0 && p - sorted[i - 1] > 1) out.push(p - sorted[i - 1] === 2 ? p - 1 : null);
+    out.push(p);
+  });
+  return out;
+}
+
 export const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
@@ -136,42 +150,39 @@ export const Pagination: React.FC<PaginationProps> = ({
   className,
 }) => {
   if (totalPages <= 1) return null;
+  const arrow = 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed';
 
   return (
-    <div className={cn('flex items-center justify-center gap-1.5', className)}>
-      <button
-        type="button"
-        disabled={currentPage <= 1}
-        onClick={() => onPageChange(currentPage - 1)}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <ChevronLeft className="w-4 h-4" />
+    <nav aria-label="Pagination" className={cn('flex flex-wrap items-center justify-center gap-1.5', className)}>
+      <button type="button" aria-label="Previous page" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)} className={arrow}>
+        <ChevronLeft className="w-4 h-4" aria-hidden="true" />
       </button>
 
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-        <button
-          key={page}
-          type="button"
-          onClick={() => onPageChange(page)}
-          className={cn(
-            'flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-all',
-            currentPage === page
-              ? 'bg-[#FF7A00] text-white shadow-sm'
-              : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-          )}
-        >
-          {page}
-        </button>
-      ))}
+      {paginationItems(currentPage, totalPages).map((page, i) =>
+        page === null ? (
+          <span key={`gap-${i}`} className="flex h-9 w-6 shrink-0 items-center justify-center text-xs text-gray-500" aria-hidden="true">
+            …
+          </span>
+        ) : (
+          <button
+            key={page}
+            type="button"
+            aria-label={`Page ${page}`}
+            aria-current={currentPage === page ? 'page' : undefined}
+            onClick={() => onPageChange(page)}
+            className={cn(
+              'flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-2 text-xs font-bold transition-all',
+              currentPage === page ? 'bg-[#FF7A00] text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+            )}
+          >
+            {page}
+          </button>
+        )
+      )}
 
-      <button
-        type="button"
-        disabled={currentPage >= totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
-        className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <ChevronRight className="w-4 h-4" />
+      <button type="button" aria-label="Next page" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)} className={arrow}>
+        <ChevronRight className="w-4 h-4" aria-hidden="true" />
       </button>
-    </div>
+    </nav>
   );
 };

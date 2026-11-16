@@ -4,9 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
+import { resolveImageSrc } from '@20mart/ui';
 import { CatalogListing } from '../../../components/catalog/CatalogListing';
 import { getCategories, getCategory } from '../../../lib/catalog';
 import { getCategoryTheme } from '../../../lib/category-theme';
+import { breadcrumbJsonLd, pageMetadata } from '../../../lib/seo';
+import { JsonLd } from '../../../components/JsonLd';
 
 export const revalidate = 60;
 
@@ -21,10 +24,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const category = await getCategory(params.slug).catch(() => null);
   if (!category) return { title: 'Category not found – 20Mart' };
-  return {
+  return pageMetadata({
     title: category.seoTitle || `${category.name} essentials – 20Mart`,
     description: category.seoDescription || category.description || `Shop affordable ${category.name.toLowerCase()} essentials at 20Mart.`,
-  };
+    // Sort/filter/page parameters are views of the same listing; only the category itself is canonical.
+    path: `/category/${category.slug}`,
+    images: category.imageUrl ? [{ url: category.imageUrl, alt: category.name }] : undefined,
+  });
 }
 
 export default async function CategoryDetailPage({
@@ -41,6 +47,14 @@ export default async function CategoryDetailPage({
   const sub = typeof searchParams.sub === 'string' ? category.children.find((c) => c.slug === searchParams.sub) : undefined;
 
   return (
+    <>
+    <JsonLd
+      data={breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        { name: 'Categories', path: '/category' },
+        { name: category.name, path: `/category/${category.slug}` },
+      ])}
+    />
     <CatalogListing
       searchParams={searchParams}
       fixed={{ category: sub?.slug ?? category.slug }}
@@ -65,7 +79,7 @@ export default async function CategoryDetailPage({
             </div>
             <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded-xl overflow-hidden bg-white/70 p-1.5 shadow-xs border border-white flex items-center justify-center">
               {category.imageUrl ? (
-                <Image src={category.imageUrl} alt="" fill sizes="80px" className="object-contain p-1" />
+                <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1" />
               ) : (
                 <Icon className="h-8 w-8" style={{ color: theme.iconColor }} />
               )}
@@ -93,5 +107,6 @@ export default async function CategoryDetailPage({
         </div>
       }
     />
+    </>
   );
 }

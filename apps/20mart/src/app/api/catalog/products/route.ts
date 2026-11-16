@@ -16,6 +16,6 @@ export async function GET(req: NextRequest) {
       : await listPublicProducts(Object.fromEntries(sp.entries()));
     return NextResponse.json(body, { headers: { 'cache-control': 'public, max-age=30, s-maxage=60' } });
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

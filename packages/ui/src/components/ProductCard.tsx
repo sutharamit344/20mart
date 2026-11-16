@@ -95,7 +95,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
       {/* Info */}
       <div className="flex flex-1 flex-col justify-between">
         <div onClick={() => onClick?.(product)} className="cursor-pointer">
-          <p className="text-[9px] sm:text-[10px] font-semibold text-gray-400 uppercase tracking-wider truncate">
+          <p className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wider truncate">
             {product.brand ? product.brand.name : product.category.name}
           </p>
           <h3
@@ -109,7 +109,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           </h3>
           {/* Fixed-height availability line keeps card heights aligned */}
           <p className="mt-0.5 h-4 text-[10px] font-semibold leading-4">
-            {lowStock ? <span className="text-amber-600">Only a few left</span> : outOfStock ? <span className="text-gray-400">Currently unavailable</span> : null}
+            {lowStock ? <span className="text-amber-700">Only a few left</span> : outOfStock ? <span className="text-gray-500">Currently unavailable</span> : null}
           </p>
         </div>
 
@@ -117,7 +117,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap min-w-0">
             <span className="text-xs sm:text-sm md:text-base font-black text-gray-900">{formatPaise(product.sellingPricePaise)}</span>
             {product.mrpPaise > product.sellingPricePaise && (
-              <span className="text-[10px] sm:text-xs text-gray-400 line-through">{formatPaise(product.mrpPaise)}</span>
+              <span className="text-[10px] sm:text-xs text-gray-500 line-through">{formatPaise(product.mrpPaise)}</span>
             )}
           </div>
 

@@ -1,21 +1,23 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { prisma } from '@20mart/database';
 import { addVariant, createProduct } from '../src/catalog/products';
-import { adjustStock, getStockHistory, inventoryStats, listInventory, setLowStockThreshold } from '../src/inventory';
+import { adjustStock, ensureInventoryRow, getStockHistory, inventoryStats, listInventory, setLowStockThreshold } from '../src/inventory';
 import { toAppError } from '../src/errors';
 import type { AdminContext } from '../src/auth/admin';
-import { adminSession, categoryId, resetDb } from './helpers';
+import { adminSession, categoryId, resetDb, testWarehouse } from './helpers';
 
 let actor: AdminContext;
 let invId: string;
 let productId: string;
+let whId: string;
 
 beforeEach(async () => {
   await resetDb();
   ({ ctx: actor } = await adminSession('invmgr', ['INVENTORY_MANAGER', 'PRODUCT_MANAGER']));
   const p = await createProduct(actor, { name: 'Bag Clips', sku: 'ZM-DLY-004', categoryId: await categoryId(), sellingPricePaise: 2000, mrpPaise: 3000 });
   productId = p.id;
-  invId = (await prisma.inventory.findFirstOrThrow({ where: { productId } })).id;
+  whId = (await testWarehouse()).id;
+  invId = await prisma.$transaction((tx) => ensureInventoryRow(tx, whId, productId, null));
 });
 
 const qty = async () => (await prisma.inventory.findUniqueOrThrow({ where: { id: invId } })).availableQuantity;
@@ -110,14 +112,14 @@ describe('low stock and variants', () => {
 
   it('tracks stock per variant once variants exist', async () => {
     const v = await addVariant(actor, productId, { name: 'Pack of 12', sku: 'ZM-DLY-004-12', sellingPricePaise: 3500, mrpPaise: 4000 });
-    const vInv = await prisma.inventory.findFirstOrThrow({ where: { variantId: v.id } });
+    const vInv = { id: await prisma.$transaction((tx) => ensureInventoryRow(tx, whId, productId, v.id)) };
     // Product-level row can no longer be adjusted.
     expect(await statusOf(adjustStock(actor, invId, { type: 'STOCK_IN', quantity: 1, reason: 'x y z' }))).toBe(409);
     await adjustStock(actor, vInv.id, { type: 'INITIAL_STOCK', quantity: 12, reason: 'Opening' });
     const list = await listInventory({ page: 1, pageSize: 20 });
     expect(list.items.map((i) => i.variant?.sku)).toEqual(['ZM-DLY-004-12']);
     // A second product-level inventory row for the same product is impossible (partial unique index).
-    await expect(prisma.inventory.create({ data: { productId } })).rejects.toThrow();
+    await expect(prisma.inventory.create({ data: { productId, warehouseId: whId } })).rejects.toThrow();
   });
 
   it('cannot add variants while product-level stock exists', async () => {

@@ -15,6 +15,6 @@ export async function POST(req: NextRequest) {
     const result = await processRazorpayWebhook(raw, req.headers.get('x-razorpay-signature'), req.headers.get('x-razorpay-event-id'));
     return NextResponse.json(result);
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

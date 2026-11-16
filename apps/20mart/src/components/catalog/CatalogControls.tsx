@@ -28,7 +28,7 @@ export function SortSelect() {
   return (
     <div className="flex items-center gap-2 text-xs">
       {pending && <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" />}
-      <label htmlFor="sort" className="text-gray-500 font-medium hidden sm:inline">
+      <label htmlFor="sort" className="text-gray-500 font-medium sr-only sm:not-sr-only">
         Sort by:
       </label>
       <select

@@ -5,6 +5,7 @@ import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, PageHeader, Pagination, Panel, StatusBadge, Table, TableEmpty, TBody, Td, Th, THead } from '../../../components/ui';
 import { FilterBar } from '../../../components/FilterBar';
 import { ProductRowActions } from './ProductRowActions';
+import { resolveImageSrc } from '@20mart/ui';
 
 export default async function ProductsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   const ctx = await requireAdminPage();
@@ -68,7 +69,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Rec
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
                       {p.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.image.url} alt="" className="h-full w-full object-contain" loading="lazy" />
+                        <img src={resolveImageSrc(p.image.url)} alt="" className="h-full w-full object-contain" loading="lazy" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-gray-300">
                           <Package className="w-4 h-4" />

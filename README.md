@@ -16,7 +16,7 @@ Built with **Turborepo** and **pnpm workspaces**:
 │
 ├── packages/
 │   ├── ui/                # Centralized Design System (Buttons, Inputs, Cards, Badges, Modals, Tables)
-│   ├── shared/            # Types, Zod Schemas, Configurations, and Real Mock Datasets
+│   ├── shared/            # Types, Zod schemas, RBAC definitions, shared helpers (no mock data)
 │   ├── config/            # Shared Tailwind Tokens & TypeScript Presets
 │   ├── database/          # Prisma schema, migrations, seeds
 │   └── server/            # Server-only services: auth, RBAC, catalog, inventory, storage (+ tests)
@@ -40,7 +40,7 @@ Built with **Turborepo** and **pnpm workspaces**:
 1. **Homepage** (`/`) – Hero banner with basket, 4 value pillars, shop by category circular icons, trending products, daily deals under ₹50, early access campaign.
 2. **Shop – All Products** (`/shop`) – Multi-facet category & price filters, rating filter, popular sort, pagination.
 3. **Category Detail** (`/category/[slug]`) – Category banner, sub-category pills, product grid.
-4. **Product Details** (`/product/[slug]`) – Multi-image gallery, rating (4.6 stars, 328 reviews), quantity stepper, Add to Cart, Wishlist toggle, similar items.
+4. **Product Details** (`/product/[slug]`) – Multi-image gallery, quantity stepper, Add to Cart, Wishlist toggle, similar items, Product + Breadcrumb structured data (no ratings or reviews are shown or emitted until a real review system exists).
 5. **My Wishlist** (`/wishlist`) – Item cards, move all to cart, delete.
 6. **Shopping Cart** (`/cart`) – Stepper quantities, Free Delivery tracker (> ₹199), coupon drawer, order breakdown.
 7. **Checkout** (`/checkout`) – 3-step progress (Address -> Delivery -> Payment), address modal, delivery method selection, UPI/Card/COD.
@@ -48,7 +48,7 @@ Built with **Turborepo** and **pnpm workspaces**:
 9. **My Orders** (`/account/orders`) – Order cards with status pills (Processing, Out for Delivery, Delivered).
 10. **Order Tracking Details** (`/account/orders/[id]`) – 4-step timeline tracker with dates & checkmarks.
 11. **My Profile** (`/account`) – User profile card with initials "AK", verified phone & email badges, edit profile.
-12. **Login / Register** (`/auth`) – Indian mobile +91 input, OTP verification modal with instant demo code.
+12. **Sign in** (`/auth`) – Google sign-in (OAuth 2.0 + PKCE). There is no password or OTP login for customers.
 13. **Coupons & Rewards** (`/coupons`) – Reward wallet, ₹50 Launch coupon (`WELCOME50`), ₹50 survey coupon (`SURVEY50`).
 14. **Product Interest Survey** (`/survey`) – 3-question survey unlocking ₹50 bonus coupon.
 15. **About 20Mart** (`/about`) – Brand story, core pillars, early access banner.
@@ -151,6 +151,56 @@ pnpm build                           # production build of both apps
 - **Stock:** reserved at placement, committed when an order is confirmed (COD) or paid (online), and released or restocked on cancellation or expiry.
   - Abandoned online payments expire after the configured window via `POST /api/cron/expire-reservations` (header `x-cron-secret`). This also runs opportunistically.
 - **Refunds:** cancelling a paid order creates a refund request. Admins with `orders.refund` initiate it with the provider (or record a cash refund reference). It shows as completed only after provider confirmation.
+
+## 📣 Marketing, growth & retention (P2)
+
+- **Coupons** (Admin → Marketing → Coupons, `coupons.*`):
+  - Types: fixed ₹ or percentage with an optional maximum. Each coupon can set a minimum order, start/end dates, a total usage limit, a per-customer limit, and eligible products/categories.
+  - "Issued customers only" coupons work only for accounts they were issued to (at sign-up, by a campaign, or manually by email).
+  - The discount is computed on the server. It is re-validated on every cart read and again inside the order transaction, which locks the coupon row, so limits hold under concurrent checkouts.
+  - Cancelled or expired orders give the use back (the redemption is marked *reversed*, not deleted).
+  - Once a coupon has been used, its code and value are locked.
+- **Starter coupons are data, not code:** `db:seed` creates `WELCOME50` and `CAMPAIGN100` only if they are missing.
+  - `WELCOME50`: ₹50 off ₹199+, active, auto-issued to new customers.
+  - `CAMPAIGN100`: ₹100 off ₹499+, **inactive**, issued to Fill Your Cart joiners when attached to that campaign.
+  - Edit or replace them in admin.
+- **Campaigns** (`campaigns.*`):
+  - *Promotion*: banner, products, optional coupon.
+  - *Fill Your Cart*: a pre-launch demand list for signed-in customers. It is a saved campaign cart plus favourites; it never touches the real cart or orders and never reserves stock.
+  - Customers only see campaigns that are active and inside their dates. Landing pages are at `/campaigns/<slug>`, and live campaigns with "show on homepage" appear on the home page.
+  - The campaign page shows demand analytics: participants, saved carts, most-added and most-favourited products, demand by category and price point, estimated interest, and coupons distributed vs redeemed. These are reported as **interest, separate from sales**.
+- **Customers** (`customers.view` / `customers.update`):
+  - Search and filter, with a profile view showing orders, coupons and campaign participation.
+  - Addresses and orders are shown only to staff who also have `orders.view`.
+  - Deactivating a customer signs them out everywhere immediately.
+- **Notifications:**
+  - Events: welcome, order received (COD), payment received, status updates (in-app for every step; email for confirmed / out for delivery / delivered), cancellation, coupon issued, campaign announcement.
+  - Customers have a notification centre (`/account/notifications`) and email preferences (`/account/settings`).
+  - Email goes through **Resend**. The email log shows *Sent* only when Resend accepted the message. *Delivered / Bounced / Complained* come only from the signed Resend webhook.
+  - Without Resend configured, emails are recorded as *Skipped*.
+  - There is no SMS or WhatsApp.
+- **Delivery** (`delivery.view` / `delivery.update`):
+  - Zones group PIN codes with a shared fee, estimate and minimum order.
+  - Precedence: PIN override → zone → store default. Pausing a zone stops orders to all its PINs.
+- **Analytics** (`analytics.view`):
+  - Date presets: Today, 7 days, 30 days, This month, Custom. Day boundaries are IST.
+  - Revenue counts only orders whose payment was received, minus refunds confirmed by the provider.
+  - Coupons distributed and redeemed are shown separately. Pre-launch interest is never added to revenue.
+- **Roles:** new `MARKETING_MANAGER` role (coupons, campaigns, notifications, analytics, read-only customers). `delivery.manage` was split into `delivery.view` + `delivery.update`. `db:seed` migrates existing role grants automatically.
+
+## 🚀 Production readiness (P3)
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for environments, release order, integrations, cron jobs, backup/restore, monitoring and post-deploy verification.
+
+- **Security headers:** both apps send a Content-Security-Policy. The admin allows no third-party origins; the storefront allows only Razorpay Checkout. HSTS is sent on https origins, along with nosniff, frame-deny and COOP. Private storefront routes add `X-Robots-Tag: noindex`.
+- **Client IP:** rate limits use the proxy-appended `X-Forwarded-For` entry (`TRUST_PROXY_HOPS`, `CLIENT_IP_HEADER`), never the client-supplied one.
+- **Database sessions run in UTC** (all timestamps are UTC). Raw SQL is also time-zone independent.
+- **Checkout** re-checks every line's price and availability inside the order transaction (`FOR SHARE` row locks).
+- **Monitoring:** structured JSON logs with secret and PII redaction. Errors are forwarded to Sentry (`SENTRY_DSN`) and/or a webhook. 5xx responses carry a support `reference` id.
+- **Health:** `GET /api/health` on both apps. The detailed report (header `x-health-secret`) adds the DB time zone, migrations, integrations and a production config review.
+- **Maintenance cron:** `POST /api/cron/maintenance` (daily) purges expired sessions, old login-throttle rows and abandoned guest carts.
+- **SEO:** `sitemap.xml` and `robots.txt`; canonical URLs, Open Graph and Twitter metadata; Organization, WebSite, Product/Offer and BreadcrumbList JSON-LD (escaped against script injection). Account, checkout, cart, auth and admin are never indexed.
+- **Scripts:** `pnpm db:backup`, `pnpm db:restore-verify --file … --target …`, `pnpm verify:deploy --store … --admin …`, `pnpm test:e2e`, `pnpm perf:measure`.
 
 ## 🔐 Google OAuth setup (customers)
 

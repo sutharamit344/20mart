@@ -44,3 +44,4 @@ export const FaqAccordion: React.FC<{ items: FaqItem[] }> = ({ items }) => {
     </div>
   );
 };
+

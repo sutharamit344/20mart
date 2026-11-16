@@ -3,12 +3,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { resolveImageSrc } from '@20mart/ui';
 import { useRouter } from 'next/navigation';
 import { formatPaise, type CartView, type SavedAddress } from '@20mart/shared';
 import { AlertTriangle, Banknote, CheckCircle2, CreditCard, Loader2, MapPin, Pencil, Plus, ShieldCheck, Truck } from 'lucide-react';
 import { StoreApiError, storeApi, useStore } from '../../lib/store';
 import { payWithRazorpay, type CheckoutPaymentParams } from '../../lib/razorpay';
 import { AddressForm } from '../../components/AddressForm';
+import { CouponBox } from '../../components/CouponBox';
 
 interface Summary {
   cart: CartView;
@@ -208,7 +210,7 @@ export default function CheckoutPage() {
               {cart.lines.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 py-2">
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
-                    {l.imageUrl ? <Image src={l.imageUrl} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
+                    {l.imageUrl ? <Image src={resolveImageSrc(l.imageUrl)} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-bold text-gray-900">{l.name}</p>
@@ -263,6 +265,12 @@ export default function CheckoutPage() {
               <dt className="text-gray-500">Items ({cart.totalQuantity})</dt>
               <dd className="font-semibold text-gray-900">{formatPaise(cart.subtotalPaise)}</dd>
             </div>
+            {cart.discountPaise > 0 && (
+              <div className="flex justify-between">
+                <dt className="text-gray-500">Coupon {cart.coupon?.code}</dt>
+                <dd className="font-semibold text-emerald-700">−{formatPaise(cart.discountPaise)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-gray-500">Delivery</dt>
               <dd className={delivery.deliveryChargePaise ? 'font-semibold text-gray-900' : 'font-semibold text-emerald-700'}>
@@ -271,6 +279,7 @@ export default function CheckoutPage() {
             </div>
             {delivery.amountToFreeDeliveryPaise > 0 && <p className="text-[10px] text-gray-400">Add {formatPaise(delivery.amountToFreeDeliveryPaise)} more for free delivery.</p>}
           </dl>
+          <CouponBox onChange={() => load(addressId)} />
           <div className="flex justify-between border-t border-gray-100 pt-2.5">
             <span className="text-sm font-bold text-gray-900">Total</span>
             <span className="text-base font-black text-gray-900">{formatPaise(summary.totalPaise)}</span>

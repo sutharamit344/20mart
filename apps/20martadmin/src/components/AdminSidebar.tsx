@@ -19,6 +19,13 @@ import {
   X,
   LogOut,
   Truck,
+  BarChart3,
+  TicketPercent,
+  Megaphone,
+  Mail,
+  Warehouse,
+  Factory,
+  ClipboardList,
 } from 'lucide-react';
 
 export interface SidebarUser {
@@ -75,7 +82,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const navSections: { title: string; items: NavItem[] }[] = [
     {
       title: 'Overview',
-      items: [{ label: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard.view' }],
+      items: [
+        { label: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard.view' },
+        { label: 'Analytics', href: '/analytics', icon: BarChart3, permission: 'analytics.view' },
+      ],
     },
     {
       title: 'Catalog & Stock',
@@ -84,6 +94,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         { label: 'Categories', href: '/categories', icon: FolderTree, permission: 'categories.view' },
         { label: 'Brands', href: '/brands', icon: BadgeCheck, permission: 'brands.view' },
         { label: 'Inventory', href: '/inventory', icon: Boxes, permission: 'inventory.view' },
+        { label: 'Warehouses', href: '/warehouses', icon: Warehouse, permission: 'warehouses.view' },
+        { label: 'Purchase Orders', href: '/purchase-orders', icon: ClipboardList, permission: 'purchasing.view' },
+        { label: 'Suppliers', href: '/suppliers', icon: Factory, permission: 'suppliers.view' },
       ],
     },
     {
@@ -92,7 +105,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         { label: 'Orders', href: '/orders', icon: ShoppingBag, permission: 'orders.view' },
         { label: 'Customer Inquiries', href: '/inquiries', icon: MessageSquare, permission: 'inquiries.view', badge: inquiriesBadge },
         { label: 'Customers', href: '/customers', icon: Users, permission: 'customers.view' },
-        { label: 'Delivery & Payments', href: '/delivery', icon: Truck, permission: 'delivery.manage' },
+        { label: 'Delivery & Payments', href: '/delivery', icon: Truck, permission: 'delivery.view' },
+      ],
+    },
+    {
+      title: 'Marketing',
+      items: [
+        { label: 'Coupons', href: '/coupons', icon: TicketPercent, permission: 'coupons.view' },
+        { label: 'Campaigns', href: '/campaigns', icon: Megaphone, permission: 'campaigns.view' },
+        { label: 'Email log', href: '/notifications', icon: Mail, permission: 'notifications.view' },
       ],
     },
     {

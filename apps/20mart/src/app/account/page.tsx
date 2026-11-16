@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@20mart/database';
 import { formatPaise } from '@20mart/shared';
@@ -9,7 +10,8 @@ import { AccountLayout } from '../../components/AccountLayout';
 export const dynamic = 'force-dynamic';
 
 export default async function AccountDashboard() {
-  const customer = (await getCurrentCustomer())!;
+  const customer = await getCurrentCustomer();
+  if (!customer) redirect('/auth?returnTo=/account'); // layout and page render concurrently
   const [orders, active, addresses, wishlist, latest] = await Promise.all([
     prisma.order.count({ where: { userId: customer.id } }),
     prisma.order.count({ where: { userId: customer.id, status: { notIn: ['DELIVERED', 'CANCELLED', 'FAILED'] } } }),

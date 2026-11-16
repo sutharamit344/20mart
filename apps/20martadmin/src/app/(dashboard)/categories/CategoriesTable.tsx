@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, ConfirmDialog, Modal } from '@20mart/ui';
+import { Button, ConfirmDialog, Modal, resolveImageSrc } from '@20mart/ui';
 import { slugify } from '@20mart/shared';
 import { ArrowDown, ArrowUp, Edit2, FolderTree, Plus, Power, Trash2 } from 'lucide-react';
 import { api, ApiError, errMsg } from '../../../lib/api';
@@ -87,7 +87,7 @@ export function CategoriesTable({
                   <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.imageUrl} alt="" className="h-full w-full object-cover" />
+                      <img src={resolveImageSrc(c.imageUrl)} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-gray-300">
                         <FolderTree className="w-4 h-4" />

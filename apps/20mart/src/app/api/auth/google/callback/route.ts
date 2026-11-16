@@ -10,6 +10,9 @@ import {
   rateLimit,
   toAppError,
   upsertGoogleCustomer,
+  onCustomerSignup,
+  captureException,
+  logger,
 } from '@20mart/server';
 import { clientMeta } from '@20mart/server/next';
 
@@ -44,7 +47,8 @@ export async function GET(req: NextRequest) {
       error: sp.get('error'),
       stateCookie: req.cookies.get(stateCookie.name)?.value,
     });
-    const { userId } = await upsertGoogleCustomer(identity);
+    const { userId, created } = await upsertGoogleCustomer(identity);
+    if (created) await onCustomerSignup(userId, identity.name ?? null); // welcome notification + auto-issued coupons
 
     // Rotate: drop any session presented with this request, then issue a new one.
     await deleteCustomerSession(req.cookies.get(sessionCookie.name)?.value);
@@ -52,7 +56,7 @@ export async function GET(req: NextRequest) {
 
     // Bring the guest cart along (merged, capped by stock; the customer's cart is never overwritten).
     const cartCookie = guestCartCookie();
-    await mergeGuestCart(req.cookies.get(cartCookie.name)?.value, userId).catch((e) => console.error('[auth] cart merge failed', e));
+    await mergeGuestCart(req.cookies.get(cartCookie.name)?.value, userId).catch((e) => captureException(e, 'order.cart_merge_failed', { category: 'order' }));
 
     const res = NextResponse.redirect(new URL(returnTo, req.url));
     res.cookies.set(sessionCookie.name, token, { ...sessionCookie.options, expires: expiresAt });
@@ -62,7 +66,8 @@ export async function GET(req: NextRequest) {
     return res;
   } catch (err) {
     const e = toAppError(err);
-    if (e.status >= 500) console.error('[auth] google callback failed', err);
+    if (e.status >= 500) captureException(err, 'auth.google_callback_failed', { category: 'auth' });
+    else logger.warn('auth.google_signin_rejected', { category: 'auth', code: e.code, status: e.status });
     return fail(ERROR_CODES[e.code] ?? 'failed');
   }
 }

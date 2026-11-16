@@ -4,8 +4,10 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { Logo, Button, cn } from '@20mart/ui';
+import { Logo, Button, cn, resolveImageSrc } from '@20mart/ui';
 import { useStore } from '../lib/store';
+import { useLocation } from '../lib/location';
+import { LocationButton } from './LocationPicker';
 import {
   Search as SearchIcon,
   ShoppingBag,
@@ -43,13 +45,11 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
     cartCount,
     wishlist,
     user,
-    selectedCity,
-    setSelectedCity,
     searchQuery,
     setSearchQuery,
   } = useStore();
+  const { label: locationLabel, openPicker } = useLocation();
 
-  const [citySelectorOpen, setCitySelectorOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [desktopSuggestionsOpen, setDesktopSuggestionsOpen] = useState(false);
@@ -142,7 +142,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                   <div className="flex items-center gap-2.5 min-w-0">
                     {prod.imageUrl ? (
                       <Image
-                        src={prod.imageUrl}
+                        src={resolveImageSrc(prod.imageUrl)}
                         alt=""
                         width={40}
                         height={40}
@@ -233,8 +233,6 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
     </div>
   );
 
-  const cities = ['Ahmedabad', 'Gandhinagar', 'Vadodara', 'Surat', 'Rajkot'];
-
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-gray-100 transition-shadow">
@@ -242,35 +240,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
         <div className="hidden md:block bg-[#0B5D3B] text-white py-1 text-[11px] leading-tight">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1.5 relative">
-                <MapPin className="w-3 h-3 text-amber-300" />
-                <span>Delivery to:</span>
-                <button
-                  type="button"
-                  onClick={() => setCitySelectorOpen(!citySelectorOpen)}
-                  className="font-bold text-amber-300 hover:underline cursor-pointer"
-                >
-                  {selectedCity}
-                </button>
-                {/* City selector dropdown */}
-                {citySelectorOpen && (
-                  <div className="absolute left-0 top-full mt-2 w-44 rounded-2xl bg-white p-2 shadow-xl border border-gray-100 z-50 text-gray-800">
-                    <p className="text-[10px] uppercase font-bold text-gray-400 px-2 py-1">Select Delivery City</p>
-                    {cities.map((city) => (
-                      <button
-                        key={city}
-                        type="button"
-                        onClick={() => { setSelectedCity(city); setCitySelectorOpen(false); }}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                          selectedCity === city ? 'bg-[#FFF6E9] text-[#FF7A00]' : 'hover:bg-gray-50 text-gray-700'
-                        }`}
-                      >
-                        {city}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </span>
+              <LocationButton tone="dark" className="max-w-xs" />
               <span className="text-emerald-400">|</span>
               <span className="flex items-center gap-1 text-emerald-100">
                 ⚡ Free delivery on orders above{' '}
@@ -287,6 +257,11 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Mobile delivery location bar */}
+        <div className="md:hidden bg-[#0B5D3B] px-4 py-1.5 text-[11px] leading-tight">
+          <LocationButton tone="dark" className="w-full" />
         </div>
 
         {/* Main Header Row */}
@@ -308,7 +283,8 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               {/* Logo */}
               <div className="flex-1 md:flex-initial flex justify-center md:justify-start shrink-0">
                 <Link href="/" className="shrink-0 flex items-center">
-                  <Logo size="sm" showTagline={false} className="sm:hidden" />
+                  {/* Only the mobile logo is preloaded: the hidden variant would otherwise be fetched too. */}
+                  <Logo size="sm" showTagline={false} className="sm:hidden" priority />
                   <Logo size="md" showTagline={false} className="hidden sm:inline-flex" />
                 </Link>
               </div>
@@ -519,14 +495,21 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               </button>
             </div>
 
-            {/* City Selector (Mobile) */}
-            <div className="p-2.5 rounded-xl bg-gray-50 text-xs">
-              <span className="text-gray-400 block text-[10px]">Delivery City</span>
-              <div className="font-bold text-gray-800 flex items-center justify-between mt-0.5">
-                <span>{selectedCity}</span>
-                <MapPin className="w-3.5 h-3.5 text-[#FF7A00]" />
-              </div>
-            </div>
+            {/* Delivery location (Mobile drawer) */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileDrawerOpen(false);
+                openPicker();
+              }}
+              className="w-full text-left p-2.5 rounded-xl bg-gray-50 text-xs"
+            >
+              <span className="text-gray-400 block text-[10px]">Delivery location</span>
+              <span className="font-bold text-gray-800 flex items-center justify-between mt-0.5">
+                <span className="truncate">{locationLabel ?? 'Select location'}</span>
+                <MapPin className="w-3.5 h-3.5 shrink-0 text-[#FF7A00]" />
+              </span>
+            </button>
 
             {/* Nav links */}
             <nav className="space-y-1 text-xs font-semibold text-gray-800 flex-1 overflow-y-auto">

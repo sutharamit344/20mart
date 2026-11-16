@@ -2,6 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
 import { Truck, Clock, MapPin, CheckCircle2, ShieldCheck } from 'lucide-react';
+import type { Metadata } from 'next';
+import { pageMetadata } from '../../lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Shipping & Delivery Policy – 20Mart',
+  description: 'Delivery areas, timelines and charges for 20Mart orders.',
+  path: '/shipping-policy',
+});
 
 export default function ShippingPolicyPage() {
   return (

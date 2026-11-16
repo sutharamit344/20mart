@@ -1,6 +1,7 @@
 import { prisma } from '@20mart/database';
 import { formatPaise } from '@20mart/shared';
 import { getStoreSettings, PINCODE_REGEX, type StoreSettingsRow } from './settings';
+import { warehouseCandidates, type WarehouseCandidate } from './fulfillment';
 
 const TZ = 'Asia/Kolkata';
 
@@ -23,49 +24,82 @@ const to12h = (hhmm: string) => {
  * Human estimate derived only from configured operational settings.
  * Never promises a window shorter than the configured hours.
  */
-export function deliveryEstimateText(hours: number, s: StoreSettingsRow, now = new Date()) {
+export function deliveryEstimateText(hours: number, s: StoreSettingsRow, now = new Date(), cutoffTime: string | null = null) {
   const base = hours <= 24 ? `Delivery within ${hours} hour${hours === 1 ? '' : 's'}` : `Delivery in about ${Math.ceil(hours / 24)} days`;
   const mins = istMinutesNow(now);
   const open = toMinutes(s.operatingHoursStart);
   const close = toMinutes(s.operatingHoursEnd);
   const isOpen = mins >= open && mins < close;
+  if (isOpen && cutoffTime && /^\d{2}:\d{2}$/.test(cutoffTime) && mins >= toMinutes(cutoffTime)) {
+    return `${base} — orders placed after ${to12h(cutoffTime)} are processed the next day`;
+  }
   return isOpen ? `${base} of order confirmation` : `${base} — orders placed now are processed from ${to12h(s.operatingHoursStart)}`;
 }
+
+export type ServiceabilityCode = 'OK' | 'INVALID' | 'DISABLED' | 'NOT_SERVICEABLE' | 'PAUSED' | 'NOT_CONFIGURED' | 'AT_CAPACITY';
 
 export interface ServiceabilityResult {
   pincode: string;
   serviceable: boolean;
+  code: ServiceabilityCode;
   reason?: string;
   area?: string | null;
   city?: string | null;
   feePaise: number;
   estimateHours: number | null;
   estimateText: string | null;
+  zone?: string | null;
+  /** Minimum order for this area (zone override or store default). */
+  minOrderPaise?: number;
 }
 
-/** PIN codes are serviceable ONLY when explicitly configured as such. */
-export async function checkServiceability(pincode: string, settings?: StoreSettingsRow): Promise<ServiceabilityResult> {
+const no = (pincode: string, code: ServiceabilityCode, reason: string, extra: Partial<ServiceabilityResult> = {}): ServiceabilityResult => ({
+  pincode,
+  serviceable: false,
+  code,
+  reason,
+  feePaise: 0,
+  estimateHours: null,
+  estimateText: null,
+  ...extra,
+});
+
+/**
+ * A PIN code is deliverable ONLY when it is explicitly configured as serviceable, belongs to an
+ * active delivery area, and that area is mapped to at least one ACTIVE warehouse with capacity.
+ * Fee/estimate precedence: PIN override → warehouse-area mapping → area → store default.
+ * Pass `warehouse` to quote for an already-selected fulfilment warehouse.
+ */
+export async function checkServiceability(
+  pincode: string,
+  settings?: StoreSettingsRow,
+  opts: { warehouse?: WarehouseCandidate | null } = {}
+): Promise<ServiceabilityResult> {
   const s = settings ?? (await getStoreSettings());
   const pin = pincode.trim();
-  if (!PINCODE_REGEX.test(pin)) {
-    return { pincode: pin, serviceable: false, reason: 'Enter a valid 6-digit PIN code', feePaise: 0, estimateHours: null, estimateText: null };
+  if (!PINCODE_REGEX.test(pin)) return no(pin, 'INVALID', 'Enter a valid 6-digit PIN code');
+  if (!s.deliveryEnabled) return no(pin, 'DISABLED', 'Delivery is temporarily unavailable');
+  const row = await prisma.serviceablePincode.findUnique({ where: { pincode: pin }, include: { zone: true } });
+  if (!row || !row.isServiceable) return no(pin, 'NOT_SERVICEABLE', 'Sorry, we do not deliver to this PIN code yet');
+  const place = { area: row.area, city: row.city, zone: row.zone?.name ?? null };
+  if (row.zone && !row.zone.isActive) return no(pin, 'PAUSED', 'Delivery to this area is paused right now', place);
+  let wh = opts.warehouse ?? null;
+  if (!wh) {
+    const candidates = await warehouseCandidates(pin);
+    if (!candidates.length) return no(pin, 'NOT_CONFIGURED', 'Delivery to this area is not available yet', place);
+    wh = candidates.find((c) => !c.atCapacity) ?? null;
+    if (!wh) return no(pin, 'AT_CAPACITY', 'We are fully booked for deliveries in this area today. Please try again tomorrow.', place);
   }
-  if (!s.deliveryEnabled) {
-    return { pincode: pin, serviceable: false, reason: 'Delivery is temporarily unavailable', feePaise: 0, estimateHours: null, estimateText: null };
-  }
-  const row = await prisma.serviceablePincode.findUnique({ where: { pincode: pin } });
-  if (!row || !row.isServiceable) {
-    return { pincode: pin, serviceable: false, reason: 'Sorry, we do not deliver to this PIN code yet', feePaise: 0, estimateHours: null, estimateText: null };
-  }
-  const hours = row.estimateHours ?? s.defaultEstimateHours;
+  const hours = row.estimateHours ?? wh.estimateHours ?? row.zone?.estimateHours ?? s.defaultEstimateHours;
   return {
     pincode: pin,
     serviceable: true,
-    area: row.area,
-    city: row.city,
-    feePaise: row.deliveryFeePaise ?? s.deliveryFeePaise,
+    code: 'OK',
+    ...place,
+    feePaise: row.deliveryFeePaise ?? wh.feePaise ?? row.zone?.deliveryFeePaise ?? s.deliveryFeePaise,
+    minOrderPaise: row.zone?.minOrderPaise ?? s.minOrderPaise,
     estimateHours: hours,
-    estimateText: deliveryEstimateText(hours, s),
+    estimateText: deliveryEstimateText(hours, s, new Date(), wh.cutoffTime),
   };
 }
 
@@ -81,11 +115,17 @@ export interface DeliveryQuote {
 }
 
 /** Delivery charge and blocking rules for a server-computed subtotal. */
-export async function quoteDelivery(subtotalPaise: number, pincode: string | null, settings?: StoreSettingsRow): Promise<DeliveryQuote> {
+export async function quoteDelivery(
+  subtotalPaise: number,
+  pincode: string | null,
+  settings?: StoreSettingsRow,
+  warehouse?: WarehouseCandidate | null
+): Promise<DeliveryQuote> {
   const s = settings ?? (await getStoreSettings());
-  const serviceability = pincode ? await checkServiceability(pincode, s) : null;
+  const serviceability = pincode ? await checkServiceability(pincode, s, { warehouse }) : null;
   const blockers: string[] = [];
-  if (subtotalPaise < s.minOrderPaise) blockers.push(`Minimum order value is ${formatPaise(s.minOrderPaise)}`);
+  const minOrder = serviceability?.serviceable ? (serviceability.minOrderPaise ?? s.minOrderPaise) : s.minOrderPaise;
+  if (subtotalPaise < minOrder) blockers.push(`Minimum order value is ${formatPaise(minOrder)}`);
   if (serviceability && !serviceability.serviceable) blockers.push(serviceability.reason ?? 'This PIN code is not serviceable');
   const free = subtotalPaise >= s.freeDeliveryThresholdPaise;
   const fee = free ? 0 : serviceability?.serviceable ? serviceability.feePaise : s.deliveryFeePaise;
@@ -93,7 +133,7 @@ export async function quoteDelivery(subtotalPaise: number, pincode: string | nul
     subtotalPaise,
     deliveryChargePaise: fee,
     freeDeliveryThresholdPaise: s.freeDeliveryThresholdPaise,
-    minOrderPaise: s.minOrderPaise,
+    minOrderPaise: minOrder,
     amountToFreeDeliveryPaise: free ? 0 : s.freeDeliveryThresholdPaise - subtotalPaise,
     blockers,
     serviceability,

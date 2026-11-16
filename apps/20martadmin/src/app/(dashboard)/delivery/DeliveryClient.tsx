@@ -128,13 +128,25 @@ interface Pin {
   city: string | null;
   deliveryFeePaise: number | null;
   estimateHours: number | null;
+  zone?: { id: string; name: string } | null;
 }
 
-export function PincodeManager({ items, total, q }: { items: Pin[]; total: number; q: string }) {
+export interface Zone {
+  id: string;
+  name: string;
+  isActive: boolean;
+  deliveryFeePaise: number | null;
+  estimateHours: number | null;
+  minOrderPaise: number | null;
+  pincodeCount: number;
+}
+
+export function PincodeManager({ items, total, q, zones }: { items: Pin[]; total: number; q: string; zones: Zone[] }) {
   const router = useRouter();
   const { showToast } = useAdmin();
   const [bulk, setBulk] = useState('');
   const [city, setCity] = useState('Ahmedabad');
+  const [zoneId, setZoneId] = useState('');
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState(q);
 
@@ -164,11 +176,22 @@ export function PincodeManager({ items, total, q }: { items: Pin[]; total: numbe
             <label className={labelCls}>City</label>
             <input className={inputCls} value={city} onChange={(e) => setCity(e.target.value)} />
           </div>
+          <div>
+            <label className={labelCls}>Zone</label>
+            <select className={inputCls} value={zoneId} onChange={(e) => setZoneId(e.target.value)}>
+              <option value="">No delivery area (not deliverable)</option>
+              {zones.map((z) => (
+                <option key={z.id} value={z.id}>
+                  {z.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="brand" isLoading={busy} disabled={!pins.length} onClick={() => run(() => api('/api/admin/delivery/pincodes/bulk', { body: { pincodes: pins, isServiceable: true, city } }), `${pins.length} PIN code(s) marked serviceable`).then(() => setBulk(''))}>
+            <Button size="sm" variant="brand" isLoading={busy} disabled={!pins.length} onClick={() => run(() => api('/api/admin/delivery/pincodes/bulk', { body: { pincodes: pins, isServiceable: true, city, zoneId: zoneId || null } }), `${pins.length} PIN code(s) marked serviceable`).then(() => setBulk(''))}>
               Serviceable
             </Button>
-            <Button size="sm" variant="outline" isLoading={busy} disabled={!pins.length} onClick={() => run(() => api('/api/admin/delivery/pincodes/bulk', { body: { pincodes: pins, isServiceable: false, city } }), `${pins.length} PIN code(s) blocked`).then(() => setBulk(''))}>
+            <Button size="sm" variant="outline" isLoading={busy} disabled={!pins.length} onClick={() => run(() => api('/api/admin/delivery/pincodes/bulk', { body: { pincodes: pins, isServiceable: false, city, zoneId: zoneId || null } }), `${pins.length} PIN code(s) blocked`).then(() => setBulk(''))}>
               Not serviceable
             </Button>
           </div>
@@ -190,17 +213,34 @@ export function PincodeManager({ items, total, q }: { items: Pin[]; total: numbe
         <THead>
           <Th>PIN</Th>
           <Th>Area</Th>
+          <Th>Zone</Th>
           <Th>Status</Th>
           <Th className="text-right">Fee override</Th>
           <Th className="text-right">Estimate</Th>
           <Th className="text-right">Actions</Th>
         </THead>
         <TBody>
-          {items.length === 0 && <TableEmpty colSpan={6} title="No PIN codes configured" description="Customers cannot order until at least one serviceable PIN code is added." />}
+          {items.length === 0 && <TableEmpty colSpan={7} title="No PIN codes configured" description="Customers cannot order until at least one serviceable PIN code is added." />}
           {items.map((p) => (
             <tr key={p.id}>
               <Td className="font-mono font-bold text-gray-900">{p.pincode}</Td>
               <Td>{[p.area, p.city].filter(Boolean).join(', ') || <span className="text-gray-300">—</span>}</Td>
+              <Td>
+                <select
+                  aria-label={`Zone for ${p.pincode}`}
+                  className="h-7 rounded-md border border-gray-200 bg-white px-1.5 text-[11px]"
+                  value={p.zone?.id ?? ''}
+                  disabled={busy}
+                  onChange={(e) => run(() => api('/api/admin/delivery/pincodes', { body: { pincode: p.pincode, isServiceable: p.isServiceable, area: p.area, city: p.city, deliveryFeePaise: p.deliveryFeePaise, estimateHours: p.estimateHours, zoneId: e.target.value || null } }), 'Zone updated')}
+                >
+                  <option value="">— none —</option>
+                  {zones.map((z) => (
+                    <option key={z.id} value={z.id}>
+                      {z.name}
+                    </option>
+                  ))}
+                </select>
+              </Td>
               <Td>
                 <StatusBadge status={p.isServiceable ? 'ACTIVE' : 'OUT'} label={p.isServiceable ? 'Serviceable' : 'Blocked'} />
               </Td>
@@ -210,7 +250,7 @@ export function PincodeManager({ items, total, q }: { items: Pin[]; total: numbe
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => run(() => api('/api/admin/delivery/pincodes', { body: { pincode: p.pincode, isServiceable: !p.isServiceable, area: p.area, city: p.city } }), 'PIN code updated')}
+                  onClick={() => run(() => api('/api/admin/delivery/pincodes', { body: { pincode: p.pincode, isServiceable: !p.isServiceable, area: p.area, city: p.city, deliveryFeePaise: p.deliveryFeePaise, estimateHours: p.estimateHours } }), 'PIN code updated')}
                   className="mr-1 rounded px-1.5 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-100"
                 >
                   {p.isServiceable ? 'Block' : 'Allow'}
@@ -222,6 +262,133 @@ export function PincodeManager({ items, total, q }: { items: Pin[]; total: numbe
                   onClick={() => run(() => api(`/api/admin/delivery/pincodes/${p.pincode}`, { method: 'DELETE' }), 'PIN code removed')}
                   className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
                 >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </Td>
+            </tr>
+          ))}
+        </TBody>
+      </Table>
+    </Panel>
+  );
+}
+
+export function ZoneManager({ zones }: { zones: Zone[] }) {
+  const router = useRouter();
+  const { showToast } = useAdmin();
+  const [busy, setBusy] = useState(false);
+  const [edit, setEdit] = useState<Zone | 'new' | null>(null);
+  const [f, setF] = useState({ name: '', isActive: true, fee: '', hours: '', min: '' });
+  const open = (z: Zone | 'new') => {
+    setEdit(z);
+    setF(
+      z === 'new'
+        ? { name: '', isActive: true, fee: '', hours: '', min: '' }
+        : { name: z.name, isActive: z.isActive, fee: z.deliveryFeePaise != null ? paiseToRupeeInput(z.deliveryFeePaise) : '', hours: z.estimateHours ? String(z.estimateHours) : '', min: z.minOrderPaise != null ? paiseToRupeeInput(z.minOrderPaise) : '' }
+    );
+  };
+  const save = async () => {
+    const fee = f.fee ? parseRupeesToPaise(f.fee) : null;
+    const min = f.min ? parseRupeesToPaise(f.min) : null;
+    if ((f.fee && fee == null) || (f.min && min == null)) return showToast('Enter amounts in rupees');
+    const body = { name: f.name, isActive: f.isActive, deliveryFeePaise: fee, minOrderPaise: min, estimateHours: f.hours ? Number(f.hours) : null };
+    setBusy(true);
+    try {
+      if (edit === 'new') await api('/api/admin/delivery/zones', { body });
+      else if (edit) await api(`/api/admin/delivery/zones/${edit.id}`, { method: 'PATCH', body });
+      showToast('Zone saved');
+      setEdit(null);
+      router.refresh();
+    } catch (e) {
+      showToast(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const remove = async (z: Zone) => {
+    if (!window.confirm(`Delete zone ${z.name}? Its ${z.pincodeCount} PIN code(s) become undeliverable until assigned to another area, and warehouse mappings to it are removed.`)) return;
+    setBusy(true);
+    try {
+      await api(`/api/admin/delivery/zones/${z.id}`, { method: 'DELETE' });
+      showToast('Zone deleted');
+      router.refresh();
+    } catch (e) {
+      showToast(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const dflt = <span className="text-gray-300">default</span>;
+  return (
+    <Panel
+      title={`Delivery zones (${zones.length})`}
+      actions={
+        <Button size="sm" variant="outline" onClick={() => open('new')}>
+          Add zone
+        </Button>
+      }
+    >
+      <p className="px-4 pt-2 text-[10px] text-gray-500">
+        A zone groups PIN codes with a shared fee, estimate and minimum order. A PIN&apos;s own override wins over its zone; pausing a zone stops orders to all its PINs.
+      </p>
+      {edit && (
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 border-b border-gray-100 p-3 text-xs items-end">
+          <div className="col-span-2">
+            <label className={labelCls}>Name</label>
+            <input className={inputCls} value={f.name} maxLength={60} onChange={(e) => setF({ ...f, name: e.target.value })} />
+          </div>
+          <div>
+            <label className={labelCls}>Fee (₹)</label>
+            <input className={inputCls} inputMode="decimal" placeholder="default" value={f.fee} onChange={(e) => setF({ ...f, fee: e.target.value })} />
+          </div>
+          <div>
+            <label className={labelCls}>Estimate (hours)</label>
+            <input className={inputCls} type="number" min={1} placeholder="default" value={f.hours} onChange={(e) => setF({ ...f, hours: e.target.value })} />
+          </div>
+          <div>
+            <label className={labelCls}>Min order (₹)</label>
+            <input className={inputCls} inputMode="decimal" placeholder="default" value={f.min} onChange={(e) => setF({ ...f, min: e.target.value })} />
+          </div>
+          <label className="flex h-9 items-center gap-1.5 font-semibold">
+            <input type="checkbox" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} /> Active
+          </label>
+          <div className="col-span-2 md:col-span-6 flex justify-end gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setEdit(null)}>
+              Cancel
+            </Button>
+            <Button size="sm" variant="brand" isLoading={busy} disabled={f.name.trim().length < 2} onClick={save}>
+              Save zone
+            </Button>
+          </div>
+        </div>
+      )}
+      <Table minWidth={560}>
+        <THead>
+          <Th>Zone</Th>
+          <Th className="text-right">PINs</Th>
+          <Th className="text-right">Fee</Th>
+          <Th className="text-right">Estimate</Th>
+          <Th className="text-right">Min order</Th>
+          <Th>Status</Th>
+          <Th className="text-right">Actions</Th>
+        </THead>
+        <TBody>
+          {zones.length === 0 && <TableEmpty colSpan={7} title="No delivery areas" description="Create an area, assign PIN codes to it, then map a warehouse to it on the Warehouses page. PIN codes without an area cannot be delivered to." />}
+          {zones.map((z) => (
+            <tr key={z.id}>
+              <Td className="font-semibold text-gray-900">{z.name}</Td>
+              <Td className="text-right tabular-nums">{z.pincodeCount}</Td>
+              <Td className="text-right">{z.deliveryFeePaise != null ? `₹${paiseToRupeeInput(z.deliveryFeePaise)}` : dflt}</Td>
+              <Td className="text-right">{z.estimateHours ? `${z.estimateHours}h` : dflt}</Td>
+              <Td className="text-right">{z.minOrderPaise != null ? `₹${paiseToRupeeInput(z.minOrderPaise)}` : dflt}</Td>
+              <Td>
+                <StatusBadge status={z.isActive ? 'ACTIVE' : 'OUT'} label={z.isActive ? 'Active' : 'Paused'} />
+              </Td>
+              <Td className="text-right whitespace-nowrap">
+                <button type="button" disabled={busy} onClick={() => open(z)} className="mr-1 rounded px-1.5 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-100">
+                  Edit
+                </button>
+                <button type="button" disabled={busy} aria-label={`Delete zone ${z.name}`} onClick={() => remove(z)} className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </Td>

@@ -231,8 +231,8 @@ export async function createProduct(actor: AdminContext, raw: unknown) {
   await assertSkuFree(input.sku);
   const slug = input.slug ?? slugify(input.name);
   const product = await prisma.$transaction(async (tx) => {
+    // No stock rows yet: stock is recorded per warehouse (adjustment or goods receipt) when it exists.
     const p = await tx.product.create({ data: { ...input, slug, status: 'DRAFT' }, select: { id: true, name: true, sku: true, slug: true } });
-    await tx.inventory.create({ data: { productId: p.id } });
     await audit(tx, actor, { action: 'Created product', category: 'PRODUCT', entityType: 'Product', entityId: p.id, details: `${p.sku} · ${p.name}` });
     return p;
   });
@@ -351,14 +351,12 @@ export async function addVariant(actor: AdminContext, productId: string, raw: un
     select: { sku: true, slug: true, inventories: { where: { variantId: null }, select: { availableQuantity: true, reservedQuantity: true } } },
   });
   if (!product) throw notFound('Product');
-  const base = product.inventories[0];
   const variantCount = await prisma.productVariant.count({ where: { productId } });
-  if (variantCount === 0 && base && (base.availableQuantity > 0 || base.reservedQuantity > 0)) {
-    throw conflict('This product has product-level stock. Reduce it to 0 before adding variants (stock is then tracked per variant).');
+  if (variantCount === 0 && product.inventories.some((b) => b.availableQuantity > 0 || b.reservedQuantity > 0)) {
+    throw conflict('This product has product-level stock in a warehouse. Reduce it to 0 everywhere before adding variants (stock is then tracked per variant).');
   }
   const v = await prisma.$transaction(async (tx) => {
     const v = await tx.productVariant.create({ data: { ...input, productId }, select: { id: true, name: true, sku: true } });
-    await tx.inventory.create({ data: { productId, variantId: v.id } });
     await audit(tx, actor, { action: 'Added variant', category: 'PRODUCT', entityType: 'Product', entityId: productId, details: `${product.sku} → ${v.sku} (${v.name})` });
     return v;
   });

@@ -46,6 +46,10 @@ enum StockMovementType {
   RESERVATION
   RELEASE
   SALE
+  PURCHASE_RECEIPT
+  /// Reserved for the later stock-transfer workflow (not used yet).
+  TRANSFER_OUT
+  TRANSFER_IN
 }
 
 enum OrderStatus {
@@ -140,27 +144,35 @@ model User {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
-  profile     CustomerProfile?
-  sessions    UserSession[]
-  wishlist    WishlistItem[]
-  inquiries   ContactInquiry[]
-  addresses   Address[]
-  carts       Cart[]
-  orders      Order[]
-  redemptions CouponRedemption[]
-  responses   QuestionResponse[]
+  profile           CustomerProfile?
+  sessions          UserSession[]
+  wishlist          WishlistItem[]
+  inquiries         ContactInquiry[]
+  couponGrants      CouponGrant[]
+  campaignJoins     CampaignParticipant[]
+  campaignCartItems CampaignCartItem[]
+  campaignFavorites CampaignFavorite[]
+  notifications     Notification[]
+  emails            EmailMessage[]
+  addresses         Address[]
+  carts             Cart[]
+  orders            Order[]
+  redemptions       CouponRedemption[]
+  responses         QuestionResponse[]
 
   @@index([email])
 }
 
 model CustomerProfile {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phone          String?
-  marketingOptIn Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone             String?
+  marketingOptIn    Boolean  @default(false)
+  /// Transactional emails (order, payment, status). In-app notifications are always kept.
+  emailOrderUpdates Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 /// Server-side customer session. Only a SHA-256 hash of the cookie token is stored.
@@ -224,6 +236,8 @@ model AdminUser {
   sessions       AdminSession[]
   stockMovements StockMovement[]
   auditLogs      AdminAuditLog[]
+  purchaseOrders PurchaseOrder[]      @relation("PurchaseOrderCreator")
+  goodsReceipts  GoodsReceipt[]       @relation("GoodsReceiptReceiver")
   orderChanges   OrderStatusHistory[] @relation("OrderStatusChanger")
   orderNotes     OrderNote[]          @relation("OrderNoteAuthor")
   refunds        Refund[]             @relation("RefundInitiator")
@@ -322,22 +336,23 @@ model AdminAuditLog {
 // ─────────────────────────── Catalog ────────────────────────────
 
 model Category {
-  id             String        @id @default(uuid())
+  id             String           @id @default(uuid())
   name           String
-  slug           String        @unique
+  slug           String           @unique
   description    String?
   imageUrl       String?
   imageKey       String?
-  status         CatalogStatus @default(ACTIVE)
-  displayOrder   Int           @default(0)
+  status         CatalogStatus    @default(ACTIVE)
+  displayOrder   Int              @default(0)
   seoTitle       String?
   seoDescription String?
   parentId       String?
-  parent         Category?     @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children       Category[]    @relation("CategoryTree")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  parent         Category?        @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children       Category[]       @relation("CategoryTree")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   products       Product[]
+  coupons        CouponCategory[]
 
   @@index([status, displayOrder])
   @@index([parentId])
@@ -395,13 +410,18 @@ model Product {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  images        ProductImage[]
-  variants      ProductVariant[]
-  inventories   Inventory[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-  questions     Question[]
-  wishlistItems WishlistItem[]
+  images             ProductImage[]
+  variants           ProductVariant[]
+  inventories        Inventory[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+  questions          Question[]
+  wishlistItems      WishlistItem[]
+  couponProducts     CouponProduct[]
+  campaignProducts   CampaignProduct[]
+  campaignCartItems  CampaignCartItem[]
+  campaignFavorites  CampaignFavorite[]
+  purchaseOrderItems PurchaseOrderItem[]
 
   @@index([status, categoryId])
   @@index([status, isFeatured])
@@ -444,9 +464,10 @@ model ProductVariant {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  inventories Inventory[]
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
+  inventories        Inventory[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+  purchaseOrderItems PurchaseOrderItem[]
 
   @@index([productId, sortOrder])
   @@index([sku(ops: raw("gin_trgm_ops"))], type: Gin, map: "ProductVariant_sku_trgm_idx")
@@ -454,10 +475,14 @@ model ProductVariant {
 
 // ────────────────────────── Inventory ───────────────────────────
 
-/// One row per product (variantId NULL) or per variant. Uniqueness is enforced by
-/// partial unique indexes in the migration SQL. Quantities are guarded by CHECKs.
+/// Stock of one product (variantId NULL) or one variant at one warehouse.
+/// "availableQuantity" is the quantity ON HAND (column name kept from P0).
+/// Sellable = availableQuantity - reservedQuantity - safetyStock (never below 0).
+/// Uniqueness per (warehouse, product/variant) is enforced by partial unique indexes in SQL.
 model Inventory {
   id                String          @id @default(uuid())
+  warehouseId       String
+  warehouse         Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   productId         String
   product           Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantId         String?
@@ -465,10 +490,13 @@ model Inventory {
   availableQuantity Int             @default(0)
   reservedQuantity  Int             @default(0)
   lowStockThreshold Int             @default(10)
+  /// Units held back from sale at this warehouse (damage buffer, counting errors).
+  safetyStock       Int             @default(0)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   movements         StockMovement[]
 
+  @@index([warehouseId])
   @@index([productId])
   @@index([variantId])
   @@index([availableQuantity])
@@ -496,14 +524,16 @@ model StockMovement {
 
 /// Persistent cart: customer carts (userId) or guest carts (sessionId = SHA-256 of the cookie token).
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String?
-  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessionId String?    @unique
-  status    CartStatus @default(ACTIVE)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  items     CartItem[]
+  id         String     @id @default(uuid())
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId  String?    @unique
+  status     CartStatus @default(ACTIVE)
+  /// Coupon the customer applied; re-validated server-side on every read and at checkout.
+  couponCode String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  items      CartItem[]
 
   @@index([userId, status])
   @@index([updatedAt])
@@ -527,42 +557,51 @@ model CartItem {
 }
 
 model Order {
-  id                   String         @id @default(uuid())
+  id                     String         @id @default(uuid())
   /// Public, non-sequential reference, e.g. ZM261114-7K3QX9
-  orderNumber          String         @unique
-  userId               String
-  user                 User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  addressId            String?
-  address              Address?       @relation(fields: [addressId], references: [id], onDelete: SetNull)
-  shipName             String
-  shipPhone            String
-  shipLine1            String
-  shipLine2            String?
-  shipLandmark         String?
-  shipCity             String
-  shipState            String
-  shipPincode          String
-  shipCountry          String         @default("IN")
-  status               OrderStatus    @default(PENDING)
-  subtotalPaise        Int
-  deliveryChargePaise  Int            @default(0)
-  discountPaise        Int            @default(0)
-  taxPaise             Int            @default(0)
-  totalPaise           Int
-  deliveryMethod       DeliveryMethod @default(HOME_DELIVERY)
-  paymentMethod        PaymentMethod
-  paymentStatus        PaymentStatus  @default(PENDING)
-  inventoryHold        InventoryHold  @default(RESERVED)
-  reservationExpiresAt DateTime?
-  idempotencyKey       String
-  deliveryEstimate     String?
-  estimatedDelivery    DateTime?
-  notes                String?
-  cancelReason         String?
-  cancelledAt          DateTime?
-  deliveredAt          DateTime?
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  orderNumber            String         @unique
+  userId                 String
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  addressId              String?
+  address                Address?       @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  shipName               String
+  shipPhone              String
+  shipLine1              String
+  shipLine2              String?
+  shipLandmark           String?
+  shipCity               String
+  shipState              String
+  shipPincode            String
+  shipCountry            String         @default("IN")
+  status                 OrderStatus    @default(PENDING)
+  subtotalPaise          Int
+  deliveryChargePaise    Int            @default(0)
+  discountPaise          Int            @default(0)
+  taxPaise               Int            @default(0)
+  totalPaise             Int
+  deliveryMethod         DeliveryMethod @default(HOME_DELIVERY)
+  paymentMethod          PaymentMethod
+  paymentStatus          PaymentStatus  @default(PENDING)
+  inventoryHold          InventoryHold  @default(RESERVED)
+  reservationExpiresAt   DateTime?
+  idempotencyKey         String
+  couponId               String?
+  coupon                 Coupon?        @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode             String?
+  deliveryEstimate       String?
+  estimatedDelivery      DateTime?
+  notes                  String?
+  cancelReason           String?
+  cancelledAt            DateTime?
+  deliveredAt            DateTime?
+  /// Warehouse the whole order is fulfilled from (one warehouse per order).
+  fulfillmentWarehouseId String?
+  fulfillmentWarehouse   Warehouse?     @relation(fields: [fulfillmentWarehouseId], references: [id], onDelete: Restrict)
+  dispatchedAt           DateTime?
+  /// Why delivery failed (status FAILED), recorded by operations.
+  deliveryFailureReason  String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 
   items       OrderItem[]
   payments    Payment[]
@@ -577,6 +616,7 @@ model Order {
   @@index([paymentStatus])
   @@index([shipPincode])
   @@index([createdAt])
+  @@index([fulfillmentWarehouseId, createdAt])
 }
 
 /// Immutable snapshot of what was bought; never updated after creation.
@@ -718,64 +758,289 @@ model StoreSettings {
 }
 
 model ServiceablePincode {
-  id               String   @id @default(uuid())
-  pincode          String   @unique
-  isServiceable    Boolean  @default(true)
+  id               String        @id @default(uuid())
+  pincode          String        @unique
+  isServiceable    Boolean       @default(true)
   area             String?
   city             String?
   deliveryFeePaise Int?
   estimateHours    Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  zoneId           String?
+  zone             DeliveryZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@index([isServiceable])
+  @@index([zoneId])
 }
 
+/// Discount code. FIXED values are paise; PERCENT values are basis points (1000 = 10%).
 model Coupon {
   id                 String       @id @default(uuid())
   code               String       @unique
   title              String
-  description        String
+  description        String?
   discountType       DiscountType @default(FIXED)
-  /// FIXED: paise. PERCENT: basis points (1000 = 10%).
   discountValue      Int
+  /// Cap for PERCENT coupons (paise). Null = no cap.
+  maxDiscountPaise   Int?
   minOrderValuePaise Int          @default(0)
-  validUntil         DateTime
-  isActive           Boolean      @default(true)
+  startsAt           DateTime     @default(now())
+  endsAt             DateTime?
+  isActive           Boolean      @default(false)
+  /// Total redemptions allowed across all customers. Null = unlimited.
   usageLimit         Int?
+  /// Redemptions allowed per customer.
+  perCustomerLimit   Int          @default(1)
+  /// Live count of APPLIED redemptions (kept in step inside the redemption transaction).
   usedCount          Int          @default(0)
-  source             String       @default("CAMPAIGN")
+  /// Only customers who were issued (granted) the coupon may use it.
+  requiresGrant      Boolean      @default(false)
+  /// Automatically issue to every new customer on first sign-in.
+  autoIssueOnSignup  Boolean      @default(false)
+  createdById        String?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
-  rules       CouponRule[]
+  products    CouponProduct[]
+  categories  CouponCategory[]
+  grants      CouponGrant[]
   redemptions CouponRedemption[]
+  campaigns   Campaign[]
+  orders      Order[]
+
+  @@index([isActive, startsAt])
 }
 
-model CouponRule {
-  id        String   @id @default(uuid())
+/// Restrict a coupon to specific products (empty = all products, unless categories are set).
+model CouponProduct {
   couponId  String
-  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  ruleType  String
-  ruleValue String
-  createdAt DateTime @default(now())
+  coupon    Coupon  @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([couponId])
+  @@id([couponId, productId])
+  @@index([productId])
 }
 
-model CouponRedemption {
-  id         String   @id @default(uuid())
+model CouponCategory {
   couponId   String
-  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Restrict)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  savedPaise Int
-  redeemedAt DateTime @default(now())
+  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@index([couponId])
+  @@id([couponId, categoryId])
+  @@index([categoryId])
+}
+
+/// A coupon issued (distributed) to a customer. Issued is NOT redeemed.
+model CouponGrant {
+  id         String    @id @default(uuid())
+  couponId   String
+  coupon     Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// WELCOME | CAMPAIGN | MANUAL
+  source     String
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  issuedAt   DateTime  @default(now())
+
+  @@unique([couponId, userId])
   @@index([userId])
+  @@index([campaignId])
+  @@index([issuedAt])
+}
+
+enum RedemptionStatus {
+  APPLIED
+  REVERSED
+}
+
+/// One coupon use on one order. Reversed (not deleted) when the order is cancelled/fails.
+model CouponRedemption {
+  id            String           @id @default(uuid())
+  couponId      String
+  coupon        Coupon           @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  orderId       String           @unique
+  order         Order            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  discountPaise Int
+  status        RedemptionStatus @default(APPLIED)
+  redeemedAt    DateTime         @default(now())
+  reversedAt    DateTime?
+
+  @@index([couponId, status])
+  @@index([userId, couponId])
+  @@index([redeemedAt])
+}
+
+enum CampaignType {
+  PROMOTION
+  FILL_YOUR_CART
+}
+
+/// Marketing campaign. "Live" = isActive AND startsAt <= now AND (endsAt is null OR endsAt > now).
+model Campaign {
+  id             String       @id @default(uuid())
+  name           String
+  slug           String       @unique
+  type           CampaignType @default(PROMOTION)
+  description    String?
+  bannerTitle    String?
+  bannerSubtitle String?
+  bannerImageUrl String?
+  bannerImageKey String?
+  isActive       Boolean      @default(false)
+  /// Show on the homepage while live.
+  showOnHomepage Boolean      @default(true)
+  startsAt       DateTime     @default(now())
+  endsAt         DateTime?
+  couponId       String?
+  coupon         Coupon?      @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  /// Fill Your Cart: max quantity per product in a saved campaign cart.
+  maxQtyPerItem  Int          @default(10)
+  displayOrder   Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  products     CampaignProduct[]
+  participants CampaignParticipant[]
+  cartItems    CampaignCartItem[]
+  favorites    CampaignFavorite[]
+  grants       CouponGrant[]
+
+  @@index([isActive, startsAt, endsAt])
+  @@index([type])
+}
+
+model CampaignProduct {
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sortOrder  Int      @default(0)
+
+  @@id([campaignId, productId])
+  @@index([productId])
+}
+
+/// Fill Your Cart: a customer who joined the campaign (demand signal, not a purchase).
+model CampaignParticipant {
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+
+  @@unique([campaignId, userId])
+  @@index([userId])
+  @@index([joinedAt])
+}
+
+/// Fill Your Cart saved item. Never reserves inventory and never becomes an order.
+model CampaignCartItem {
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([campaignId, userId, productId])
+  @@index([campaignId, productId])
+}
+
+model CampaignFavorite {
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([campaignId, userId, productId])
+  @@index([campaignId, productId])
+}
+
+enum NotificationType {
+  WELCOME
+  ORDER_CONFIRMATION
+  PAYMENT_CONFIRMATION
+  ORDER_STATUS
+  ORDER_CANCELLED
+  COUPON_ISSUED
+  CAMPAIGN_ANNOUNCEMENT
+}
+
+/// In-app notification (customer notification centre).
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  BOUNCED
+  COMPLAINED
+  FAILED
+  SKIPPED
+}
+
+/// Email outbox. SENT = accepted by the provider; DELIVERED/BOUNCED only from provider webhooks.
+model EmailMessage {
+  id                String           @id @default(uuid())
+  userId            String?
+  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type              NotificationType
+  toEmail           String
+  subject           String
+  html              String
+  status            EmailStatus      @default(QUEUED)
+  provider          String?
+  providerMessageId String?          @unique
+  attempts          Int              @default(0)
+  lastError         String?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+/// Group of PIN codes sharing delivery fee / estimate / minimum order.
+model DeliveryZone {
+  id               String                  @id @default(uuid())
+  name             String                  @unique
+  isActive         Boolean                 @default(true)
+  deliveryFeePaise Int?
+  estimateHours    Int?
+  minOrderPaise    Int?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  pincodes         ServiceablePincode[]
+  warehouses       WarehouseDeliveryZone[]
 }
 
 model Question {
@@ -868,4 +1133,201 @@ model ContactInquiry {
 
   @@index([status, createdAt])
   @@index([email])
+}
+
+// ─────────────────────── P4: Warehouses & fulfilment ───────────────────────
+
+enum WarehouseType {
+  WAREHOUSE
+  FULFILLMENT_CENTER
+  STORAGE
+  SUPPLIER_DISPATCH
+}
+
+enum WarehouseStatus {
+  /// Created but not yet verified as operational: never serves customers.
+  SETUP
+  ACTIVE
+  /// Temporarily not accepting new orders (stock is kept).
+  PAUSED
+  INACTIVE
+}
+
+/// A physical inventory / fulfilment location.
+model Warehouse {
+  id                 String          @id @default(uuid())
+  name               String
+  code               String          @unique
+  type               WarehouseType   @default(WAREHOUSE)
+  status             WarehouseStatus @default(SETUP)
+  addressLine1       String
+  addressLine2       String?
+  city               String
+  state              String
+  country            String          @default("IN")
+  pinCode            String
+  latitude           Decimal?        @db.Decimal(9, 6)
+  longitude          Decimal?        @db.Decimal(9, 6)
+  contactName        String?
+  contactNumber      String?
+  /// Optional cap on new orders assigned per IST day; null = no cap.
+  dailyOrderCapacity Int?
+  notes              String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  inventories    Inventory[]
+  deliveryZones  WarehouseDeliveryZone[]
+  orders         Order[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([status])
+}
+
+/// Which warehouses may serve which delivery areas (zones), in priority order.
+model WarehouseDeliveryZone {
+  id               String       @id @default(uuid())
+  warehouseId      String
+  warehouse        Warehouse    @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  zoneId           String
+  zone             DeliveryZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  /// Lower number = tried first.
+  priority         Int          @default(1)
+  deliveryFeePaise Int?
+  estimateHours    Int?
+  /// "HH:MM" IST; orders after this are processed from the next operating day.
+  cutoffTime       String?
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([warehouseId, zoneId])
+  @@index([zoneId, isActive, priority])
+}
+
+/// Demand from PIN codes we do not serve yet. Never counted as sales or revenue.
+model DeliveryInterest {
+  id        String   @id @default(uuid())
+  pincode   String
+  email     String
+  name      String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@unique([pincode, email])
+  @@index([createdAt])
+}
+
+// ─────────────────────── P4: Procurement ───────────────────────
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/// Procurement vendor (not a marketplace seller, not a warehouse).
+model Supplier {
+  id             String          @id @default(uuid())
+  name           String
+  contactPerson  String?
+  phone          String?
+  email          String?
+  address        String?
+  city           String?
+  state          String?
+  pinCode        String?
+  gstin          String?
+  status         SupplierStatus  @default(ACTIVE)
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrders PurchaseOrder[]
+
+  @@index([status, name])
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CLOSED
+  CANCELLED
+}
+
+/// Creating/ordering a PO never changes inventory; only confirmed GoodsReceipts do.
+model PurchaseOrder {
+  id           String              @id @default(uuid())
+  poNumber     String              @unique
+  supplierId   String
+  supplier     Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  warehouseId  String
+  warehouse    Warehouse           @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  status       PurchaseOrderStatus @default(DRAFT)
+  expectedDate DateTime?
+  notes        String?
+  totalPaise   Int                 @default(0)
+  createdById  String?
+  createdBy    AdminUser?          @relation("PurchaseOrderCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  orderedAt    DateTime?
+  closedAt     DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  items        PurchaseOrderItem[]
+  receipts     GoodsReceipt[]
+
+  @@index([status, createdAt])
+  @@index([supplierId])
+  @@index([warehouseId])
+}
+
+model PurchaseOrderItem {
+  id               String             @id @default(uuid())
+  purchaseOrderId  String
+  purchaseOrder    PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variantId        String?
+  variant          ProductVariant?    @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  quantityOrdered  Int
+  /// Accepted units added to stock so far.
+  quantityReceived Int                @default(0)
+  /// Damaged/rejected units reported so far (never added to stock).
+  quantityRejected Int                @default(0)
+  unitCostPaise    Int
+  receiptItems     GoodsReceiptItem[]
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+/// One physical delivery from a supplier, confirmed by an admin.
+model GoodsReceipt {
+  id              String             @id @default(uuid())
+  receiptNumber   String             @unique
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Restrict)
+  /// Client key so a double-submitted receipt is applied once.
+  idempotencyKey  String             @unique
+  receivedById    String?
+  receivedBy      AdminUser?         @relation("GoodsReceiptReceiver", fields: [receivedById], references: [id], onDelete: SetNull)
+  notes           String?
+  createdAt       DateTime           @default(now())
+  items           GoodsReceiptItem[]
+
+  @@index([purchaseOrderId, createdAt])
+}
+
+model GoodsReceiptItem {
+  id                  String            @id @default(uuid())
+  goodsReceiptId      String
+  goodsReceipt        GoodsReceipt      @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  purchaseOrderItemId String
+  purchaseOrderItem   PurchaseOrderItem @relation(fields: [purchaseOrderItemId], references: [id], onDelete: Restrict)
+  quantityAccepted    Int
+  quantityRejected    Int               @default(0)
+  discrepancyNote     String?
+
+  @@index([goodsReceiptId])
+  @@index([purchaseOrderItemId])
 }

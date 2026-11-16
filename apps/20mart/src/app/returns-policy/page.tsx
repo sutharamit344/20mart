@@ -2,6 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
 import { ShieldCheck } from 'lucide-react';
+import type { Metadata } from 'next';
+import { pageMetadata } from '../../lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Returns & Refunds Policy – 20Mart',
+  description: 'How returns, cancellations and refunds work at 20Mart.',
+  path: '/returns-policy',
+});
 
 export default function ReturnsPolicyPage() {
   return (

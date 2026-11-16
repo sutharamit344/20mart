@@ -8,7 +8,27 @@ import {
   type StorefrontProductDetail,
 } from '@20mart/shared';
 import { z } from 'zod';
-import { summariseStock } from './products';
+import { productStockState, bestLineStock, type StockRow } from '../fulfillment';
+
+const inventoryStockSelect = {
+  id: true,
+  warehouseId: true,
+  productId: true,
+  variantId: true,
+  availableQuantity: true,
+  reservedQuantity: true,
+  safetyStock: true,
+  lowStockThreshold: true,
+} satisfies Prisma.InventorySelect;
+type InvStock = Prisma.InventoryGetPayload<{ select: typeof inventoryStockSelect }>;
+const toStockRow = (r: InvStock): StockRow => ({
+  inventoryId: r.id,
+  warehouseId: r.warehouseId,
+  productId: r.productId,
+  variantId: r.variantId,
+  sellable: Math.max(0, r.availableQuantity - r.reservedQuantity - r.safetyStock),
+  lowStockThreshold: r.lowStockThreshold,
+});
 
 /** A product is publicly visible only when it, its category and (if set) its brand are active. */
 export const visibleProductWhere: Prisma.ProductWhereInput = {
@@ -28,11 +48,14 @@ const cardSelect = {
   brand: { select: { name: true, slug: true } },
   category: { select: { name: true, slug: true } },
   images: { where: { isPrimary: true }, take: 1, select: { url: true, altText: true } },
+  // Location-agnostic (these pages are cached): stock at ACTIVE warehouses only. The customer's
+  // delivery location is applied on top via /api/availability, cart and checkout.
   inventories: {
-    where: { OR: [{ variantId: null }, { variant: { status: 'ACTIVE' } }] },
-    select: { productId: true, variantId: true, availableQuantity: true, reservedQuantity: true, lowStockThreshold: true },
+    where: { warehouse: { status: 'ACTIVE' }, OR: [{ variantId: null }, { variant: { status: 'ACTIVE' } }] },
+    select: inventoryStockSelect,
   },
-  _count: { select: { variants: { where: { status: 'ACTIVE' } } } },
+  // Presence check scoped to these products (a relation _count would aggregate every variant row).
+  variants: { where: { status: 'ACTIVE' }, select: { id: true }, take: 1 },
 } satisfies Prisma.ProductSelect;
 
 type CardRow = Prisma.ProductGetPayload<{ select: typeof cardSelect }>;
@@ -49,9 +72,9 @@ function toCard(p: CardRow): StorefrontProduct {
     brand: p.brand,
     category: p.category,
     image: p.images[0] ? { url: p.images[0].url, alt: p.images[0].altText || p.name } : null,
-    stockState: summariseStock(p.inventories).state,
+    stockState: productStockState(p.inventories.map(toStockRow), p.variants.length > 0).state,
     isFeatured: p.isFeatured,
-    hasVariants: p._count.variants > 0,
+    hasVariants: p.variants.length > 0,
   };
 }
 
@@ -86,15 +109,15 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
   if (query.brand) and.push({ brand: { slug: query.brand } });
   if (query.pricePoint) and.push({ pricePoint: { amountPaise: query.pricePoint, isActive: true } });
   if (query.inStock) {
-    // Sellable stock on the product row (no variants) or on an active variant row.
-    and.push({
-      inventories: {
-        some: {
-          availableQuantity: { gt: prisma.inventory.fields.reservedQuantity },
-          OR: [{ variantId: null }, { variant: { status: 'ACTIVE' } }],
-        },
-      },
-    });
+    // Sellable stock (after reservations and safety stock) at an ACTIVE warehouse,
+    // on the product row (no variants) or on an active variant row.
+    const rows = await prisma.$queryRaw<{ productId: string }[]>`
+      SELECT DISTINCT i."productId" FROM "Inventory" i
+        JOIN "Warehouse" w ON w."id" = i."warehouseId" AND w."status" = 'ACTIVE'
+        LEFT JOIN "ProductVariant" v ON v."id" = i."variantId"
+       WHERE i."availableQuantity" - i."reservedQuantity" - i."safetyStock" > 0
+         AND (i."variantId" IS NULL OR v."status" = 'ACTIVE')`;
+    and.push({ id: { in: rows.map((r) => r.productId) } });
   }
   if (query.minPrice) and.push({ sellingPricePaise: { gte: query.minPrice } });
   if (query.maxPrice) and.push({ sellingPricePaise: { lte: query.maxPrice } });
@@ -135,8 +158,8 @@ export async function listPublicProducts(raw: PublicProductQuery = {}): Promise<
 }
 
 /** Public cards for a set of ids (wishlist/cart hydration). Order follows `ids`. */
-export async function getPublicProductsByIds(ids: string[]): Promise<StorefrontProduct[]> {
-  const unique = [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id)).slice(0, 60);
+export async function getPublicProductsByIds(ids: string[], limit = 60): Promise<StorefrontProduct[]> {
+  const unique = [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id)).slice(0, limit);
   if (!unique.length) return [];
   const rows = await prisma.product.findMany({ where: { AND: [visibleProductWhere, { id: { in: unique } }] }, select: cardSelect });
   const byId = new Map(rows.map((r) => [r.id, toCard(r)]));
@@ -162,7 +185,7 @@ export async function getPublicProduct(slug: string): Promise<StorefrontProductD
           name: true,
           sellingPricePaise: true,
           mrpPaise: true,
-          inventories: { select: { availableQuantity: true, reservedQuantity: true, lowStockThreshold: true } },
+          inventories: { where: { warehouse: { status: 'ACTIVE' } }, select: inventoryStockSelect },
         },
       },
     },
@@ -177,13 +200,13 @@ export async function getPublicProduct(slug: string): Promise<StorefrontProductD
     seoDescription: p.seoDescription,
     images: p.images.map((i) => ({ url: i.url, alt: i.altText || p.name })),
     variants: p.variants.map((v) => {
-      const inv = v.inventories[0];
+      const inv = bestLineStock(v.inventories.map(toStockRow), p.id, v.id);
       return {
         id: v.id,
         name: v.name,
         sellingPricePaise: v.sellingPricePaise,
         mrpPaise: v.mrpPaise,
-        stockState: inv ? stockStateOf(inv.availableQuantity - inv.reservedQuantity, inv.lowStockThreshold) : 'OUT',
+        stockState: inv ? stockStateOf(inv.sellable, inv.lowStockThreshold) : 'OUT',
       };
     }),
   };
@@ -298,4 +321,24 @@ export async function listPopularProducts(limit = 10): Promise<StorefrontProduct
   const filler = await listPublicProducts({ sort: 'featured', pageSize: limit, inStock: true });
   const seen = new Set(ranked.map((p) => p.id));
   return [...ranked, ...filler.items.filter((p) => !seen.has(p.id))].slice(0, limit);
+}
+
+/** Max URLs in one sitemap file (protocol limit is 50,000). */
+export const SITEMAP_LIMIT = 45_000;
+
+/**
+ * Public URLs for sitemap.xml: only what a visitor can actually open (visible products,
+ * active categories, live campaigns). Selects slugs and timestamps only.
+ */
+export async function listSitemapEntries(now = new Date()) {
+  const [products, categories, campaigns] = await Promise.all([
+    prisma.product.findMany({ where: visibleProductWhere, orderBy: { updatedAt: 'desc' }, take: SITEMAP_LIMIT, select: { slug: true, updatedAt: true } }),
+    prisma.category.findMany({ where: { status: 'ACTIVE', OR: [{ parentId: null }, { parent: { status: 'ACTIVE' } }] }, select: { slug: true, updatedAt: true } }),
+    prisma.campaign.findMany({
+      where: { isActive: true, startsAt: { lte: now }, OR: [{ endsAt: null }, { endsAt: { gt: now } }] },
+      take: 200,
+      select: { slug: true, updatedAt: true },
+    }),
+  ]);
+  return { products, categories, campaigns };
 }

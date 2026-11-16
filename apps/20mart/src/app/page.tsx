@@ -2,33 +2,55 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, Flame, Truck, PackageSearch } from 'lucide-react';
-import { getCategories, getPopular, getPricePoints, getProducts } from '../lib/catalog';
+import { getCategories, getHomepageCampaigns, getPopular, getPricePoints, getProducts } from '../lib/catalog';
+import { CampaignBanners, type HomeCampaign } from '../components/campaigns/CampaignBanners';
 import { getCategoryTheme } from '../lib/category-theme';
 import { ProductGrid } from '../components/StoreProductCard';
+import { captureException } from '@20mart/server';
+import type { Metadata } from 'next';
+import { organizationJsonLd, pageMetadata, websiteJsonLd } from '../lib/seo';
+import { JsonLd } from '../components/JsonLd';
+import { formatPaise } from '@20mart/shared';
+import { resolveImageSrc } from '@20mart/ui';
 
 // Statically rendered and refreshed every minute (plus on-demand revalidation from the admin).
 export const revalidate = 60;
 
+export const metadata: Metadata = pageMetadata({ title: '20Mart – Your Everyday Value Market', path: '/' });
+
 async function loadHome() {
   try {
-    const [categories, popular, newest, deals, pricePoints] = await Promise.all([
+    const [categories, popular, newest, deals, pricePoints, campaigns] = await Promise.all([
       getCategories(),
       getPopular(10),
-      getProducts({ sort: 'newest', pageSize: 5, inStock: true }),
+      getProducts({ sort: 'newest', pageSize: 10, inStock: true }),
       getProducts({ deals: true, maxPrice: 5000, sort: 'price_asc', pageSize: 5, inStock: true }),
       getPricePoints(),
+      getHomepageCampaigns().catch(() => []),
     ]);
-    return { categories, trending: popular, newest: newest.items, deals: deals.items, pricePoints, error: false };
+    return {
+      categories,
+      trending: popular,
+      newest: newest.items.slice(0, 5),
+      deals: deals.items,
+      pricePoints,
+      campaigns: campaigns as unknown as HomeCampaign[],
+      heroProducts: newest.items.filter((product) => product.image).slice(0, 6),
+      error: false,
+    };
   } catch (e) {
-    console.error('[home] catalog unavailable:', (e as Error).message);
-    return { categories: [], trending: [], newest: [], deals: [], pricePoints: [], error: true };
+    captureException(e, 'db.catalog_unavailable', { category: 'db', what: 'home page' });
+    return { categories: [], trending: [], newest: [], deals: [], pricePoints: [], campaigns: [] as HomeCampaign[], heroProducts: [], error: true };
   }
 }
 
 export default async function HomePage() {
-  const { categories, trending, newest, deals, pricePoints, error } = await loadHome();
+  const { categories, trending, newest, deals, pricePoints, campaigns, heroProducts, error } = await loadHome();
 
   return (
+    <>
+    {/* Outside the space-y container: a <script> sibling would otherwise add top margin to the first section */}
+    <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
     <div className="space-y-6 sm:space-y-8 pb-8">
       {/* Top Section: Category Strip + Hero Banner with tight Amazon-style spacing & gap */}
       <div className="space-y-1.5 sm:space-y-2">
@@ -94,7 +116,7 @@ export default async function HomePage() {
                 Useful products, Affordable prices, Everyday convenience. Curated household, kitchen, and cleaning necessities delivered straight to your door.
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons + trust chips */}
               <div className="flex items-center gap-3 pt-1 flex-wrap">
                 <Link
                   href="/shop"
@@ -103,63 +125,89 @@ export default async function HomePage() {
                   <span>Explore Products</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-emerald-50 backdrop-blur-sm">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  100% Everyday Essentials
+                </span>
+              </div>
+
+              {/* Mobile: offer chips sit in the flow instead of floating over the product tiles */}
+              <div className="flex flex-wrap gap-2 md:hidden">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11px] font-black text-[#0B5D38] shadow-md">
+                  <Truck className="w-3.5 h-3.5" />
+                  Free Delivery &gt; ₹199
+                </span>
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF5500] px-3 py-1 text-[11px] font-black text-white shadow-md">
+                  Starts @ ₹20!
+                </span>
               </div>
             </div>
 
-            {/* Right: Grouped daily-use items & basket filling the banner space gracefully */}
-            <div className="md:col-span-6 lg:col-span-7 xl:col-span-7 relative flex items-end justify-center md:justify-end px-2 sm:px-6 pt-2 md:pt-2 pb-2 md:pb-0 overflow-hidden sm:overflow-visible">
-              {/* Radiant ambient glow without clipping */}
+            {/* Right: featured products in a compact, staggered 2×2 showcase */}
+            <div className="md:col-span-6 lg:col-span-7 xl:col-span-7 relative flex items-center justify-center">
+              {/* Soft glow behind the showcase */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-80 sm:w-[500px] md:w-[600px] h-72 sm:h-96 rounded-full bg-gradient-to-tr from-emerald-400/30 via-emerald-300/20 to-transparent blur-3xl pointer-events-none" />
+                <div className="w-72 sm:w-[420px] h-72 sm:h-[420px] rounded-full bg-gradient-to-tr from-emerald-300/25 via-emerald-200/10 to-transparent blur-3xl" />
               </div>
 
-              {/* Free Delivery Badge */}
-              <div className="absolute top-2 sm:top-4 right-3 sm:right-6 z-10 bg-white/95 backdrop-blur-md rounded-full px-3.5 py-1.5 text-[11px] font-black text-[#0B5D38] flex items-center gap-1.5 shadow-lg shadow-emerald-950/20 border border-white">
-                <Truck className="w-3.5 h-3.5 text-[#0B5D38]" />
-                <span>Free Delivery &gt; ₹199</span>
-              </div>
+              {/* Mobile: swipeable row (image tiles link to the same products shown in New Arrivals) */}
+              {heroProducts.length > 0 && (
+                <div className="md:hidden relative w-full px-4 pb-5">
+                  <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory">
+                    {heroProducts.map((product, index) => (
+                      <Link
+                        key={product.id}
+                        href={`/product/${product.slug}`}
+                        className="group snap-start flex w-[140px] shrink-0 flex-col rounded-2xl bg-white p-2 text-left text-gray-900 shadow-lg shadow-emerald-950/25 transition active:scale-[0.98]"
+                      >
+                        <span className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#F6F7F5]">
+                          <Image src={resolveImageSrc(product.image?.url)} alt={product.image?.alt ?? product.name} fill sizes="140px" priority={index === 0} className="object-contain p-1.5" />
+                        </span>
+                        <span className="mt-1.5 block truncate text-[11px] font-bold">{product.name}</span>
+                        <span className="text-[11px] font-black text-[#0B5D3B]">{formatPaise(product.sellingPricePaise)}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              {/* Mobile Hero Image: Centered, prominent, no left negative space with Next.js Image LCP priority */}
-              <div className="md:hidden relative z-0 w-full flex items-center justify-center overflow-hidden px-1 pt-2 pb-1">
-                <Image
-                  src="/hero-group-mobile.png"
-                  alt="20Mart Household & Kitchen Essentials Cluster"
-                  width={390}
-                  height={260}
-                  priority
-                  sizes="(max-width: 768px) 100vw, 390px"
-                  className="w-full max-w-[390px] h-auto max-h-[260px] object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.38)]"
-                />
-              </div>
+              {/* Desktop: centred showcase; the right column is offset so the grid feels lively, never clipped */}
+              <div className="relative hidden md:block py-10 lg:py-12">
+                {heroProducts.length > 0 && (
+                  <div className={`grid gap-4 lg:gap-5 ${heroProducts.length === 1 ? 'grid-cols-1' : heroProducts.length >= 3 ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2'}`}>
+                    {heroProducts.map((product, index) => (
+                      <Link
+                        key={product.id}
+                        href={`/product/${product.slug}`}
+                        className={`group ${index >= 4 ? 'hidden lg:flex' : 'flex'} w-[150px] lg:w-[160px] flex-col rounded-2xl bg-white p-2.5 text-left text-gray-900 shadow-xl shadow-emerald-950/30 ring-1 ring-white/60 transition duration-200 hover:-translate-y-1.5 hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${index % 2 === 1 ? 'md:translate-y-6 md:hover:translate-y-4' : 'md:translate-y-0 md:hover:-translate-y-1.5'} ${heroProducts.length >= 3 ? (index % 3 === 1 ? 'lg:translate-y-6 lg:hover:translate-y-4' : 'lg:translate-y-0 lg:hover:-translate-y-1.5') : ''}`}
+                      >
+                        <span className="relative aspect-[5/4] w-full overflow-hidden rounded-xl bg-[#F6F7F5]">
+                          <Image src={resolveImageSrc(product.image?.url)} alt={product.image?.alt ?? product.name} fill sizes="(min-width: 1024px) 160px, 150px" priority={index === 0} className="object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
+                        </span>
+                        <span className="mt-2 block w-full truncate text-xs font-bold group-hover:text-[#C25D00]">{product.name}</span>
+                        <span className="mt-0.5 text-sm font-black text-[#0B5D3B]">{formatPaise(product.sellingPricePaise)}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
 
-              {/* Desktop Hero Image: Next.js Image with LCP priority */}
-              <div className="hidden md:block relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto">
-                <Image
-                  src="/hero-group-transparent.png"
-                  alt="20Mart Household & Kitchen Essentials Cluster"
-                  width={600}
-                  height={380}
-                  priority
-                  sizes="(min-width: 768px) 50vw, 600px"
-                  className="relative z-0 md:h-76 lg:h-[340px] xl:h-[380px] w-auto md:max-w-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500 ease-out"
-                />
-              </div>
-
-              {/* Floating Price Pill */}
-              <div className="absolute bottom-2 sm:bottom-4 right-3 sm:right-6 z-10 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white rounded-full px-4 py-1.5 text-xs sm:text-sm font-black shadow-xl shadow-orange-950/35 border-2 border-white/90">
-                Starts @ ₹20!
-              </div>
-
-              {/* Trust Badge */}
-              <div className="absolute bottom-3 left-2 sm:left-4 z-10 hidden sm:flex items-center gap-1.5 bg-black/35 backdrop-blur-md rounded-full px-3 py-1 text-[11px] font-bold text-white border border-white/20">
-                <Sparkles className="w-3 h-3 text-amber-300" />
-                <span>100% Everyday Essentials</span>
+                {/* Stickers anchored to the showcase corners (outside the tiles' content area) */}
+                <div className={`${heroProducts.length ? 'absolute top-3 -right-6 lg:-right-10' : 'relative mb-3'} z-10 flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[11px] font-black text-[#0B5D38] shadow-lg shadow-emerald-950/25 rotate-3`}>
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>Free Delivery &gt; ₹199</span>
+                </div>
+                <div className={`${heroProducts.length ? 'absolute bottom-1 -left-8 lg:-left-12' : 'relative'} z-10 w-fit rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF5500] px-4 py-1.5 text-sm font-black text-white shadow-xl shadow-orange-950/35 border-2 border-white -rotate-3`}>
+                  Starts @ ₹20!
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
     </div>
+
+      {/* Live campaigns from the admin (never inactive, scheduled or expired) */}
+      <CampaignBanners campaigns={campaigns} />
 
       {/* Shop by price — real price-point collections */}
       {pricePoints.length > 0 && (
@@ -263,5 +311,6 @@ export default async function HomePage() {
       )}
 
     </div>
+    </>
   );
 }

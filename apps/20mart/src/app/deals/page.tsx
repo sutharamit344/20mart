@@ -3,6 +3,7 @@ import { Flame } from 'lucide-react';
 import { CatalogListing } from '../../components/catalog/CatalogListing';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/deals' },
   title: 'Daily Deals – 20Mart',
   description: 'Everyday essentials priced below MRP at 20Mart.',
 };

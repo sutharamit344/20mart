@@ -5,7 +5,46 @@ import { ProductGallery, Breadcrumb } from '@20mart/ui';
 import { discountPercent, formatPaise, type StorefrontProduct, type StorefrontProductDetail } from '@20mart/shared';
 import { ShieldCheck, Truck, Heart, Plus, Minus, Sparkles } from 'lucide-react';
 import { useStore } from '../lib/store';
+import { useLocation, useProductAvailability } from '../lib/location';
 import { ProductGrid } from './StoreProductCard';
+import { MapPin } from 'lucide-react';
+
+/** Location-aware delivery line: no promise is shown unless the selected PIN is actually served. */
+function DeliveryInfo({ deliverable }: { deliverable: boolean | null }) {
+  const { ready, pincode, serviceability, label, openPicker } = useLocation();
+  if (!ready) return null;
+  if (!pincode) {
+    return (
+      <button type="button" onClick={openPicker} className="inline-flex items-center gap-1 text-xs font-semibold text-[#C25D00] hover:underline cursor-pointer">
+        <MapPin className="w-3.5 h-3.5" /> Enter your PIN code to check delivery
+      </button>
+    );
+  }
+  const change = (
+    <button type="button" onClick={openPicker} className="font-bold text-[#C25D00] hover:underline cursor-pointer">
+      Change
+    </button>
+  );
+  if (!serviceability?.serviceable) {
+    return (
+      <span className="text-xs text-red-600">
+        {serviceability?.reason ?? 'We do not deliver here yet'} ({pincode}). {change}
+      </span>
+    );
+  }
+  if (deliverable === false) {
+    return (
+      <span className="text-xs text-red-600">
+        Not available for delivery to {label}. {change}
+      </span>
+    );
+  }
+  return (
+    <span className="text-xs text-gray-600">
+      {serviceability.estimateText ? `${serviceability.estimateText} to ${label}.` : `Delivers to ${label}.`} {change}
+    </span>
+  );
+}
 
 interface ProductDetailViewProps {
   product: StorefrontProductDetail;
@@ -22,7 +61,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
   const variant = product.variants.find((v) => v.id === variantId) ?? null;
   const price = variant?.sellingPricePaise ?? product.sellingPricePaise;
   const mrp = variant?.mrpPaise ?? product.mrpPaise;
-  const stockState = variant?.stockState ?? product.stockState;
+  // At a served location, stock is that location's (best single warehouse); otherwise all active warehouses.
+  const avail = useProductAvailability(product.id);
+  const stockState = avail ? (variant ? (avail.variants[variant.id] ?? 'OUT') : avail.state) : (variant?.stockState ?? product.stockState);
   const outOfStock = stockState === 'OUT';
   const discount = discountPercent(price, mrp);
 
@@ -63,7 +104,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
       <div className="mt-1.5 sm:mt-2 grid grid-cols-1 md:grid-cols-12 gap-5 lg:gap-8 bg-white rounded-2xl border border-gray-100 p-3.5 sm:p-5 lg:p-6 shadow-xs">
         <div className="md:col-span-5 flex justify-center">
           <div className="w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[400px]">
-            <ProductGallery images={images} productName={product.name} />
+            <ProductGallery images={images} alts={product.images.map((i) => i.alt)} productName={product.name} />
           </div>
         </div>
 
@@ -92,7 +133,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                   In stock
                 </span>
               )}
-              <span className="text-xs text-gray-500">Delivery within 24 hours where available</span>
+              <DeliveryInfo deliverable={avail ? !outOfStock : null} />
             </div>
 
             <div className="flex items-baseline gap-2 pt-0.5 flex-wrap">

@@ -12,6 +12,6 @@ export async function POST(req: NextRequest) {
     res.cookies.set(c.name, '', { ...c.options, maxAge: 0 });
     return res;
   } catch (err) {
-    return errorResponse(err);
+    return errorResponse(err, req);
   }
 }

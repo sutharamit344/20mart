@@ -73,13 +73,13 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
             <ul className="space-y-1.5 text-xs text-gray-500">
               {categories.slice(0, 6).map((c) => (
                 <li key={c.slug}>
-                  <Link href={`/category/${c.slug}`} className="hover:text-[#FF7A00] transition-colors">
+                  <Link href={`/category/${c.slug}`} className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                     {c.name}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link href="/shop" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/shop" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   All Products
                 </Link>
               </li>
@@ -91,27 +91,27 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">Customer Care</h4>
             <ul className="space-y-1.5 text-xs text-gray-500">
               <li>
-                <Link href="/account/orders" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/account/orders" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   My Orders & Tracking
                 </Link>
               </li>
               <li>
-                <Link href="/cart" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/cart" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Shopping Cart
                 </Link>
               </li>
               <li>
-                <Link href="/wishlist" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/wishlist" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   My Wishlist
                 </Link>
               </li>
               <li>
-                <Link href="/faqs" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/faqs" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   FAQs & Help Center
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/contact" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Contact Us
                 </Link>
               </li>
@@ -123,23 +123,23 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">About & Legal</h4>
             <ul className="space-y-1.5 text-xs text-gray-500">
               <li>
-                <Link href="/about" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/about" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   About 20Mart
                 </Link>
               </li>
               <li>
-                <Link href="/shipping-policy" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/shipping-policy" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Shipping & Delivery
                 </Link>
               </li>
 
               <li>
-                <Link href="/terms" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/terms" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="hover:text-[#FF7A00] transition-colors">
+                <Link href="/privacy" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Privacy Policy
                 </Link>
               </li>

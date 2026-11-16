@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { env, expireStaleReservations } from '@20mart/server';
+import { captureException, env, expireStaleReservations } from '@20mart/server';
 import { safeEqual } from '@20mart/server/crypto';
 
 export const dynamic = 'force-dynamic';
@@ -10,5 +10,10 @@ export async function POST(req: NextRequest) {
   if (!secret || !safeEqual(req.headers.get('x-cron-secret') ?? '', secret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  return NextResponse.json(await expireStaleReservations());
+  try {
+    return NextResponse.json(await expireStaleReservations());
+  } catch (e) {
+    const reference = captureException(e, 'cron.expire_reservations_failed', { category: 'cron' });
+    return NextResponse.json({ error: 'Job failed', reference }, { status: 500 });
+  }
 }

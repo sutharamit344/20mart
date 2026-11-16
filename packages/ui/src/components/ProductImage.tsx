@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { cn } from '../lib/utils';
+import { resolveImageSrc } from '../lib/image-url';
 import { ShoppingBag } from 'lucide-react';
 
 export interface ProductImageProps {
@@ -67,7 +68,7 @@ export const ProductImage: React.FC<ProductImageProps> = ({
         </div>
       ) : (
         <Image
-          src={src}
+          src={resolveImageSrc(src)}
           alt={alt}
           fill
           priority={priority}

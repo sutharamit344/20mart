@@ -10,7 +10,14 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "db:generate": "pnpm --filter @20mart/database db:generate",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "db:backup": "node --env-file=packages/database/.env scripts/db/backup.mjs",
+    "db:restore-verify": "node --env-file=packages/database/.env scripts/db/restore-verify.mjs",
+    "verify:deploy": "node scripts/verify-deployment.mjs",
+    "test:e2e": "node scripts/e2e/run.mjs",
+    "perf:measure": "node scripts/perf/measure.mjs",
+    "test": "pnpm --filter @20mart/server test",
+    "type-check": "turbo run type-check"
   },
   "devDependencies": {
     "turbo": "^2.4.4",

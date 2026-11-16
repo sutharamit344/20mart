@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { resolveImageSrc } from '@20mart/ui';
 import { formatPaise, type StorefrontProduct } from '@20mart/shared';
 import { Heart, Loader2, ShoppingCart, Trash2 } from 'lucide-react';
 import { storeApi, useStore } from '../lib/store';
@@ -82,7 +83,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
         return (
           <li key={p.id} className={`flex gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 shadow-xs ${busy === p.id ? 'opacity-60' : ''}`}>
             <Link href={`/product/${p.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-              {p.image ? <Image src={p.image.url} alt={p.image.alt} fill sizes="80px" className="object-contain p-1" /> : null}
+              {p.image ? <Image src={resolveImageSrc(p.image.url)} alt={p.image.alt} fill sizes="80px" className="object-contain p-1" /> : null}
             </Link>
             <div className="flex min-w-0 flex-1 flex-col justify-between">
               <div className="min-w-0">

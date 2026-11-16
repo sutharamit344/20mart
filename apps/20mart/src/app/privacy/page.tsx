@@ -2,6 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
 import { Shield, Lock, Eye, FileText } from 'lucide-react';
+import type { Metadata } from 'next';
+import { pageMetadata } from '../../lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Privacy Policy – 20Mart',
+  description: 'How 20Mart collects, uses and protects your personal information.',
+  path: '/privacy',
+});
 
 export default function PrivacyPolicyPage() {
   return (

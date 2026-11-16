@@ -5,6 +5,7 @@ export type CartLineState = 'ok' | 'insufficient' | 'out_of_stock' | 'unavailabl
 export interface CartLine {
   id: string;
   productId: string;
+  categoryId: string;
   variantId: string | null;
   inventoryId: string | null;
   slug: string;
@@ -25,17 +26,31 @@ export interface CartLine {
   message: string | null;
 }
 
+/** Coupon applied to a cart, re-validated by the server on every read. */
+export interface AppliedCoupon {
+  code: string;
+  title: string;
+  /** Discount the coupon gives on the current cart (0 when not valid right now). */
+  discountPaise: number;
+  valid: boolean;
+  /** Why it does not apply right now (e.g. "Add ₹40 more to use this coupon"). */
+  message: string | null;
+}
+
 export interface CartView {
   id: string | null;
   lines: CartLine[];
   totalQuantity: number;
   /** Subtotal of purchasable lines only; computed on the server. */
   subtotalPaise: number;
+  /** Coupon discount on the current subtotal (server-computed; 0 without a valid coupon). */
+  discountPaise: number;
+  coupon: AppliedCoupon | null;
   hasIssues: boolean;
   maxQtyPerLine: number;
 }
 
-export const EMPTY_CART: CartView = { id: null, lines: [], totalQuantity: 0, subtotalPaise: 0, hasIssues: false, maxQtyPerLine: 10 };
+export const EMPTY_CART: CartView = { id: null, lines: [], totalQuantity: 0, subtotalPaise: 0, discountPaise: 0, coupon: null, hasIssues: false, maxQtyPerLine: 10 };
 
 export interface SavedAddress {
   id: string;

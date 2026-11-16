@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { resolveImageSrc } from '@20mart/ui';
 import { getAdminOrder, orderStatusLabel } from '@20mart/server';
 import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, Panel, StatusBadge } from '../../../../components/ui';
@@ -36,7 +37,7 @@ export default async function AdminOrderPage({ params }: { params: { id: string 
                 <li key={it.id} className="flex items-center gap-3 px-4 py-2.5 text-xs">
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {it.productImage && <img src={it.productImage} alt="" className="h-full w-full object-contain" />}
+                    {it.productImage && <img src={resolveImageSrc(it.productImage)} alt="" className="h-full w-full object-contain" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-gray-900">
@@ -131,6 +132,19 @@ export default async function AdminOrderPage({ params }: { params: { id: string 
             </p>
             <p className="text-gray-600">+91 {o.shipPhone}</p>
             {o.deliveryEstimate && <p className="pt-1 text-[11px] text-emerald-700">{o.deliveryEstimate}</p>}
+            <p className="pt-1 text-[11px] text-gray-600">
+              Fulfilment warehouse:{' '}
+              {o.fulfillmentWarehouse ? (
+                <b>
+                  {o.fulfillmentWarehouse.code} · {o.fulfillmentWarehouse.name}
+                </b>
+              ) : (
+                <span className="text-gray-400">not recorded</span>
+              )}
+            </p>
+            {o.dispatchedAt && <p className="text-[11px] text-gray-500">Dispatched {o.dispatchedAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</p>}
+            {o.deliveredAt && <p className="text-[11px] text-gray-500">Delivered {o.deliveredAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</p>}
+            {o.deliveryFailureReason && <p className="text-[11px] font-semibold text-red-600">Delivery failed: {o.deliveryFailureReason}</p>}
             {o.notes && <p className="pt-1 text-[11px] text-gray-500">Customer note: {o.notes}</p>}
           </Panel>
           <Panel title="Internal notes" bodyClassName="p-4">

@@ -1,11 +1,19 @@
 import { prisma, Prisma } from '@20mart/database';
-import { formatPaise, type CartLine, type CartLineState, type CartView } from '@20mart/shared';
+import { formatPaise, type AppliedCoupon, type CartLine, type CartLineState, type CartView } from '@20mart/shared';
 import { z } from 'zod';
 import { randomToken, sha256 } from './crypto';
 import { AppError, badRequest, conflict, notFound } from './errors';
-import { getStoreSettings } from './settings';
+import { evaluateCartCoupon } from './coupon-engine';
+import { getStoreSettings, PINCODE_REGEX } from './settings';
+import { bestLineStock, lineKey, selectWarehouseFor, stockRows, warehouseCandidates, type StockRow, type WarehouseCandidate } from './fulfillment';
 
 type Db = Prisma.TransactionClient | typeof prisma;
+
+/** Customer's selected delivery PIN (location cookie or checkout address). */
+export interface CartLocation {
+  pincode?: string | null;
+}
+const validPin = (loc?: CartLocation) => (loc?.pincode && PINCODE_REGEX.test(loc.pincode) ? loc.pincode : null);
 
 export type CartOwner = { userId: string; guestToken?: never } | { guestToken: string; userId?: never };
 
@@ -29,13 +37,13 @@ const lineSelect = {
       name: true,
       sku: true,
       status: true,
+      categoryId: true,
       sellingPricePaise: true,
       mrpPaise: true,
       category: { select: { status: true } },
       brand: { select: { status: true, name: true } },
       images: { where: { isPrimary: true }, take: 1, select: { url: true } },
-      inventories: { where: { variantId: null }, select: { id: true, availableQuantity: true, reservedQuantity: true } },
-      _count: { select: { variants: { where: { status: 'ACTIVE' } } } },
+      variants: { where: { status: 'ACTIVE' }, select: { id: true }, take: 1 },
     },
   },
   variant: {
@@ -46,19 +54,21 @@ const lineSelect = {
       status: true,
       sellingPricePaise: true,
       mrpPaise: true,
-      inventories: { select: { id: true, availableQuantity: true, reservedQuantity: true } },
     },
   },
 } satisfies Prisma.CartItemSelect;
 
 type LineRow = Prisma.CartItemGetPayload<{ select: typeof lineSelect }>;
 
-/** Evaluate a cart line against live catalog, price and stock. */
-export function evaluateLine(row: LineRow, maxPerLine: number): CartLine {
+/**
+ * Evaluate a cart line against live catalog, price and stock. `inv` is the stock row at the
+ * warehouse that would fulfil the order (or the best active warehouse when no location is set).
+ * `atLocation` switches the wording to the customer's delivery location.
+ */
+export function evaluateLine(row: LineRow, maxPerLine: number, inv: StockRow | null, atLocation = false): CartLine {
   const p = row.product;
   const v = row.variant;
-  const inv = v ? v.inventories[0] : p.inventories[0];
-  const sellable = inv ? Math.max(0, inv.availableQuantity - inv.reservedQuantity) : 0;
+  const sellable = inv?.sellable ?? 0;
   const unit = v ? v.sellingPricePaise : p.sellingPricePaise;
   const mrp = v ? v.mrpPaise : p.mrpPaise;
   const visible =
@@ -66,7 +76,7 @@ export function evaluateLine(row: LineRow, maxPerLine: number): CartLine {
     p.category.status === 'ACTIVE' &&
     (!p.brand || p.brand.status === 'ACTIVE') &&
     (!v || v.status === 'ACTIVE') &&
-    !(p._count.variants > 0 && !v); // product now has options → this line must be re-chosen
+    !(p.variants.length > 0 && !v); // product now has options → this line must be re-chosen
   const maxQty = Math.min(sellable, maxPerLine);
   let state: CartLineState = 'ok';
   let message: string | null = null;
@@ -75,10 +85,10 @@ export function evaluateLine(row: LineRow, maxPerLine: number): CartLine {
     message = 'This item is no longer available';
   } else if (sellable <= 0) {
     state = 'out_of_stock';
-    message = 'Out of stock';
+    message = atLocation ? 'Not available for delivery to your location' : 'Out of stock';
   } else if (row.quantity > sellable) {
     state = 'insufficient';
-    message = `Only ${maxQty} available — reduce the quantity`;
+    message = atLocation ? `Only ${maxQty} available for your location — reduce the quantity` : `Only ${maxQty} available — reduce the quantity`;
   } else if (row.quantity > maxPerLine) {
     state = 'insufficient';
     message = `You can buy up to ${maxPerLine} of this item`;
@@ -90,8 +100,9 @@ export function evaluateLine(row: LineRow, maxPerLine: number): CartLine {
   return {
     id: row.id,
     productId: p.id,
+    categoryId: p.categoryId,
     variantId: v?.id ?? null,
-    inventoryId: inv?.id ?? null,
+    inventoryId: inv?.inventoryId ?? null,
     slug: p.slug,
     name: p.name,
     sku: v?.sku ?? p.sku,
@@ -110,19 +121,51 @@ export function evaluateLine(row: LineRow, maxPerLine: number): CartLine {
   };
 }
 
-export async function loadCartLines(cartId: string, db: Db = prisma) {
-  const settings = await getStoreSettings();
-  const rows = await db.cartItem.findMany({ where: { cartId }, orderBy: { createdAt: 'asc' }, select: lineSelect });
-  return rows.map((r) => evaluateLine(r, settings.maxQtyPerLine));
+export interface CartEvaluation {
+  lines: CartLine[];
+  /** PIN the lines were evaluated for (null = no location; stock from the best active warehouse). */
+  pincode: string | null;
+  /** Location has at least one active, mapped warehouse. */
+  covered: boolean;
+  /** Warehouse that can fulfil every line at this location, or null. */
+  warehouse: WarehouseCandidate | null;
 }
 
-export function summarise(cartId: string | null, lines: CartLine[], maxQtyPerLine: number): CartView {
+/**
+ * Evaluate the cart for a delivery location. With a covered PIN code every line is checked
+ * against ONE warehouse (the one that would ship the whole order); otherwise lines use the best
+ * active warehouse so the cart still makes sense before a location is chosen.
+ */
+export async function evaluateCart(cartId: string, loc: CartLocation = {}, db: Db = prisma): Promise<CartEvaluation> {
+  const settings = await getStoreSettings();
+  const rows = await db.cartItem.findMany({ where: { cartId }, orderBy: { createdAt: 'asc' }, select: lineSelect });
+  const pincode = validPin(loc);
+  const wanted = rows.map((r) => ({ productId: r.product.id, variantId: r.variant?.id ?? null, quantity: r.quantity }));
+  if (pincode && rows.length) {
+    const sel = await selectWarehouseFor(pincode, wanted, db);
+    if (sel.candidates.length) {
+      const lines = rows.map((r) => evaluateLine(r, settings.maxQtyPerLine, sel.stock.get(lineKey(r.product.id, r.variant?.id ?? null)) ?? null, true));
+      return { lines, pincode, covered: true, warehouse: sel.warehouse };
+    }
+  }
+  const stock = await stockRows(wanted.map((w) => w.productId), 'active', db);
+  const lines = rows.map((r) => evaluateLine(r, settings.maxQtyPerLine, bestLineStock(stock, r.product.id, r.variant?.id ?? null)));
+  return { lines, pincode, covered: false, warehouse: null };
+}
+
+export async function loadCartLines(cartId: string, db: Db = prisma, loc: CartLocation = {}) {
+  return (await evaluateCart(cartId, loc, db)).lines;
+}
+
+export function summarise(cartId: string | null, lines: CartLine[], maxQtyPerLine: number, coupon: AppliedCoupon | null = null): CartView {
   const okLines = lines.filter((l) => l.state === 'ok');
   return {
     id: cartId,
     lines,
     totalQuantity: lines.reduce((a, l) => a + l.quantity, 0),
     subtotalPaise: okLines.reduce((a, l) => a + l.lineTotalPaise, 0),
+    discountPaise: coupon?.valid ? coupon.discountPaise : 0,
+    coupon,
     hasIssues: lines.some((l) => l.state !== 'ok'),
     maxQtyPerLine,
   };
@@ -162,16 +205,16 @@ async function ensureCart(owner: CartOwner | null): Promise<{ cartId: string; ne
   return { cartId: c.id, newGuestToken: token };
 }
 
-export async function getCart(owner: CartOwner | null): Promise<CartView> {
+export async function getCart(owner: CartOwner | null, loc: CartLocation = {}): Promise<CartView> {
   const settings = await getStoreSettings();
   const cartId = owner ? await findCartId(owner) : null;
   if (!cartId) return summarise(null, [], settings.maxQtyPerLine);
-  return summarise(cartId, await loadCartLines(cartId), settings.maxQtyPerLine);
+  return summariseCart(cartId, loc);
 }
 
 /* ─────────────────────────────── Mutations ─────────────────────────────── */
 
-async function loadPurchasable(productId: string, variantId: string | null) {
+async function loadPurchasable(productId: string, variantId: string | null, loc: CartLocation = {}) {
   const product = await prisma.product.findUnique({
     where: { id: productId },
     select: {
@@ -181,46 +224,46 @@ async function loadPurchasable(productId: string, variantId: string | null) {
       sellingPricePaise: true,
       category: { select: { status: true } },
       brand: { select: { status: true } },
-      inventories: { where: { variantId: null }, select: { availableQuantity: true, reservedQuantity: true } },
-      variants: {
-        where: { status: 'ACTIVE' },
-        select: { id: true, sellingPricePaise: true, inventories: { select: { availableQuantity: true, reservedQuantity: true } } },
-      },
+      variants: { where: { status: 'ACTIVE' }, select: { id: true, sellingPricePaise: true } },
     },
   });
   if (!product || product.status !== 'ACTIVE' || product.category.status !== 'ACTIVE' || (product.brand && product.brand.status !== 'ACTIVE')) {
     throw notFound('Product');
   }
-  let inv = product.inventories[0];
   let price = product.sellingPricePaise;
   if (product.variants.length) {
     if (!variantId) throw badRequest('Please choose an option for this product');
     const v = product.variants.find((x) => x.id === variantId);
     if (!v) throw notFound('Product option');
-    inv = v.inventories[0];
     price = v.sellingPricePaise;
   } else if (variantId) {
     throw notFound('Product option');
   }
-  const sellable = inv ? Math.max(0, inv.availableQuantity - inv.reservedQuantity) : 0;
-  return { name: product.name, price, sellable };
+  // At a covered delivery location only that location's warehouses count; otherwise any active warehouse.
+  const pin = validPin(loc);
+  const candidates = pin ? (await warehouseCandidates(pin)).filter((c) => !c.atCapacity) : [];
+  const rows = await stockRows([productId], candidates.length ? candidates.map((c) => c.id) : 'active');
+  const sellable = bestLineStock(rows, productId, variantId)?.sellable ?? 0;
+  return { name: product.name, price, sellable, atLocation: candidates.length > 0 };
 }
 
-function assertQuantity(qty: number, sellable: number, maxPerLine: number, name: string) {
-  if (sellable <= 0) throw new AppError(409, 'OUT_OF_STOCK', `${name} is out of stock`);
+function assertQuantity(qty: number, sellable: number, maxPerLine: number, name: string, atLocation = false) {
+  if (sellable <= 0) {
+    throw new AppError(409, 'OUT_OF_STOCK', atLocation ? `${name} is not available for delivery to your location` : `${name} is out of stock`);
+  }
   if (qty > maxPerLine) throw new AppError(409, 'QTY_LIMIT', `You can buy up to ${maxPerLine} of this item`);
-  if (qty > sellable) throw new AppError(409, 'INSUFFICIENT_STOCK', `Only ${Math.min(sellable, maxPerLine)} of ${name} available`);
+  if (qty > sellable) throw new AppError(409, 'INSUFFICIENT_STOCK', `Only ${Math.min(sellable, maxPerLine)} of ${name} available${atLocation ? ' for your location' : ''}`);
 }
 
-export async function addItem(owner: CartOwner | null, raw: unknown) {
+export async function addItem(owner: CartOwner | null, raw: unknown, loc: CartLocation = {}) {
   const input = addItemInput.parse(raw);
   const settings = await getStoreSettings();
-  const item = await loadPurchasable(input.productId, input.variantId);
+  const item = await loadPurchasable(input.productId, input.variantId, loc);
   const { cartId, newGuestToken } = await ensureCart(owner);
   const where = { cartId, productId: input.productId, variantId: input.variantId };
   const existing = await prisma.cartItem.findFirst({ where, select: { id: true, quantity: true } });
   const newQty = (existing?.quantity ?? 0) + input.quantity;
-  assertQuantity(newQty, item.sellable, settings.maxQtyPerLine, item.name);
+  assertQuantity(newQty, item.sellable, settings.maxQtyPerLine, item.name, item.atLocation);
   if (existing) {
     await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: newQty, addedPricePaise: item.price } });
   } else {
@@ -234,12 +277,20 @@ export async function addItem(owner: CartOwner | null, raw: unknown) {
     }
   }
   await prisma.cart.update({ where: { id: cartId }, data: { updatedAt: new Date() } });
-  return { cart: await summariseCart(cartId), newGuestToken };
+  return { cart: await summariseCart(cartId, loc), newGuestToken };
 }
 
-async function summariseCart(cartId: string) {
+/** Re-priced cart view including the (re-validated) coupon for signed-in owners. */
+export async function summariseCart(cartId: string, loc: CartLocation = {}) {
+  return summariseLines(cartId, await loadCartLines(cartId, prisma, loc));
+}
+
+/** Cart view for already-evaluated lines (coupon re-validated). */
+export async function summariseLines(cartId: string, lines: CartLine[]) {
   const settings = await getStoreSettings();
-  return summarise(cartId, await loadCartLines(cartId), settings.maxQtyPerLine);
+  const cart = await prisma.cart.findUnique({ where: { id: cartId }, select: { userId: true, couponCode: true } });
+  const coupon = await evaluateCartCoupon(cart?.couponCode ?? null, cart?.userId ?? null, lines);
+  return summarise(cartId, lines, settings.maxQtyPerLine, coupon);
 }
 
 /** Resolve a line id strictly within the owner's cart (prevents IDOR). */
@@ -255,7 +306,7 @@ async function ownLine(owner: CartOwner | null, itemId: string) {
   return { cartId, line };
 }
 
-export async function setQuantity(owner: CartOwner | null, itemId: string, raw: unknown) {
+export async function setQuantity(owner: CartOwner | null, itemId: string, raw: unknown, loc: CartLocation = {}) {
   const { quantity } = setQuantityInput.parse(raw);
   const { cartId, line } = await ownLine(owner, itemId);
   if (quantity === 0) {
@@ -264,24 +315,24 @@ export async function setQuantity(owner: CartOwner | null, itemId: string, raw: 
     const settings = await getStoreSettings();
     // Decreasing is always allowed (helps fix "insufficient" lines); increasing re-checks stock.
     if (quantity > line.quantity) {
-      const item = await loadPurchasable(line.productId, line.variantId);
-      assertQuantity(quantity, item.sellable, settings.maxQtyPerLine, item.name);
+      const item = await loadPurchasable(line.productId, line.variantId, loc);
+      assertQuantity(quantity, item.sellable, settings.maxQtyPerLine, item.name, item.atLocation);
     }
     await prisma.cartItem.update({ where: { id: line.id }, data: { quantity } });
   }
-  return summariseCart(cartId);
+  return summariseCart(cartId, loc);
 }
 
-export async function removeItem(owner: CartOwner | null, itemId: string) {
+export async function removeItem(owner: CartOwner | null, itemId: string, loc: CartLocation = {}) {
   const { cartId, line } = await ownLine(owner, itemId);
   await prisma.cartItem.delete({ where: { id: line.id } });
-  return summariseCart(cartId);
+  return summariseCart(cartId, loc);
 }
 
-export async function clearCart(owner: CartOwner | null) {
+export async function clearCart(owner: CartOwner | null, loc: CartLocation = {}) {
   const cartId = owner ? await findCartId(owner) : null;
   if (cartId) await prisma.cartItem.deleteMany({ where: { cartId } });
-  return getCart(owner);
+  return getCart(owner, loc);
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { ImagePlus, Loader2 } from 'lucide-react';
+import { resolveImageSrc } from '@20mart/ui';
 import { api, errMsg } from '../lib/api';
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/avif';
@@ -42,7 +43,7 @@ export function ImageUploadField({
       const form = new FormData();
       form.append('file', file);
       const res = await api<Record<string, string>>(endpoint, { form });
-      const url = res.imageUrl ?? res.logoUrl;
+      const url = res.imageUrl ?? res.logoUrl ?? res.bannerImageUrl;
       setPreview(url);
       onUploaded(url);
     } catch (e) {
@@ -60,7 +61,7 @@ export function ImageUploadField({
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="h-full w-full object-contain" />
+            <img src={resolveImageSrc(preview)} alt="" className="h-full w-full object-contain" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-gray-300">
               <ImagePlus className="w-5 h-5" />

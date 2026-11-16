@@ -35,7 +35,7 @@ export function OrderActions(props: Props) {
   const { showToast } = useAdmin();
   const [busy, setBusy] = useState(false);
   const [reason, setReason] = useState('');
-  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState<false | 'cancel' | 'failed'>(false);
   const [note, setNote] = useState('');
   const [manualRef, setManualRef] = useState<Record<string, string>>({});
 
@@ -88,7 +88,14 @@ export function OrderActions(props: Props) {
           <div className="border-t border-gray-100 pt-3">
             {cancelOpen ? (
               <div className="space-y-2">
-                <textarea className={textareaCls} rows={2} placeholder="Reason (shown to the customer)" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
+                <textarea
+                  className={textareaCls}
+                  rows={2}
+                  placeholder={cancelOpen === 'failed' ? 'Why delivery failed (e.g. customer unreachable, refused)' : 'Reason (shown to the customer)'}
+                  maxLength={300}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                />
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setCancelOpen(false)}>
                     Back
@@ -99,17 +106,32 @@ export function OrderActions(props: Props) {
                     className="flex-1"
                     isLoading={busy}
                     disabled={reason.trim().length < 3}
-                    onClick={() => run(() => api(`/api/admin/orders/${orderId}/cancel`, { body: { reason } }), 'Order cancelled')}
+                    onClick={() =>
+                      cancelOpen === 'failed'
+                        ? run(() => api(`/api/admin/orders/${orderId}/delivery-failed`, { body: { reason } }), 'Delivery marked as failed')
+                        : run(() => api(`/api/admin/orders/${orderId}/cancel`, { body: { reason } }), 'Order cancelled')
+                    }
                   >
-                    Cancel order
+                    {cancelOpen === 'failed' ? 'Mark delivery failed' : 'Cancel order'}
                   </Button>
                 </div>
-                <p className="text-[11px] text-gray-500">Stock is released or restocked. Paid orders get a refund request.</p>
+                <p className="text-[11px] text-gray-500">
+                  {cancelOpen === 'failed'
+                    ? 'Goods are returned to the fulfilment warehouse stock. Paid orders get a refund request.'
+                    : 'Stock is released or restocked. Paid orders get a refund request.'}
+                </p>
               </div>
             ) : (
-              <button type="button" onClick={() => setCancelOpen(true)} className="font-semibold text-red-600 hover:underline">
-                Cancel order…
-              </button>
+              <div className="flex flex-wrap gap-3">
+                {status === 'OUT_FOR_DELIVERY' && (
+                  <button type="button" onClick={() => setCancelOpen('failed')} className="font-semibold text-red-600 hover:underline">
+                    Delivery failed…
+                  </button>
+                )}
+                <button type="button" onClick={() => setCancelOpen('cancel')} className="font-semibold text-red-600 hover:underline">
+                  Cancel order…
+                </button>
+              </div>
             )}
           </div>
         )}

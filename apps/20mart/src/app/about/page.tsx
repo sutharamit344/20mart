@@ -11,6 +11,14 @@ import {
   Award,
   ArrowRight,
 } from 'lucide-react';
+import type { Metadata } from 'next';
+import { pageMetadata } from '../../lib/seo';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'About 20Mart – Your Everyday Value Market',
+  description: 'Our story: curated, affordable household, kitchen and daily-use essentials with doorstep delivery in Ahmedabad.',
+  path: '/about',
+});
 
 export default function AboutPage() {
   return (

@@ -2,8 +2,11 @@ import { prisma, type OrderStatus, type Prisma } from '@20mart/database';
 import { z } from 'zod';
 import type { AdminContext } from './auth/admin';
 import { audit } from './audit';
+import { countBy } from './counts';
 import { AppError, badRequest, conflict, forbidden, notFound } from './errors';
-import { addHistory, cancelInput, cancelOrderCore, commitOrderStock, expireStaleReservations, orderStatusLabel } from './orders';
+import { notifyOrderStatus } from './notifications';
+import { addHistory, cancelInput, cancelOrderCore, commitOrderStock, expireStaleReservations, orderStatusLabel, releaseOrderStock, restockOrder } from './orders';
+import { reverseRedemption } from './coupon-engine';
 import { getPaymentProvider, PaymentProviderError } from './payments';
 
 const TX_OPTS = { timeout: 20_000, maxWait: 20_000 } as const;
@@ -29,6 +32,7 @@ export const adminOrderListQuery = z.object({
   paymentStatus: z.enum(PAYMENT_STATUSES).optional(),
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  warehouseId: z.string().uuid().optional().or(z.literal('').transform(() => undefined)),
 });
 
 export async function listAdminOrders(raw: unknown) {
@@ -37,6 +41,7 @@ export async function listAdminOrders(raw: unknown) {
   const where: Prisma.OrderWhereInput = {
     ...(query.status ? { status: query.status } : {}),
     ...(query.paymentStatus ? { paymentStatus: query.paymentStatus } : {}),
+    ...(query.warehouseId ? { fulfillmentWarehouseId: query.warehouseId } : {}),
     ...(query.from || query.to
       ? {
           createdAt: {
@@ -58,7 +63,7 @@ export async function listAdminOrders(raw: unknown) {
         }
       : {}),
   };
-  const [items, total] = await Promise.all([
+  const [rows, total] = await Promise.all([
     prisma.order.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -74,12 +79,18 @@ export async function listAdminOrders(raw: unknown) {
         totalPaise: true,
         shipName: true,
         shipPincode: true,
+        fulfillmentWarehouse: { select: { code: true } },
         user: { select: { name: true, email: true } },
-        _count: { select: { items: true } },
       },
     }),
     prisma.order.count({ where }),
   ]);
+  // Item counts for this page only (a relation _count would aggregate the whole OrderItem table).
+  const itemCounts = await countBy(
+    rows.length ? prisma.orderItem.groupBy({ by: ['orderId'], where: { orderId: { in: rows.map((r) => r.id) } }, _count: { _all: true } }) : [],
+    (g) => g.orderId
+  );
+  const items = rows.map((r) => ({ ...r, _count: { items: itemCounts.get(r.id) ?? 0 } }));
   return { items, total, page: query.page, pageSize: query.pageSize };
 }
 
@@ -88,7 +99,8 @@ export async function getAdminOrder(id: string) {
   const o = await prisma.order.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true, createdAt: true, profile: { select: { phone: true } }, _count: { select: { orders: true } } } },
+      user: { select: { id: true, name: true, email: true, createdAt: true, profile: { select: { phone: true } } } },
+      fulfillmentWarehouse: { select: { id: true, code: true, name: true, city: true } },
       items: true,
       payments: { orderBy: { createdAt: 'asc' } },
       refunds: { orderBy: { createdAt: 'asc' }, include: { initiatedBy: { select: { name: true } } } },
@@ -97,8 +109,9 @@ export async function getAdminOrder(id: string) {
     },
   });
   if (!o) throw notFound('Order');
+  const customerOrders = await prisma.order.count({ where: { userId: o.userId } });
   const { idempotencyKey: _k, ...safe } = o;
-  return { ...safe, nextStatus: NEXT_STATUS[o.status] ?? null, statusLabel: orderStatusLabel(o.status) };
+  return { ...safe, user: { ...o.user, _count: { orders: customerOrders } }, nextStatus: NEXT_STATUS[o.status] ?? null, statusLabel: orderStatusLabel(o.status) };
 }
 
 export const transitionInput = z.object({
@@ -110,7 +123,7 @@ export const transitionInput = z.object({
 export async function transitionOrder(actor: AdminContext, orderId: string, raw: unknown) {
   z.string().uuid().parse(orderId);
   const { toStatus, reason } = transitionInput.parse(raw);
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const o = await tx.order.findUnique({
       where: { id: orderId },
       select: { id: true, orderNumber: true, status: true, paymentMethod: true, paymentStatus: true, inventoryHold: true, totalPaise: true },
@@ -124,6 +137,7 @@ export async function transitionOrder(actor: AdminContext, orderId: string, raw:
     }
     const data: Prisma.OrderUpdateManyMutationInput = { status: toStatus };
     if (toStatus === 'DELIVERED') data.deliveredAt = new Date();
+    if (toStatus === 'OUT_FOR_DELIVERY') data.dispatchedAt = new Date();
     const n = await tx.order.updateMany({ where: { id: o.id, status: o.status }, data });
     if (!n.count) throw conflict('The order was updated at the same time. Please refresh.');
     if (toStatus === 'CONFIRMED') await commitOrderStock(tx, o.id, o.orderNumber, actor.admin.id); // COD: reserved → sold
@@ -136,6 +150,8 @@ export async function transitionOrder(actor: AdminContext, orderId: string, raw:
     await audit(tx, actor, { action: 'Updated order status', category: 'ORDER', entityType: 'Order', entityId: o.id, details: `${o.orderNumber}: ${o.status} → ${toStatus}${reason ? ` (${reason})` : ''}` });
     return { status: toStatus };
   }, TX_OPTS);
+  await notifyOrderStatus(orderId, toStatus);
+  return result;
 }
 
 export async function adminCancelOrder(actor: AdminContext, orderId: string, raw: unknown) {
@@ -146,7 +162,47 @@ export async function adminCancelOrder(actor: AdminContext, orderId: string, raw
   return result;
 }
 
-export const noteInput = z.object({ note: z.string().trim().min(1).max(1000) });
+export const deliveryFailedInput = z.object({ reason: z.string().trim().min(3, 'Give a reason').max(300) });
+
+/**
+ * Out for delivery → FAILED (customer unreachable, refused, wrong address…). The goods return to
+ * the fulfilment warehouse (restocked with movements), the coupon use is reversed, a pending COD
+ * payment is closed and a paid order gets a refund request. Stock never moves twice (hold flip).
+ */
+export async function markDeliveryFailed(actor: AdminContext, orderId: string, raw: unknown) {
+  z.string().uuid().parse(orderId);
+  const { reason } = deliveryFailedInput.parse(raw);
+  const result = await prisma.$transaction(async (tx) => {
+    const o = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { id: true, orderNumber: true, status: true, paymentStatus: true, totalPaise: true, payments: { where: { status: 'PAID' }, select: { id: true, provider: true } } },
+    });
+    if (!o) throw notFound('Order');
+    if (o.status !== 'OUT_FOR_DELIVERY') throw new AppError(409, 'INVALID_TRANSITION', 'Only orders that are out for delivery can be marked as failed');
+    const n = await tx.order.updateMany({ where: { id: o.id, status: o.status }, data: { status: 'FAILED', deliveryFailureReason: reason } });
+    if (!n.count) throw conflict('The order was updated at the same time. Please refresh.');
+    if (!(await restockOrder(tx, o.id, o.orderNumber, 'Delivery failed — returned to warehouse', actor.admin.id))) {
+      await releaseOrderStock(tx, o.id, o.orderNumber, 'Delivery failed', actor.admin.id);
+    }
+    await reverseRedemption(tx, o.id);
+    await tx.payment.updateMany({ where: { orderId: o.id, status: 'PENDING' }, data: { status: 'FAILED', failureReason: 'Delivery failed' } });
+    if (o.paymentStatus === 'PAID' && o.payments.length) {
+      await tx.order.update({ where: { id: o.id }, data: { paymentStatus: 'REFUND_PENDING' } });
+      await tx.refund.create({
+        data: { orderId: o.id, paymentId: o.payments[0].id, provider: o.payments[0].provider, amountPaise: o.totalPaise, status: 'REQUESTED', reason: `Delivery failed: ${reason}` },
+      });
+    } else if (o.paymentStatus === 'PENDING') {
+      await tx.order.update({ where: { id: o.id }, data: { paymentStatus: 'FAILED' } });
+    }
+    await addHistory(tx, o.id, o.status, 'FAILED', { label: actor.admin.name, adminId: actor.admin.id }, reason);
+    await audit(tx, actor, { action: 'Marked delivery failed', category: 'ORDER', entityType: 'Order', entityId: o.id, details: `${o.orderNumber}: ${reason}` });
+    return { status: 'FAILED' as const, orderNumber: o.orderNumber };
+  }, TX_OPTS);
+  await notifyOrderStatus(orderId, 'FAILED').catch(() => undefined);
+  return result;
+}
+
+export const noteInput =z.object({ note: z.string().trim().min(1).max(1000) });
 export async function addOrderNote(actor: AdminContext, orderId: string, raw: unknown) {
   z.string().uuid().parse(orderId);
   const { note } = noteInput.parse(raw);
@@ -259,14 +315,24 @@ export async function listCustomers(raw: unknown) {
       orderBy: { createdAt: 'desc' },
       skip: (q.page - 1) * q.pageSize,
       take: q.pageSize,
-      select: { id: true, name: true, email: true, status: true, createdAt: true, lastLoginAt: true, profile: { select: { phone: true } }, _count: { select: { orders: true } } },
+      select: { id: true, name: true, email: true, status: true, createdAt: true, lastLoginAt: true, profile: { select: { phone: true } } },
     }),
     prisma.user.count({ where }),
   ]);
   const ids = rows.map((r) => r.id);
-  const spend = await prisma.order.groupBy({ by: ['userId'], where: { userId: { in: ids }, paymentStatus: 'PAID' }, _sum: { totalPaise: true } });
+  const [spend, orderCounts] = ids.length
+    ? await Promise.all([
+        prisma.order.groupBy({ by: ['userId'], where: { userId: { in: ids }, paymentStatus: 'PAID' }, _sum: { totalPaise: true } }),
+        countBy(prisma.order.groupBy({ by: ['userId'], where: { userId: { in: ids } }, _count: { _all: true } }), (g) => g.userId),
+      ])
+    : [[], new Map<string, number>()];
   const spendBy = new Map(spend.map((s) => [s.userId, s._sum.totalPaise ?? 0]));
-  return { items: rows.map((r) => ({ ...r, paidSpendPaise: spendBy.get(r.id) ?? 0 })), total, page: q.page, pageSize: q.pageSize };
+  return {
+    items: rows.map((r) => ({ ...r, _count: { orders: orderCounts.get(r.id) ?? 0 }, paidSpendPaise: spendBy.get(r.id) ?? 0 })),
+    total,
+    page: q.page,
+    pageSize: q.pageSize,
+  };
 }
 
 /** Order KPIs. Revenue counts only orders whose payment was actually received (PAID). */

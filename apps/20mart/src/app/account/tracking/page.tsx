@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 
 /** "Track order" → the customer's most recent active order (or the order list). */
 export default async function TrackLatestOrder() {
-  const customer = (await getCurrentCustomer())!;
+  const customer = await getCurrentCustomer();
+  if (!customer) redirect('/auth?returnTo=/account'); // layout and page render concurrently
   const latest = await prisma.order.findFirst({
     where: { userId: customer.id, status: { notIn: ['DELIVERED', 'CANCELLED', 'FAILED'] } },
     orderBy: { createdAt: 'desc' },

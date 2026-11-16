@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { prisma } from '@20mart/database';
 import { createCustomerSession } from '../src/auth/customer';
 import { getAdminContext } from '../src/auth/admin';
-import { adminRequest, adminSession, categoryId, ctxParams, resetDb } from './helpers';
+import { adminRequest, adminSession, categoryId, ctxParams, resetDb, testWarehouse } from './helpers';
 
 // The real admin route handlers, exactly as deployed.
 const APP = '../../../apps/20martadmin/src/app/api/admin';
@@ -97,7 +97,7 @@ describe('permission enforcement', () => {
     const { POST } = await productsRoute();
     const res = await POST(adminRequest('/api/admin/products', { method: 'POST', token: cm.token, body: {} }));
     expect(res.status).toBe(403);
-    const invRow = await prisma.inventory.findFirstOrThrow({ where: { productId: id } });
+    const invRow = { id: await prisma.$transaction(async (tx) => (await import('../src/inventory')).ensureInventoryRow(tx, (await testWarehouse()).id, id, null)) };
     const adj = await inventoryAdjust();
     const r2 = await adj.POST(
       adminRequest(`/api/admin/inventory/${invRow.id}/adjust`, { method: 'POST', token: cm.token, body: { type: 'STOCK_IN', quantity: 5, reason: 'nope' } }),

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ShoppingBag, Clock, IndianRupee, Users, Package, CheckCircle2, FolderTree, BadgeCheck, Boxes, AlertTriangle, XCircle, Plus, ArrowRight } from 'lucide-react';
-import { getDashboardStats, getOrderStats, orderStatusLabel } from '@20mart/server';
+import { getDashboardStats, getOperationsStats, getOrderStats, orderStatusLabel } from '@20mart/server';
 import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, PageHeader, Panel, StatCard, StatusBadge } from '../../components/ui';
 
@@ -8,7 +8,11 @@ export default async function DashboardPage() {
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('dashboard.view')) return <AccessDenied permission="dashboard.view" />;
   const can = (p: string) => ctx.permissions.has(p);
-  const [s, os] = await Promise.all([getDashboardStats(), can('orders.view') ? getOrderStats() : Promise.resolve(null)]);
+  const [s, os, ops] = await Promise.all([
+    getDashboardStats(),
+    can('orders.view') ? getOrderStats() : Promise.resolve(null),
+    can('warehouses.view') || can('purchasing.view') ? getOperationsStats() : Promise.resolve(null),
+  ]);
   const n = (v: number) => v.toLocaleString('en-IN');
 
   return (
@@ -56,11 +60,73 @@ export default async function DashboardPage() {
         <StatCard label="Brands" value={n(s.totalBrands)} icon={<BadgeCheck className="w-4 h-4" />} tone="orange" href="/brands" />
       </div>
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <StatCard label="Units in stock" value={n(s.totalInventoryUnits)} hint="Across all SKUs" icon={<Boxes className="w-4 h-4" />} tone="green" href="/inventory" />
-        <StatCard label="Low stock" value={n(s.lowStock)} hint="At or below threshold" icon={<AlertTriangle className="w-4 h-4" />} tone="amber" href="/inventory?stock=low" />
-        <StatCard label="Out of stock" value={n(s.outOfStock)} hint="Not purchasable" icon={<XCircle className="w-4 h-4" />} tone="red" href="/inventory?stock=out" />
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3">
+        <StatCard label="Units on hand" value={n(s.totalInventoryUnits)} hint="All warehouses" icon={<Boxes className="w-4 h-4" />} tone="green" href="/inventory" />
+        <StatCard label="Reserved" value={n(s.reservedUnits)} hint="Held for open orders" />
+        <StatCard label="Sellable" value={n(s.sellableUnits)} hint="After reservations & safety stock" tone="blue" />
+        <StatCard label="Low stock" value={n(s.lowStock)} hint="Stock rows at/below threshold" icon={<AlertTriangle className="w-4 h-4" />} tone="amber" href="/inventory?stock=low" />
+        <StatCard label="Out of stock" value={n(s.outOfStock)} hint="Stock rows not sellable" icon={<XCircle className="w-4 h-4" />} tone="red" href="/inventory?stock=out" />
       </div>
+
+      {ops && (
+        <Panel title="Operations (last 30 days)" bodyClassName="p-3 sm:p-4 space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+            {[
+              ['Active warehouses', `${ops.warehouses.active}`, ops.warehouses.setup || ops.warehouses.paused ? `${ops.warehouses.setup} in setup · ${ops.warehouses.paused} paused` : '', '/warehouses'],
+              ['Delivery areas live', `${ops.activeDeliveryAreas}`, 'Active area with an active warehouse', '/delivery'],
+              ['Open purchase orders', `${ops.procurement.openPurchaseOrders}`, '', '/purchase-orders'],
+              ['Goods receipts', `${ops.procurement.receipts30d}`, `${n(ops.procurement.unitsReceived30d)} units in · ${n(ops.procurement.unitsRejected30d)} rejected`, '/purchase-orders'],
+              ['Manual stock changes', `${ops.manualAdjustments30d}`, 'Initial, in, out, corrections', '/inventory/movements?type=ADJUSTMENT'],
+              ['Pre-launch interest', `${ops.deliveryInterest}`, 'People, not sales', '/delivery'],
+            ].map(([l, v, h, href]) => (
+              <Link key={l} href={href} className="rounded-lg bg-gray-50 p-2.5 hover:bg-gray-100">
+                <p className="text-[10px] text-gray-500">{l}</p>
+                <p className="text-base font-bold text-gray-900">{v}</p>
+                {h && <p className="text-[10px] text-gray-400">{h}</p>}
+              </Link>
+            ))}
+          </div>
+          {ops.ordersByWarehouse.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] text-left text-xs">
+                <thead className="text-[10px] uppercase text-gray-500">
+                  <tr>
+                    <th className="py-1.5">Fulfilment warehouse</th>
+                    <th className="py-1.5 text-right">Orders</th>
+                    <th className="py-1.5 text-right">Open</th>
+                    <th className="py-1.5 text-right">Paid value</th>
+                    <th className="py-1.5 text-right">Awaiting payment</th>
+                    <th className="py-1.5 text-right">Cancelled / failed</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {ops.ordersByWarehouse.map((r) => (
+                    <tr key={r.code ?? 'none'}>
+                      <td className="py-1.5 font-semibold">{r.code ? `${r.code} · ${r.name}` : 'Not recorded'}</td>
+                      <td className="text-right">{n(r.orders)}</td>
+                      <td className="text-right">{n(r.open)}</td>
+                      <td className="text-right text-emerald-700 font-semibold">{formatINR(r.paidPaise)}</td>
+                      <td className="text-right text-amber-700">{formatINR(r.pendingPaise)}</td>
+                      <td className="text-right text-red-600">{n(r.cancelled)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-1 text-[10px] text-gray-400">Paid value counts only captured payments. Awaiting payment and cancelled orders are not revenue.</p>
+            </div>
+          )}
+          {ops.movements30d.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {ops.movements30d.map((m) => (
+                <span key={m.type} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600">
+                  {m.type.replace(/_/g, ' ').toLowerCase()}: {n(m.count)} ({m.units > 0 ? '+' : ''}
+                  {n(m.units)})
+                </span>
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
 
       {os && os.recent.length > 0 && (
         <Panel title="Recent orders" actions={<Link href="/orders" className="inline-flex items-center gap-1 text-xs font-semibold text-[#E66E00] hover:underline">View all <ArrowRight className="w-3 h-3" /></Link>}>

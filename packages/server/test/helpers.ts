@@ -149,11 +149,32 @@ export async function makeSellable(opts: { sku: string; pricePaise?: number; mrp
       publishedAt: new Date(),
       isFeatured: opts.featured ?? false,
       images: { create: { url: 'https://images.example/p.png', isPrimary: true } },
-      inventories: { create: { availableQuantity: opts.stock ?? 10, lowStockThreshold: 2 } },
+      inventories: { create: { warehouseId: (await testWarehouse()).id, availableQuantity: opts.stock ?? 10, lowStockThreshold: 2 } },
     },
     include: { inventories: true },
   });
   return { product, inventoryId: product.inventories[0].id };
+}
+
+/** The ACTIVE test warehouse (created on first use after each resetDb). */
+export async function testWarehouse(code = 'TEST-WH') {
+  return prisma.warehouse.upsert({
+    where: { code },
+    update: {},
+    create: { code, name: `Warehouse ${code}`, status: 'ACTIVE', addressLine1: '1 Test Road', city: 'Ahmedabad', state: 'Gujarat', pinCode: '380015' },
+  });
+}
+
+/** Serve `pincode` from `warehouseId` through a delivery zone (zone + PIN + mapping). */
+export async function coverPincode(pincode: string, warehouseId: string, opts: { priority?: number; zoneName?: string } = {}) {
+  const zone = await prisma.deliveryZone.upsert({ where: { name: opts.zoneName ?? 'Test zone' }, update: {}, create: { name: opts.zoneName ?? 'Test zone' } });
+  await prisma.serviceablePincode.upsert({ where: { pincode }, update: { zoneId: zone.id, isServiceable: true }, create: { pincode, zoneId: zone.id, area: 'Satellite', city: 'Ahmedabad' } });
+  await prisma.warehouseDeliveryZone.upsert({
+    where: { warehouseId_zoneId: { warehouseId, zoneId: zone.id } },
+    update: { priority: opts.priority ?? 1, isActive: true },
+    create: { warehouseId, zoneId: zone.id, priority: opts.priority ?? 1 },
+  });
+  return zone;
 }
 
 /** Delivery config for tests: COD on, one serviceable PIN, ₹40 fee, free above ₹199, min ₹20. */
@@ -163,7 +184,7 @@ export async function setupDelivery(over: Record<string, unknown> = {}) {
     update: { codEnabled: true, deliveryEnabled: true, minOrderPaise: 2000, deliveryFeePaise: 4000, freeDeliveryThresholdPaise: 19900, ...over },
     create: { id: 'default', codEnabled: true, deliveryEnabled: true, minOrderPaise: 2000, deliveryFeePaise: 4000, freeDeliveryThresholdPaise: 19900, ...over },
   });
-  await prisma.serviceablePincode.upsert({ where: { pincode: '380015' }, update: {}, create: { pincode: '380015', area: 'Satellite', city: 'Ahmedabad' } });
+  await coverPincode('380015', (await testWarehouse()).id);
 }
 
 export const VALID_ADDRESS = {

@@ -9,6 +9,8 @@ import {
   listPopularProducts,
   listPublicPricePoints,
   listPublicProducts,
+  listLiveCampaigns,
+  captureException,
   type PublicProductQuery,
 } from '@20mart/server';
 
@@ -55,7 +57,13 @@ export async function getHeaderCategories() {
   try {
     return (await getCategories()).map((c) => ({ name: c.name, slug: c.slug }));
   } catch (e) {
-    console.error('[catalog] categories unavailable:', (e as Error).message);
+    captureException(e, 'db.catalog_unavailable', { category: 'db', what: 'header categories' });
     return [];
   }
 }
+
+/** Live homepage campaigns (re-filtered by date on the client, so an expired one never lingers). */
+export const getHomepageCampaigns = unstable_cache(async () => listLiveCampaigns({ homepageOnly: true, limit: 4 }), ['home-campaigns'], {
+  revalidate: REVALIDATE,
+  tags: ['catalog'],
+});

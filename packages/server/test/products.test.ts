@@ -19,7 +19,7 @@ import { resolveLocalPath } from '../src/storage';
 import { sniffImageType } from '../src/media';
 import { AppError, toAppError } from '../src/errors';
 import type { AdminContext } from '../src/auth/admin';
-import { adminRequest, adminSession, categoryId, ctxParams, makePng, resetDb } from './helpers';
+import { adminRequest, adminSession, categoryId, ctxParams, makePng, resetDb, testWarehouse } from './helpers';
 
 let actor: AdminContext;
 let token: string;
@@ -47,7 +47,7 @@ const statusOf = async (p: Promise<unknown>) => {
 const pngBlob = (w = 300, h = 300, type = 'image/png') => new Blob([makePng(w, h)], { type });
 
 describe('product management', () => {
-  it('creates a draft product with integer paise, upper-case SKU, slug and an inventory row', async () => {
+  it('creates a draft product with integer paise, upper-case SKU, slug and no stock rows until stock is recorded at a warehouse', async () => {
     const p = await createProduct(actor, await base({ brandId: null }));
     const row = await prisma.product.findUniqueOrThrow({ where: { id: p.id }, include: { inventories: true } });
     expect(row.sku).toBe('ZM-KTC-001');
@@ -55,8 +55,7 @@ describe('product management', () => {
     expect(row.status).toBe('DRAFT');
     expect(row.sellingPricePaise).toBe(2000);
     expect(row.brandId).toBeNull(); // brand is optional
-    expect(row.inventories).toHaveLength(1);
-    expect(row.inventories[0].availableQuantity).toBe(0);
+    expect(row.inventories).toHaveLength(0);
     expect(await prisma.adminAuditLog.count({ where: { entityId: p.id } })).toBe(1);
   });
 
@@ -125,7 +124,7 @@ describe('product management', () => {
     const draft = await createProduct(actor, await base());
     expect((await deleteProduct(actor, draft.id)).mode).toBe('deleted');
     const kept = await createProduct(actor, await base({ sku: 'ZM-KEEP', slug: 'keep' }));
-    const inv = await prisma.inventory.findFirstOrThrow({ where: { productId: kept.id } });
+    const inv = { id: await prisma.$transaction(async (tx) => (await import('../src/inventory')).ensureInventoryRow(tx, (await testWarehouse()).id, kept.id, null)) };
     await adjustStock(actor, inv.id, { type: 'INITIAL_STOCK', quantity: 5, reason: 'Opening stock' });
     expect((await deleteProduct(actor, kept.id)).mode).toBe('archived');
     expect((await prisma.product.findUniqueOrThrow({ where: { id: kept.id } })).status).toBe('ARCHIVED');

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, ConfirmDialog, Modal } from '@20mart/ui';
+import { Button, ConfirmDialog, Modal, resolveImageSrc } from '@20mart/ui';
 import { slugify } from '@20mart/shared';
 import { BadgeCheck, Edit2, Plus, Power, Trash2 } from 'lucide-react';
 import { api, ApiError, errMsg } from '../../../lib/api';
@@ -66,7 +66,7 @@ export function BrandsTable({ items, perms }: { items: BrandRow[]; perms: { crea
                   <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
                     {b.logoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={b.logoUrl} alt="" className="h-full w-full object-contain p-0.5" />
+                      <img src={resolveImageSrc(b.logoUrl)} alt="" className="h-full w-full object-contain p-0.5" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-gray-300">
                         <BadgeCheck className="w-4 h-4" />

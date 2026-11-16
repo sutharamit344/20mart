@@ -13,7 +13,7 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Server-to-server endpoints authenticate with signatures/secrets instead of browser origin.
-  const machineEndpoint = pathname === '/api/revalidate' || pathname === '/api/payments/razorpay/webhook' || pathname.startsWith('/api/cron/');
+  const machineEndpoint = pathname === '/api/revalidate' || pathname === '/api/payments/razorpay/webhook' || pathname === '/api/email/resend/webhook' || pathname.startsWith('/api/cron/');
   if (pathname.startsWith('/api/') && !SAFE.has(req.method) && !machineEndpoint) {
     const origin = req.headers.get('origin');
     const site = req.headers.get('sec-fetch-site');

@@ -25,7 +25,7 @@ export function middleware(req: NextRequest) {
   }
 
   const hasSession = ADMIN_COOKIES.some((n) => req.cookies.has(n));
-  if (!hasSession && pathname !== '/login') {
+  if (!hasSession && pathname !== '/login' && pathname !== '/robots.txt') {
     const url = new URL('/login', req.url);
     if (pathname !== '/') url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);

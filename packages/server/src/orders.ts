@@ -1,9 +1,12 @@
 import { createHash, randomInt } from 'node:crypto';
 import { prisma, Prisma, type OrderStatus } from '@20mart/database';
 import { z } from 'zod';
-import { findCartId, loadCartLines, type CartLine } from './cart';
+import { evaluateCart, findCartId, type CartLine } from './cart';
 import { getOwnAddress } from './addresses';
+import { lockAndEvaluateCoupon, recordRedemption, reverseRedemption } from './coupon-engine';
+import { notifyOrderCancelled, notifyOrderPlaced, notifyPaymentConfirmed } from './notifications';
 import { quoteDelivery } from './delivery';
+import { countBy } from './counts';
 import { AppError, badRequest, conflict, notFound } from './errors';
 import { getPaymentProvider, PaymentProviderError } from './payments';
 import { enabledPaymentMethods, getStoreSettings } from './settings';
@@ -37,7 +40,7 @@ async function itemsForStock(tx: Tx, orderId: string): Promise<StockLine[]> {
 
 async function flipHold(tx: Tx, orderId: string, from: 'RESERVED' | 'COMMITTED', to: 'COMMITTED' | 'RELEASED') {
   const n = await tx.$executeRaw`
-    UPDATE "Order" SET "inventoryHold" = ${to}::"InventoryHold", "updatedAt" = now()
+    UPDATE "Order" SET "inventoryHold" = ${to}::"InventoryHold", "updatedAt" = (now() AT TIME ZONE 'UTC')
      WHERE "id" = ${orderId} AND "inventoryHold" = ${from}::"InventoryHold"`;
   return n === 1;
 }
@@ -50,7 +53,7 @@ export async function commitOrderStock(tx: Tx, orderId: string, orderNumber: str
       UPDATE "Inventory"
          SET "availableQuantity" = "availableQuantity" - ${it.quantity},
              "reservedQuantity" = "reservedQuantity" - ${it.quantity},
-             "updatedAt" = now()
+             "updatedAt" = (now() AT TIME ZONE 'UTC')
        WHERE "id" = ${it.inventoryId} AND "reservedQuantity" >= ${it.quantity} AND "availableQuantity" >= ${it.quantity}
       RETURNING "availableQuantity"`;
     if (!rows.length) throw new AppError(500, 'STOCK_INCONSISTENT', 'Inventory reservation is inconsistent; please contact support');
@@ -75,7 +78,7 @@ export async function releaseOrderStock(tx: Tx, orderId: string, orderNumber: st
   if (!(await flipHold(tx, orderId, 'RESERVED', 'RELEASED'))) return false;
   for (const it of await itemsForStock(tx, orderId)) {
     const rows = await tx.$queryRaw<{ reservedQuantity: number }[]>`
-      UPDATE "Inventory" SET "reservedQuantity" = "reservedQuantity" - ${it.quantity}, "updatedAt" = now()
+      UPDATE "Inventory" SET "reservedQuantity" = "reservedQuantity" - ${it.quantity}, "updatedAt" = (now() AT TIME ZONE 'UTC')
        WHERE "id" = ${it.inventoryId} AND "reservedQuantity" >= ${it.quantity}
       RETURNING "reservedQuantity"`;
     if (!rows.length) throw new AppError(500, 'STOCK_INCONSISTENT', 'Inventory reservation is inconsistent; please contact support');
@@ -100,7 +103,7 @@ export async function restockOrder(tx: Tx, orderId: string, orderNumber: string,
   if (!(await flipHold(tx, orderId, 'COMMITTED', 'RELEASED'))) return false;
   for (const it of await itemsForStock(tx, orderId)) {
     const rows = await tx.$queryRaw<{ availableQuantity: number }[]>`
-      UPDATE "Inventory" SET "availableQuantity" = "availableQuantity" + ${it.quantity}, "updatedAt" = now()
+      UPDATE "Inventory" SET "availableQuantity" = "availableQuantity" + ${it.quantity}, "updatedAt" = (now() AT TIME ZONE 'UTC')
        WHERE "id" = ${it.inventoryId}
       RETURNING "availableQuantity"`;
     await tx.stockMovement.create({
@@ -162,6 +165,38 @@ export interface PlaceOrderResult {
   paymentError: string | null;
 }
 
+/**
+ * Inside the order transaction: the products/variants still exist, are ACTIVE, and cost exactly what
+ * the customer was shown. Rows are locked FOR SHARE until commit (admins' price edits wait).
+ */
+export async function assertLinesCurrent(tx: Tx, lines: CartLine[]) {
+  const productIds = [...new Set(lines.map((l) => l.productId))];
+  const variantIds = [...new Set(lines.map((l) => l.variantId).filter((v): v is string => !!v))];
+  const products = await tx.$queryRaw<{ id: string; price: number; status: string }[]>`
+    SELECT "id", "sellingPricePaise" AS price, "status"::text AS status FROM "Product"
+     WHERE "id" IN (${Prisma.join(productIds)}) ORDER BY "id" FOR SHARE`;
+  const variants = variantIds.length
+    ? await tx.$queryRaw<{ id: string; price: number; status: string }[]>`
+        SELECT "id", "sellingPricePaise" AS price, "status"::text AS status FROM "ProductVariant"
+         WHERE "id" IN (${Prisma.join(variantIds)}) ORDER BY "id" FOR SHARE`
+    : [];
+  const p = new Map(products.map((r) => [r.id, r]));
+  const v = new Map(variants.map((r) => [r.id, r]));
+  for (const l of lines) {
+    const prod = p.get(l.productId);
+    const row = l.variantId ? v.get(l.variantId) : prod;
+    const label = `${l.name}${l.variantName ? ` (${l.variantName})` : ''}`;
+    if (!prod || prod.status !== 'ACTIVE' || !row || row.status !== 'ACTIVE') {
+      throw new AppError(409, 'CART_NEEDS_ATTENTION', `${label} is no longer available. Please review your cart.`, { issues: [`${label}: no longer available`] });
+    }
+    if (row.price !== l.unitPricePaise) {
+      throw new AppError(409, 'PRICE_CHANGED', `The price of ${label} just changed. Please review your cart before placing the order.`, {
+        issues: [`${label}: price changed`],
+      });
+    }
+  }
+}
+
 function cartBlockers(lines: CartLine[]) {
   return lines.filter((l) => l.state !== 'ok').map((l) => `${l.name}${l.variantName ? ` (${l.variantName})` : ''}: ${l.message}`);
 }
@@ -202,16 +237,26 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
   }
   const address = await getOwnAddress(userId, input.addressId);
   const cartId = await findCartId({ userId });
-  const lines = cartId ? await loadCartLines(cartId) : [];
+  if (!cartId) throw badRequest('Your cart is empty');
+  // Lines are evaluated against the ONE warehouse that would ship to this address.
+  const evaluation = await evaluateCart(cartId, { pincode: address.pincode });
+  const lines = evaluation.lines;
   if (!lines.length) throw badRequest('Your cart is empty');
   const issues = cartBlockers(lines);
   if (issues.length) throw new AppError(409, 'CART_NEEDS_ATTENTION', 'Some items in your cart need attention', { issues });
 
   const subtotal = lines.reduce((a, l) => a + l.unitPricePaise * l.quantity, 0);
-  const quote = await quoteDelivery(subtotal, address.pincode, settings);
+  const quote = await quoteDelivery(subtotal, address.pincode, settings, evaluation.warehouse);
   if (quote.blockers.length) throw new AppError(409, 'CHECKOUT_BLOCKED', quote.blockers[0], { issues: quote.blockers });
+  const warehouse = evaluation.warehouse;
+  if (!warehouse) {
+    // Serviceable area but no single warehouse holds every item: never split silently.
+    throw new AppError(409, 'CART_NEEDS_ATTENTION', 'Some items cannot be delivered together to this address', {
+      issues: ['Some items are not available for delivery to this address. Please review your cart.'],
+    });
+  }
   const deliveryCharge = quote.deliveryChargePaise;
-  const total = subtotal + deliveryCharge;
+  const cartCoupon = (await prisma.cart.findUnique({ where: { id: cartId! }, select: { couponCode: true } }))?.couponCode ?? null;
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { name: true, email: true, profile: { select: { phone: true } } } });
   const isOnline = input.paymentMethod === 'ONLINE';
 
@@ -228,13 +273,24 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
         if (dup) return { duplicateOf: dup.id, orderId: null };
         const cartNow = await tx.cart.findUnique({ where: { id: cartId! }, select: { status: true, updatedAt: true } });
         if (cartNow?.status !== 'ACTIVE') throw conflict('Your cart has changed. Please review it and try again.');
+        // The fulfilment warehouse must still be active (an admin pausing it waits for us, or we see it).
+        const [wh] = await tx.$queryRaw<{ status: string }[]>`SELECT "status"::text AS status FROM "Warehouse" WHERE "id" = ${warehouse.id} FOR SHARE`;
+        if (wh?.status !== 'ACTIVE') throw new AppError(409, 'CHECKOUT_BLOCKED', 'Delivery to this address is temporarily unavailable. Please try again shortly.');
+        // 0a) Prices/availability were read before this transaction: re-check them under a share lock so
+        //     a concurrent admin price change either lands before (→ 409, customer reviews) or waits for us.
+        await assertLinesCurrent(tx, lines);
+        // 0b) Coupon: lock the coupon row and re-validate everything (dates, limits, grant, eligibility).
+        //     Lock order is always coupon → inventory, so concurrent checkouts cannot deadlock.
+        const coupon = cartCoupon ? await lockAndEvaluateCoupon(tx, cartCoupon, userId, lines) : null;
+        const discount = coupon?.discountPaise ?? 0;
+        const total = subtotal + deliveryCharge - discount;
         // 1) Reserve stock line by line in a fixed order (prevents deadlocks). Any shortfall aborts everything.
         const sorted = [...lines].sort((a, b) => (a.inventoryId ?? '').localeCompare(b.inventoryId ?? ''));
         for (const l of sorted) {
           if (!l.inventoryId) throw conflict(`${l.name} is not available`);
           const rows = await tx.$queryRaw<{ reservedQuantity: number }[]>`
-            UPDATE "Inventory" SET "reservedQuantity" = "reservedQuantity" + ${l.quantity}, "updatedAt" = now()
-             WHERE "id" = ${l.inventoryId} AND "availableQuantity" - "reservedQuantity" >= ${l.quantity}
+            UPDATE "Inventory" SET "reservedQuantity" = "reservedQuantity" + ${l.quantity}, "updatedAt" = (now() AT TIME ZONE 'UTC')
+             WHERE "id" = ${l.inventoryId} AND "availableQuantity" - "reservedQuantity" - "safetyStock" >= ${l.quantity}
             RETURNING "reservedQuantity"`;
           if (!rows.length) {
             throw new AppError(409, 'OUT_OF_STOCK', `Sorry, ${l.name}${l.variantName ? ` (${l.variantName})` : ''} just sold out or has fewer units left. Please update your cart.`);
@@ -268,7 +324,9 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
             shipCountry: address.country,
             subtotalPaise: subtotal,
             deliveryChargePaise: deliveryCharge,
-            discountPaise: 0,
+            discountPaise: discount,
+            couponId: coupon?.coupon.id ?? null,
+            couponCode: coupon?.coupon.code ?? null,
             taxPaise: 0, // prices are tax-inclusive (MRP regime)
             totalPaise: total,
             paymentMethod: input.paymentMethod,
@@ -277,6 +335,7 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
             reservationExpiresAt: isOnline ? new Date(Date.now() + settings.reservationMinutes * 60_000) : null,
             idempotencyKey: input.idempotencyKey,
             deliveryEstimate: quote.serviceability?.estimateText ?? null,
+            fulfillmentWarehouseId: warehouse.id,
             notes: input.notes ?? null,
             items: {
               create: lines.map((l) => ({
@@ -300,6 +359,7 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
           },
           select: { id: true },
         });
+        if (coupon) await recordRedemption(tx, coupon.coupon.id, userId, order.id, discount);
         await addHistory(tx, order.id, null, 'PENDING', { label: 'customer', userId }, isOnline ? 'Awaiting payment' : 'Cash on delivery order placed');
         // 3) The cart is converted (kept for audit, no longer active).
         await tx.cart.update({ where: { id: cartId! }, data: { status: 'CONVERTED' } });
@@ -323,6 +383,7 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
 
   let payment: CheckoutPaymentParams | null = null;
   let paymentError: string | null = null;
+  if (!isOnline) await notifyOrderPlaced(orderId); // online orders are announced once payment is confirmed
   if (isOnline) {
     try {
       payment = await startOnlinePayment(orderId, { name: user.name, email: user.email, contact: user.profile?.phone ?? null });
@@ -350,8 +411,9 @@ async function startOnlinePayment(orderId: string, prefill: CheckoutPaymentParam
   const provider = getPaymentProvider();
   const order = await prisma.order.findUniqueOrThrow({
     where: { id: orderId },
-    select: { orderNumber: true, totalPaise: true, _count: { select: { payments: true } } },
+    select: { orderNumber: true, totalPaise: true },
   });
+  const attempts = await prisma.payment.count({ where: { orderId } });
   const po = await provider.createOrder({ amountPaise: order.totalPaise, receipt: order.orderNumber, notes: { orderNumber: order.orderNumber } });
   await prisma.payment.create({
     data: {
@@ -360,7 +422,7 @@ async function startOnlinePayment(orderId: string, prefill: CheckoutPaymentParam
       paymentMethod: 'ONLINE',
       amountPaise: order.totalPaise,
       status: 'PENDING',
-      attempt: order._count.payments + 1,
+      attempt: attempts + 1,
       providerOrderId: po.id,
     },
   });
@@ -437,7 +499,7 @@ export async function markPaymentCaptured(providerOrderId: string, providerPayme
     await prisma.payment.update({ where: { id: payment.id }, data: { failureReason: `Amount mismatch: got ${amountPaise}, expected ${payment.amountPaise}` } });
     throw new AppError(400, 'AMOUNT_MISMATCH', 'Payment amount does not match the order total');
   }
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const n = await tx.payment.updateMany({
       where: { id: payment.id, status: { in: ['PENDING', 'FAILED'] } },
       data: { status: 'PAID', providerPaymentId, capturedAt: new Date(), failureReason: null },
@@ -467,6 +529,8 @@ export async function markPaymentCaptured(providerOrderId: string, providerPayme
     });
     return { applied: true, status: 'refund_required' as const };
   }, TX_OPTS);
+  if (result.status === 'confirmed') await notifyPaymentConfirmed(payment.orderId);
+  return result;
 }
 
 export async function handlePaymentFailed(providerOrderId: string, providerPaymentId: string | null, reason: string) {
@@ -498,6 +562,7 @@ export async function expireStaleReservations(now = new Date(), limit = 50) {
       });
       if (!n.count) return; // paid/cancelled concurrently
       await releaseOrderStock(tx, o.id, o.orderNumber, 'Payment not completed in time');
+      await reverseRedemption(tx, o.id); // the coupon use is given back
       await tx.payment.updateMany({ where: { orderId: o.id, status: 'PENDING' }, data: { status: 'FAILED', failureReason: 'Payment window expired' } });
       await addHistory(tx, o.id, 'PENDING', 'FAILED', { label: 'system' }, 'Payment not completed in time');
       expired++;
@@ -518,7 +583,7 @@ export async function cancelOrderCore(
   orderId: string,
   opts: { by: 'customer' | 'admin'; reason: string; actorLabel: string; adminId?: string | null; userId?: string | null }
 ) {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const o = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
       select: { id: true, orderNumber: true, status: true, paymentStatus: true, totalPaise: true, payments: { where: { status: 'PAID' }, select: { id: true, provider: true } } },
@@ -536,6 +601,7 @@ export async function cancelOrderCore(
       (await releaseOrderStock(tx, o.id, o.orderNumber, 'Order cancelled', opts.adminId ?? null)) ||
       (await restockOrder(tx, o.id, o.orderNumber, 'Order cancelled', opts.adminId ?? null));
     void released;
+    await reverseRedemption(tx, o.id);
     await tx.payment.updateMany({ where: { orderId: o.id, status: 'PENDING' }, data: { status: 'FAILED', failureReason: 'Order cancelled' } });
     let refundRequired = false;
     if (o.paymentStatus === 'PAID' && o.payments.length) {
@@ -548,6 +614,8 @@ export async function cancelOrderCore(
     await addHistory(tx, o.id, o.status, 'CANCELLED', { label: opts.actorLabel, adminId: opts.adminId, userId: opts.userId }, opts.reason);
     return { orderNumber: o.orderNumber, refundRequired };
   }, TX_OPTS);
+  await notifyOrderCancelled(orderId, result.refundRequired);
+  return result;
 }
 
 export async function customerCancelOrder(userId: string, orderNumber: string, raw: unknown) {
@@ -590,13 +658,19 @@ export async function listCustomerOrders(userId: string, page = 1, pageSize = 10
         paymentMethod: true,
         totalPaise: true,
         deliveryEstimate: true,
+        id: true,
         items: { select: { productName: true, productImage: true, quantity: true }, take: 4 },
-        _count: { select: { items: true } },
       },
     }),
     prisma.order.count({ where }),
   ]);
-  return { items: rows.map((r) => ({ ...r, statusLabel: STATUS_LABEL[r.status] })), total, page, pageSize };
+  const itemCounts = await countBy(
+    rows.length ? prisma.orderItem.groupBy({ by: ['orderId'], where: { orderId: { in: rows.map((r) => r.id) } }, _count: { _all: true } }) : [],
+    (g) => g.orderId
+  );
+  // The internal id is only used to join counts; customers address orders by orderNumber.
+  const items = rows.map(({ id, ...r }) => ({ ...r, _count: { items: itemCounts.get(id) ?? 0 }, statusLabel: STATUS_LABEL[r.status] }));
+  return { items, total, page, pageSize };
 }
 
 /** A customer's own order. Other customers' orders are indistinguishable from missing ones (404). */
@@ -613,6 +687,7 @@ export async function getCustomerOrder(userId: string, orderNumber: string) {
       subtotalPaise: true,
       deliveryChargePaise: true,
       discountPaise: true,
+      couponCode: true,
       taxPaise: true,
       totalPaise: true,
       shipName: true,

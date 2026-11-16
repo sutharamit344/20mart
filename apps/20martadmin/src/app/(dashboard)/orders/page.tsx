@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { adminOrderListQuery, listAdminOrders, orderStatusLabel } from '@20mart/server';
+import { adminOrderListQuery, listAdminOrders, orderStatusLabel, warehouseOptions } from '@20mart/server';
 import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, PageHeader, Pagination, Panel, StatusBadge, Table, TableEmpty, TBody, Td, Th, THead } from '../../../components/ui';
 import { FilterBar } from '../../../components/FilterBar';
@@ -13,7 +13,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Recor
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('orders.view')) return <AccessDenied permission="orders.view" />;
   const parsed = adminOrderListQuery.safeParse(searchParams);
-  const data = await listAdminOrders(parsed.success ? parsed.data : {});
+  const [data, warehouses] = await Promise.all([listAdminOrders(parsed.success ? parsed.data : {}), warehouseOptions()]);
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -23,6 +23,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Recor
         selects={[
           { name: 'status', label: 'Any status', options: STATUSES.map((s) => ({ value: s, label: orderStatusLabel(s) })) },
           { name: 'paymentStatus', label: 'Any payment', options: PAYMENTS.map((s) => ({ value: s, label: label(s) })) },
+          ...(warehouses.length > 1 ? [{ name: 'warehouseId', label: 'Any warehouse', options: warehouses.map((w) => ({ value: w.id, label: w.code })) }] : []),
         ]}
       >
         <DateRange />
@@ -36,7 +37,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Recor
             <Th className="text-right">Total</Th>
             <Th>Payment</Th>
             <Th>Status</Th>
-            <Th>PIN</Th>
+            <Th>PIN / WH</Th>
           </THead>
           <TBody>
             {data.items.length === 0 && <TableEmpty colSpan={7} title="No orders found" description="Orders placed on the storefront appear here." />}
@@ -62,7 +63,10 @@ export default async function OrdersPage({ searchParams }: { searchParams: Recor
                 <Td>
                   <StatusBadge status={o.status === 'DELIVERED' ? 'ACTIVE' : o.status === 'CANCELLED' || o.status === 'FAILED' ? 'OUT' : 'FEATURED'} label={orderStatusLabel(o.status)} />
                 </Td>
-                <Td className="font-mono text-[11px]">{o.shipPincode}</Td>
+                <Td className="font-mono text-[11px]">
+                  {o.shipPincode}
+                  {o.fulfillmentWarehouse && <span className="block text-[10px] text-gray-400">{o.fulfillmentWarehouse.code}</span>}
+                </Td>
               </tr>
             ))}
           </TBody>

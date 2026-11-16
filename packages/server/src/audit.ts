@@ -14,7 +14,14 @@ export type AuditCategory =
   | 'ROLE'
   | 'SETTINGS'
   | 'ORDER'
-  | 'PAYMENT';
+  | 'PAYMENT'
+  | 'COUPON'
+  | 'CAMPAIGN'
+  | 'CUSTOMER'
+  | 'NOTIFICATION'
+  | 'DELIVERY'
+  | 'WAREHOUSE'
+  | 'PROCUREMENT';
 
 export async function audit(
   tx: Tx,

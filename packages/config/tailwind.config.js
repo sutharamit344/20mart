@@ -47,8 +47,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // next/font exposes self-hosted faces via CSS variables (hashed family names); the literal names are fallbacks.
+        heading: ['var(--font-heading, Poppins)', 'Poppins', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans, Inter)', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',

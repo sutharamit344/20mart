@@ -4,7 +4,7 @@ import { AuthPanel } from '../../components/AuthPanel';
 
 export const metadata: Metadata = {
   title: 'Sign in – 20Mart',
-  robots: { index: false },
+  robots: { index: false, follow: false },
 };
 
 export default function AuthPage() {

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button, Drawer, Modal } from '@20mart/ui';
+import { Button, Drawer, Modal, resolveImageSrc } from '@20mart/ui';
 import { History, Package, SlidersHorizontal } from 'lucide-react';
 import { api, errMsg } from '../../../lib/api';
 import { useAdmin } from '../../../lib/admin-store';
@@ -15,7 +15,9 @@ export interface InventoryRow {
   availableQuantity: number;
   reservedQuantity: number;
   lowStockThreshold: number;
+  safetyStock: number;
   sellable: number;
+  warehouse: { id: string; name: string; code: string; status: string };
   state: 'IN_STOCK' | 'LOW' | 'OUT';
   updatedAt: string;
   product: { id: string; name: string; sku: string; status: string; imageUrl: string | null };
@@ -31,18 +33,20 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
 
   return (
     <>
-      <Table minWidth={760}>
+      <Table minWidth={900}>
         <THead>
           <Th>Item</Th>
+          <Th>Warehouse</Th>
           <Th className="text-right">On hand</Th>
           <Th className="text-right">Reserved</Th>
           <Th className="text-right">Sellable</Th>
+          <Th className="text-right">Safety</Th>
           <Th className="text-right">Low at</Th>
           <Th>State</Th>
           <Th className="text-right">Actions</Th>
         </THead>
         <TBody>
-          {items.length === 0 && <TableEmpty colSpan={7} title="Nothing to show" description="No stock rows match these filters." />}
+          {items.length === 0 && <TableEmpty colSpan={9} title="Nothing to show" description="No stock rows match these filters." />}
           {items.map((i) => (
             <tr key={i.id} className="hover:bg-gray-50/60">
               <Td>
@@ -50,7 +54,7 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
                   <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
                     {i.product.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={i.product.imageUrl} alt="" className="h-full w-full object-contain" loading="lazy" />
+                      <img src={resolveImageSrc(i.product.imageUrl)} alt="" className="h-full w-full object-contain" loading="lazy" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-gray-300">
                         <Package className="w-4 h-4" />
@@ -69,11 +73,18 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
                   </div>
                 </Link>
               </Td>
+              <Td>
+                <span className="font-mono text-[11px] font-semibold text-gray-700">{i.warehouse.code}</span>
+                {i.warehouse.status !== 'ACTIVE' && <span className="ml-1"><StatusBadge status={i.warehouse.status} /></span>}
+              </Td>
               <Td className="text-right font-semibold text-gray-900">{i.availableQuantity}</Td>
               <Td className="text-right text-gray-500">{i.reservedQuantity}</Td>
-              <Td className="text-right font-bold text-gray-900">{i.sellable}</Td>
+              <Td className="text-right font-bold text-gray-900" >{i.sellable}</Td>
               <Td className="text-right">
-                <ThresholdCell row={i} canEdit={perms.update} />
+                <LevelCell row={i} field="safetyStock" canEdit={perms.update} />
+              </Td>
+              <Td className="text-right">
+                <LevelCell row={i} field="lowStockThreshold" canEdit={perms.update} />
               </Td>
               <Td>
                 <StatusBadge status={i.state} />
@@ -100,33 +111,35 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
   );
 }
 
-function ThresholdCell({ row, canEdit }: { row: InventoryRow; canEdit: boolean }) {
+/** Inline editor for the low-stock threshold or the safety stock held back from sale. */
+function LevelCell({ row, field, canEdit }: { row: InventoryRow; field: 'lowStockThreshold' | 'safetyStock'; canEdit: boolean }) {
   const router = useRouter();
   const { showToast } = useAdmin();
-  const [value, setValue] = useState(String(row.lowStockThreshold));
+  const current = row[field];
+  const [value, setValue] = useState(String(current));
   const [saving, setSaving] = useState(false);
-  if (!canEdit) return <span className="text-gray-600">{row.lowStockThreshold}</span>;
+  if (!canEdit) return <span className="text-gray-600">{current}</span>;
   const commit = async () => {
     const n = Number(value);
-    if (!Number.isInteger(n) || n < 0 || n === row.lowStockThreshold) {
-      setValue(String(row.lowStockThreshold));
+    if (!Number.isInteger(n) || n < 0 || n === current) {
+      setValue(String(current));
       return;
     }
     setSaving(true);
     try {
-      await api(`/api/admin/inventory/${row.id}/threshold`, { method: 'PATCH', body: { lowStockThreshold: n } });
-      showToast('Threshold updated');
+      await api(`/api/admin/inventory/${row.id}/threshold`, { method: 'PATCH', body: { [field]: n } });
+      showToast(field === 'safetyStock' ? 'Safety stock updated' : 'Threshold updated');
       router.refresh();
     } catch (e) {
       showToast(errMsg(e));
-      setValue(String(row.lowStockThreshold));
+      setValue(String(current));
     } finally {
       setSaving(false);
     }
   };
   return (
     <input
-      aria-label="Low-stock threshold"
+      aria-label={field === 'safetyStock' ? 'Safety stock' : 'Low-stock threshold'}
       inputMode="numeric"
       value={value}
       disabled={saving}
@@ -188,6 +201,7 @@ function AdjustModal({ row, onClose }: { row: InventoryRow; onClose: () => void 
             {row.product.name}
             {row.variant && <span className="font-normal text-gray-500"> · {row.variant.name}</span>}
           </p>
+          <p className="mt-0.5 text-gray-500">Warehouse <b className="text-gray-900">{row.warehouse.code}</b> · {row.warehouse.name}</p>
           <p className="mt-0.5 text-gray-500">
             On hand <b className="text-gray-900">{row.availableQuantity}</b> · reserved {row.reservedQuantity}
           </p>

@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
 import { PackageSearch } from 'lucide-react';
-import type { PublicProductQuery } from '@20mart/server';
+import { captureException, type PublicProductQuery } from '@20mart/server';
 import { getBrands, getCategories, getPricePoints, getProducts } from '../../lib/catalog';
 import { ProductGrid } from '../StoreProductCard';
 import { CatalogPagination, FilterSidebar, MobileFilterButton, SortSelect } from './CatalogControls';
@@ -63,7 +63,7 @@ export async function CatalogListing({
   try {
     [result, categories, brands, pricePoints] = await Promise.all([getProducts(query), getCategories(), getBrands(), getPricePoints()]);
   } catch (e) {
-    console.error('[catalog] listing failed:', (e as Error).message);
+    captureException(e, 'db.catalog_unavailable', { category: 'db', what: 'catalog listing' });
   }
   const total = result?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
