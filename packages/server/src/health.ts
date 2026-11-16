@@ -40,6 +40,7 @@ export function productionConfigIssues(e = env()): ConfigIssue[] {
 
   if (e.STORAGE_DRIVER === 'local') add('warning', 'STORAGE_DRIVER', 'Local image storage needs a persistent disk shared by all instances; use s3/R2 in production');
   if (e.STORAGE_DRIVER === 's3' && !(e.S3_ENDPOINT && e.S3_BUCKET && e.S3_ACCESS_KEY_ID && e.S3_SECRET_ACCESS_KEY)) add('error', 'S3_*', 'STORAGE_DRIVER=s3 but S3 settings are incomplete');
+  if (e.STORAGE_DRIVER === 'vercel-blob' && !e.BLOB_READ_WRITE_TOKEN && !e.BLOB_STORE_ID) add('error', 'BLOB_READ_WRITE_TOKEN', 'STORAGE_DRIVER=vercel-blob but no Blob store is connected');
   if (!e.STORAGE_PUBLIC_BASE_URL) add('error', 'STORAGE_PUBLIC_BASE_URL', 'Public image base URL is not set');
   else if (!e.STORAGE_PUBLIC_BASE_URL.startsWith('https://') && !isLocalHost(new URL(e.STORAGE_PUBLIC_BASE_URL).hostname)) add('error', 'STORAGE_PUBLIC_BASE_URL', 'Images must be served over https:// (mixed content)');
 

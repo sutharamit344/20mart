@@ -97,7 +97,42 @@ const s3Driver: StorageDriver = {
   publicUrl: (key) => `${publicBase()}/${key}`,
 };
 
-export const storage = (): StorageDriver => (env().STORAGE_DRIVER === 's3' ? s3Driver : localDriver);
+/**
+ * Auth for Vercel Blob: connected projects get BLOB_STORE_ID and the SDK authenticates with the
+ * deployment's OIDC token (pass no token). A static BLOB_READ_WRITE_TOKEN is used when present.
+ */
+function blobToken(): string | undefined {
+  const e = env();
+  if (e.BLOB_READ_WRITE_TOKEN) return e.BLOB_READ_WRITE_TOKEN;
+  if (e.BLOB_STORE_ID) return undefined;
+  throw new AppError(500, 'STORAGE_NOT_CONFIGURED', 'Vercel Blob storage is not configured');
+}
+
+/** Vercel Blob (public store). */
+const blobDriver: StorageDriver = {
+  async put(key, body, contentType) {
+    if (!isValidStorageKey(key)) throw new AppError(400, 'BAD_KEY', 'Invalid storage key');
+    const { put, head } = await import('@vercel/blob');
+    const token = blobToken();
+    const res = await put(key, Buffer.from(body), { access: 'public', addRandomSuffix: false, contentType, cacheControlMaxAge: 31_536_000, token }).catch(() => {
+      throw new AppError(502, 'STORAGE_WRITE_FAILED', 'Image could not be stored');
+    });
+    const meta = await head(res.url, { token }).catch(() => null);
+    if (!meta || meta.size !== body.byteLength) throw new AppError(502, 'STORAGE_WRITE_FAILED', 'Image upload could not be confirmed');
+    return { key, url: res.url };
+  },
+  async delete(key) {
+    if (!isValidStorageKey(key)) return;
+    const { del } = await import('@vercel/blob');
+    await del(this.publicUrl(key), { token: blobToken() });
+  },
+  publicUrl: (key) => `${publicBase()}/${key}`,
+};
+
+export const storage = (): StorageDriver => {
+  const d = env().STORAGE_DRIVER;
+  return d === 's3' ? s3Driver : d === 'vercel-blob' ? blobDriver : localDriver;
+};
 
 /** Read a locally stored object (dev media route). */
 export async function readLocalObject(key: string) {

@@ -9,7 +9,11 @@ const schema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
   REVALIDATE_SECRET: z.string().optional().default(''),
-  STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
+  STORAGE_DRIVER: z.enum(['local', 's3', 'vercel-blob']).default('local'),
+  /** Set automatically by Vercel when a Blob store is connected (STORAGE_DRIVER=vercel-blob). */
+  BLOB_READ_WRITE_TOKEN: z.string().optional().default(''),
+  /** Set by Vercel when a Blob store is connected via OIDC (no static token). */
+  BLOB_STORE_ID: z.string().optional().default(''),
   STORAGE_LOCAL_DIR: z.string().optional().default(''),
   STORAGE_PUBLIC_BASE_URL: z.string().url().optional(),
   S3_ENDPOINT: z.string().optional().default(''),

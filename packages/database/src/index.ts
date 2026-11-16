@@ -17,7 +17,8 @@ export function withUtcSession(url: string | undefined): string | undefined {
   if (!url || process.env.DATABASE_FORCE_UTC === 'false') return url;
   try {
     const u = new URL(url);
-    if (u.searchParams.get('pgbouncer') === 'true') return url;
+    // Poolers (PgBouncer, Neon's "-pooler" endpoints) reject startup options; Neon sessions default to UTC.
+    if (u.searchParams.get('pgbouncer') === 'true' || u.hostname.includes('-pooler')) return url;
     const opts = u.searchParams.get('options') ?? '';
     if (/timezone/i.test(opts)) return url;
     u.searchParams.set('options', `${opts} -c TimeZone=UTC`.trim());
