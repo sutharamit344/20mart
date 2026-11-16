@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 
 const day = (d: Date | null) => (d ? d.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) : '—');
 
-export default async function CustomersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function CustomersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('customers.view')) return <AccessDenied permission="customers.view" />;
   const parsed = customerListQuery.safeParse(searchParams);

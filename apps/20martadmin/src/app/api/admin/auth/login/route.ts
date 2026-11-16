@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     assertSameOrigin(req, env().ADMIN_APP_URL);
     const meta = clientMeta(req);
     // Fast in-memory burst limit; durable per-identifier/IP throttling happens in loginAdmin().
-    if (!rateLimit(`admin-login:${meta.ipAddress ?? 'unknown'}`, 10, 60_000).ok) throw tooManyRequests();
+    if (!(await rateLimit(`admin-login:${meta.ipAddress ?? 'unknown'}`, 10, 60_000)).ok) throw tooManyRequests();
 
     const body = await parseJson(req, adminLoginSchema);
     const cookie = adminSessionCookie();

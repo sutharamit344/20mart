@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     return res;
   };
 
-  if (!rateLimit(`oauth-cb:${meta.ipAddress ?? 'unknown'}`, 30, 60_000).ok) return fail('rate_limited');
+  if (!(await rateLimit(`oauth-cb:${meta.ipAddress ?? 'unknown'}`, 30, 60_000)).ok) return fail('rate_limited');
 
   try {
     const sp = req.nextUrl.searchParams;

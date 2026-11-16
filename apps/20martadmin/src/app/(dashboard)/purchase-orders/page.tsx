@@ -7,7 +7,8 @@ import { FilterBar } from '../../../components/FilterBar';
 export const dynamic = 'force-dynamic';
 const STATUSES = ['DRAFT', 'ORDERED', 'PARTIALLY_RECEIVED', 'RECEIVED', 'CLOSED', 'CANCELLED'];
 
-export default async function PurchaseOrdersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function PurchaseOrdersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('purchasing.view')) return <AccessDenied permission="purchasing.view" />;
   const parsed = poListQuery.safeParse(searchParams);

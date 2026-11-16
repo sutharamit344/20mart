@@ -17,13 +17,14 @@
     "incremental": true
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next-p3base/types/**/*.ts",
     ".next-p3/types/**/*.ts",
-    ".next-p4/types/**/*.ts"
+    ".next-p3base/types/**/*.ts",
+    ".next-p4/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    ".next-p5/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

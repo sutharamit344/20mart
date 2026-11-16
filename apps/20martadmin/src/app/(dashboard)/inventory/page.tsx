@@ -7,7 +7,8 @@ import { FilterBar } from '../../../components/FilterBar';
 import { InventoryTable } from './InventoryTable';
 import { AddStockButton } from './AddStockButton';
 
-export default async function InventoryPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function InventoryPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('inventory.view')) return <AccessDenied permission="inventory.view" />;
   const parsed = inventoryListQuery.safeParse(searchParams);

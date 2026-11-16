@@ -85,7 +85,8 @@ export function adminRequest(
   return new NextRequest(new URL(path, ADMIN_ORIGIN), { method: init.method ?? 'GET', headers, body });
 }
 
-export const ctxParams = (params: Record<string, string> = {}) => ({ params });
+/** Route context as Next 15 passes it: params is a Promise. */
+export const ctxParams = (params: Record<string, string> = {}) => ({ params: Promise.resolve(params) });
 
 /** Generate a real, valid RGB PNG of the given size (no image libraries needed). */
 export function makePng(width: number, height: number): Uint8Array<ArrayBuffer> {

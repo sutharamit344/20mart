@@ -4,7 +4,8 @@ import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied } from '../../../../components/ui';
 import { ProductEditor } from '../ProductEditor';
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('products.view')) return <AccessDenied permission="products.view" />;
   const product = await getProductForAdmin(params.id).catch((e) => {

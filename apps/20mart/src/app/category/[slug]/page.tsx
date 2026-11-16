@@ -21,7 +21,8 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const category = await getCategory(params.slug).catch(() => null);
   if (!category) return { title: 'Category not found – 20Mart' };
   return pageMetadata({
@@ -34,12 +35,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CategoryDetailPage({
-  params,
-  searchParams,
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
 }: {
-  params: { slug: string };
-  searchParams: Record<string, string | string[] | undefined>;
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const [params, searchParams] = await Promise.all([paramsPromise, searchParamsPromise]);
   const category = await getCategory(params.slug).catch(() => null);
   if (!category) notFound();
   const theme = getCategoryTheme(category.slug);

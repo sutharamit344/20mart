@@ -12,7 +12,8 @@ export const dynamic = 'force-dynamic';
 
 const when = (d: Date) => d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
 
-export default async function CouponDetailPage({ params }: { params: { id: string } }) {
+export default async function CouponDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('coupons.view')) return <AccessDenied permission="coupons.view" />;
   let c: Awaited<ReturnType<typeof getCoupon>>;

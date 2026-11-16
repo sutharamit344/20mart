@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 /** Start Google sign-in: set a signed, short-lived state cookie and redirect to Google. */
 export async function GET(req: NextRequest) {
   const { ipAddress } = clientMeta(req);
-  if (!rateLimit(`oauth-start:${ipAddress ?? 'unknown'}`, 20, 60_000).ok) {
+  if (!(await rateLimit(`oauth-start:${ipAddress ?? 'unknown'}`, 20, 60_000)).ok) {
     return NextResponse.redirect(new URL('/auth?error=rate_limited', req.url));
   }
   try {

@@ -4,8 +4,9 @@ import { env, isValidStorageKey, readLocalObject } from '@20mart/server';
 const TYPES: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif' };
 
 /** Same-origin access to locally stored public images from the admin app. */
-export async function GET(_req: NextRequest, { params }: { params: { key: string[] } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ key: string[] }> }) {
   if (env().STORAGE_DRIVER !== 'local') return new NextResponse(null, { status: 404 });
+  const params = await props.params;
   const key = params.key.join('/');
   if (!isValidStorageKey(key)) return new NextResponse(null, { status: 404 });
   try {

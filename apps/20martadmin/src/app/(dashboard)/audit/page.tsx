@@ -5,7 +5,8 @@ import { FilterBar } from '../../../components/FilterBar';
 
 const CATEGORIES = ['AUTH', 'PRODUCT', 'CATEGORY', 'BRAND', 'INVENTORY', 'MEDIA', 'USER_MANAGEMENT', 'ROLE'];
 
-export default async function AuditPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AuditPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('audit.view')) return <AccessDenied permission="audit.view" />;
   const page = Math.max(1, Math.min(10_000, Number(searchParams.page) || 1));

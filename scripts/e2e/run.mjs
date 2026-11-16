@@ -251,8 +251,8 @@ async function main() {
   const tampered = await store('/api/orders', { method: 'POST', cookie: A.cookie, body: { addressId, paymentMethod: 'CASH_ON_DELIVERY', idempotencyKey: randomUUID(), totalPaise: 1 } });
   check('    re-submit after conversion with fake total → rejected (cart empty)', tampered.status === 400, tampered.status);
 
-  const wh = await store('/api/payments/razorpay/webhook', { method: 'POST', origin: null, body: { event: 'payment.captured', payload: { payment: { entity: { id: 'pay_x', order_id: 'order_x', amount: 1, status: 'captured' } } } } });
-  check('11. payment: forged/unsigned webhook rejected', wh.status === 401 || wh.status === 503, wh.status);
+  const forgedHook = await store('/api/payments/razorpay/webhook', { method: 'POST', origin: null, body: { event: 'payment.captured', payload: { payment: { entity: { id: 'pay_x', order_id: 'order_x', amount: 1, status: 'captured' } } } } });
+  check('11. payment: forged/unsigned webhook rejected', forgedHook.status === 401 || forgedHook.status === 503, forgedHook.status);
   const verify = await store('/api/payments/razorpay/verify', { method: 'POST', cookie: A.cookie, body: { razorpay_order_id: 'order_fake123', razorpay_payment_id: 'pay_fake123', razorpay_signature: 'f'.repeat(64) } });
   check('    payment: client-side "success" without valid provider payment rejected', verify.status >= 400, verify.status);
 

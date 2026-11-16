@@ -6,7 +6,8 @@ import { SuppliersClient } from './SuppliersClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function SuppliersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function SuppliersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('suppliers.view')) return <AccessDenied permission="suppliers.view" />;
   const parsed = supplierListQuery.safeParse(searchParams);

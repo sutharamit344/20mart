@@ -55,9 +55,9 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }, ...storageHost],
   },
+  serverExternalPackages: ['@node-rs/argon2', '@prisma/client'],
   experimental: {
     optimizePackageImports: ['lucide-react'],
-    serverComponentsExternalPackages: ['@node-rs/argon2', '@prisma/client'],
     serverActions: { bodySizeLimit: '6mb' },
   },
   async headers() {

@@ -23,7 +23,7 @@ const paymentStatus = (s: string): ProviderPaymentStatus =>
   (['created', 'authorized', 'captured', 'refunded', 'failed'] as const).includes(s as ProviderPaymentStatus) ? (s as ProviderPaymentStatus) : 'failed';
 const refundStatus = (s: string): ProviderRefundStatus => (s === 'processed' ? 'processed' : s === 'failed' ? 'failed' : 'pending');
 
-type RzPayment = { id: string; order_id: string | null; status: string; amount: number; method?: string; error_description?: string | null };
+type RzPayment = { id: string; order_id: string | null; status: string; amount: number; currency?: string; method?: string; error_description?: string | null };
 type RzRefund = { id: string; payment_id: string; amount: number; status: string };
 
 const mapPayment = (p: RzPayment): ProviderPayment => ({
@@ -31,6 +31,7 @@ const mapPayment = (p: RzPayment): ProviderPayment => ({
   orderId: p.order_id,
   status: paymentStatus(p.status),
   amountPaise: p.amount,
+  currency: p.currency ?? null,
   method: p.method ?? null,
   errorDescription: p.error_description ?? null,
 });
@@ -49,6 +50,8 @@ export function createRazorpayProvider(cfg: RazorpayConfig): PaymentProvider {
         headers: { authorization: auth, ...(body ? { 'content-type': 'application/json' } : {}) },
         body: body ? JSON.stringify(body) : undefined,
         cache: 'no-store',
+        // Never let a hung provider call hold a request (and its DB work) open.
+        signal: AbortSignal.timeout(15_000),
       });
     } catch {
       throw new PaymentProviderError('Payment provider is unreachable');

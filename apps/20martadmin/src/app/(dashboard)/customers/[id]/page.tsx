@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 
 const day = (d: Date | null) => (d ? d.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) : '—');
 
-export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
+export default async function CustomerDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('customers.view')) return <AccessDenied permission="customers.view" />;
   const canOrders = ctx.permissions.has('orders.view');

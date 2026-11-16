@@ -33,6 +33,7 @@ const defaultDeps = (): GoogleDeps => ({
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body,
       cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
     }),
 });
 

@@ -1,5 +1,6 @@
 import { prisma, Prisma } from '@20mart/database';
 import { AppError } from '../errors';
+import { captureException } from '../observability';
 import { handlePaymentFailed, hashPayload, markPaymentCaptured } from '../orders';
 import { markRefundFailed, markRefundProcessed } from '../admin-orders';
 import { getPaymentProvider } from './index';
@@ -7,7 +8,7 @@ import { getPaymentProvider } from './index';
 interface RazorpayEvent {
   event: string;
   payload?: {
-    payment?: { entity?: { id: string; order_id: string | null; amount: number; status: string; error_description?: string | null } };
+    payment?: { entity?: { id: string; order_id: string | null; amount: number; currency?: string; status: string; error_description?: string | null } };
     refund?: { entity?: { id: string; payment_id: string; amount: number; status: string } };
   };
 }
@@ -38,8 +39,14 @@ export async function processRazorpayWebhook(rawBody: string, signature: string 
     case 'payment.captured':
     case 'order.paid':
       if (pay?.order_id && pay.status === 'captured') {
-        await markPaymentCaptured(pay.order_id, pay.id, pay.amount).catch((e) => {
+        await markPaymentCaptured(pay.order_id, pay.id, pay.amount, pay.currency).catch((e) => {
           if (e instanceof AppError && e.status === 404) return; // not one of our orders
+          // A captured payment that does not match the order can never be applied: alert a human
+          // and acknowledge, otherwise the provider retries the same poison event indefinitely.
+          if (e instanceof AppError && (e.code === 'AMOUNT_MISMATCH' || e.code === 'CURRENCY_MISMATCH')) {
+            captureException(e, 'payment.capture_mismatch', { category: 'payment', providerOrderId: pay.order_id, providerPaymentId: pay.id });
+            return;
+          }
           throw e;
         });
         handled = true;

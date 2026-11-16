@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 };
 export const revalidate = 60;
 
-export default function DealsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function DealsPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = await props.searchParams;
   return (
     <CatalogListing
       searchParams={searchParams}

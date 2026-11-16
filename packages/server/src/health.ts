@@ -1,5 +1,6 @@
 import { prisma } from '@20mart/database';
 import { emailConfigured, env, googleConfigured, razorpayConfigured } from './env';
+import { sharedRateLimitConfigured } from './rateLimit';
 import { monitoringProviders } from './observability';
 
 export interface ConfigIssue {
@@ -58,6 +59,7 @@ export function productionConfigIssues(e = env()): ConfigIssue[] {
   if (!emailConfigured()) add('warning', 'RESEND_API_KEY', 'Email is not configured — notifications are in-app only');
 
   const mon = monitoringProviders();
+  if (process.env.VERCEL && !sharedRateLimitConfigured()) add('warning', 'UPSTASH_REDIS_REST_URL', 'Rate limits are per serverless instance; connect Upstash Redis so limits are shared');
   if (!mon.sentry && !mon.webhook) add('warning', 'SENTRY_DSN', 'No external error monitoring configured; errors go to structured logs only');
   return issues;
 }
@@ -101,6 +103,7 @@ export async function healthReport(detailed = false) {
       razorpay: razorpayConfigured(),
       email: emailConfigured(),
       storage: e.STORAGE_DRIVER,
+      sharedRateLimit: sharedRateLimitConfigured(),
       monitoring: monitoringProviders(),
     },
     config,

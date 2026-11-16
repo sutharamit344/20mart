@@ -7,7 +7,8 @@ const TYPES = ['INITIAL_STOCK', 'STOCK_IN', 'STOCK_OUT', 'ADJUSTMENT', 'PURCHASE
 const label = (t: string) => t.replace(/_/g, ' ').toLowerCase();
 
 /** Immutable stock ledger across warehouses. */
-export default async function MovementsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function MovementsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('inventory.view')) return <AccessDenied permission="inventory.view" />;
   const parsed = movementListQuery.safeParse({ pageSize: 30, ...searchParams });

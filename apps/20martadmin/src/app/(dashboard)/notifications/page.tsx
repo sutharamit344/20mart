@@ -12,7 +12,8 @@ const nice = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g,
 const TONE: Record<string, string> = { DELIVERED: 'ACTIVE', SENT: 'IN_STOCK', QUEUED: 'DRAFT', SKIPPED: 'INACTIVE', FAILED: 'OUT', BOUNCED: 'OUT', COMPLAINED: 'LOW' };
 const when = (d: Date | null) => (d ? d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }) : '—');
 
-export default async function EmailLogPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function EmailLogPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('notifications.view')) return <AccessDenied permission="notifications.view" />;
   const data = await listEmailLog(emailLogQuery.safeParse(searchParams).success ? searchParams : {});

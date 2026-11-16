@@ -10,7 +10,7 @@ import { JsonLd } from '../../../components/JsonLd';
 export const revalidate = 60;
 
 interface ProductPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 /** Pre-render the most relevant products at build time; others render on first request (ISR). */
@@ -22,7 +22,8 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+export async function generateMetadata(props: ProductPageProps): Promise<Metadata> {
+  const params = await props.params;
   const product = await getProduct(params.slug).catch(() => null);
   if (!product) return { title: 'Product not found – 20Mart' };
   const title = product.seoTitle || `${product.name} – ${formatPaise(product.sellingPricePaise)} | 20Mart`;
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   });
 }
 
-export default async function ProductDetailPage({ params }: ProductPageProps) {
+export default async function ProductDetailPage(props: ProductPageProps) {
+  const params = await props.params;
   // Only ACTIVE products in active categories/brands are returned; anything else is a 404.
   const product = await getProduct(params.slug);
   if (!product) notFound();

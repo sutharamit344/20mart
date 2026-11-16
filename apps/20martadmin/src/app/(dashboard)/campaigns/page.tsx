@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic';
 const when = (d: Date | null) => (d ? d.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) : 'No end');
 const STATE_TONE: Record<string, string> = { LIVE: 'ACTIVE', SCHEDULED: 'LOW', ENDED: 'ARCHIVED', INACTIVE: 'INACTIVE' };
 
-export default async function CampaignsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function CampaignsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('campaigns.view')) return <AccessDenied permission="campaigns.view" />;
   const parsed = campaignListQuery.safeParse(searchParams);

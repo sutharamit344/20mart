@@ -76,9 +76,9 @@ const nextConfig = {
       ...storageHost,
     ],
   },
+  serverExternalPackages: ['@node-rs/argon2', '@prisma/client'],
   experimental: {
     optimizePackageImports: ['lucide-react'],
-    serverComponentsExternalPackages: ['@node-rs/argon2', '@prisma/client'],
   },
   async headers() {
     return [

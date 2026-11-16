@@ -480,7 +480,7 @@ export async function verifyCheckoutPayment(userId: string, raw: unknown) {
     await handlePaymentFailed(input.razorpay_order_id, p.id, p.errorDescription ?? `Payment ${p.status}`);
     throw new AppError(402, 'PAYMENT_NOT_CAPTURED', 'Payment was not completed');
   }
-  const result = await markPaymentCaptured(input.razorpay_order_id, p.id, p.amountPaise);
+  const result = await markPaymentCaptured(input.razorpay_order_id, p.id, p.amountPaise, p.currency);
   return { orderNumber: payment.order.orderNumber, ...result };
 }
 
@@ -488,13 +488,17 @@ export async function verifyCheckoutPayment(userId: string, raw: unknown) {
  * Single idempotent entry point for a confirmed capture (browser verify or webhook).
  * Amount must match exactly. Applies at most once per Payment row.
  */
-export async function markPaymentCaptured(providerOrderId: string, providerPaymentId: string, amountPaise: number) {
+export async function markPaymentCaptured(providerOrderId: string, providerPaymentId: string, amountPaise: number, currency?: string | null) {
   const payment = await prisma.payment.findUnique({
     where: { providerOrderId },
     select: { id: true, status: true, amountPaise: true, providerPaymentId: true, orderId: true, order: { select: { orderNumber: true, totalPaise: true } } },
   });
   if (!payment) throw notFound('Payment');
   if (payment.status === 'PAID') return { applied: false, status: 'already_paid' as const };
+  if (currency && currency.toUpperCase() !== 'INR') {
+    await prisma.payment.update({ where: { id: payment.id }, data: { failureReason: `Currency mismatch: got ${currency.slice(0, 8)}, expected INR` } });
+    throw new AppError(400, 'CURRENCY_MISMATCH', 'Payment currency does not match the order');
+  }
   if (amountPaise !== payment.amountPaise || amountPaise !== payment.order.totalPaise) {
     await prisma.payment.update({ where: { id: payment.id }, data: { failureReason: `Amount mismatch: got ${amountPaise}, expected ${payment.amountPaise}` } });
     throw new AppError(400, 'AMOUNT_MISMATCH', 'Payment amount does not match the order total');

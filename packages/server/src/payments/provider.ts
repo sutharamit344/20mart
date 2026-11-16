@@ -15,6 +15,8 @@ export interface ProviderPayment {
   orderId: string | null;
   status: ProviderPaymentStatus;
   amountPaise: number;
+  /** ISO currency reported by the provider (absent in some test fakes). */
+  currency?: string | null;
   method?: string | null;
   errorDescription?: string | null;
 }

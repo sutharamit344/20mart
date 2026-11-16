@@ -7,7 +7,8 @@ import { FilterBar } from '../../../components/FilterBar';
 import { ProductRowActions } from './ProductRowActions';
 import { resolveImageSrc } from '@20mart/ui';
 
-export default async function ProductsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function ProductsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('products.view')) return <AccessDenied permission="products.view" />;
   const parsed = productListQuery.safeParse(searchParams);

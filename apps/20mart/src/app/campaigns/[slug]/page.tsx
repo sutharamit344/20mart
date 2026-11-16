@@ -10,7 +10,8 @@ import { FillYourCart } from '../../../components/campaigns/FillYourCart';
 // Always rendered on request: a campaign that ends or is switched off disappears immediately.
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const c = await getPublicCampaign(params.slug);
   if (!c) return { title: 'Campaign not found' };
   return { title: `${c.bannerTitle || c.name} | 20Mart`, description: c.bannerSubtitle ?? c.description ?? undefined };
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 const date = (d: Date) => d.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' });
 
-export default async function CampaignPage({ params }: { params: { slug: string } }) {
+export default async function CampaignPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const c = await getPublicCampaign(params.slug);
   if (!c) notFound();
   const fyc = c.type === 'FILL_YOUR_CART';

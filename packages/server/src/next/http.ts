@@ -77,7 +77,8 @@ const IP_RE = /^[0-9a-fA-F:.]{2,45}$/;
  * The LEFT-most X-Forwarded-For entries are supplied by the client and can be forged, so they are
  * never used. Resolution order:
  *  1. CLIENT_IP_HEADER (e.g. "cf-connecting-ip" behind Cloudflare, "x-real-ip" behind nginx) when set;
- *  2. the platform-provided address (req.ip, e.g. on Vercel);
+ *  2. on Vercel, the platform-set X-Real-IP (Vercel overwrites any client-supplied value;
+ *     Next 15 removed req.ip);
  *  3. the X-Forwarded-For entry added by our nearest trusted proxy: TRUST_PROXY_HOPS from the right
  *     (default 1 = one reverse proxy in front of `next start`).
  */
@@ -91,7 +92,10 @@ export function clientIp(req: NextRequest): string | null {
     const ip = pick(req.headers.get(custom)?.split(',')[0]);
     if (ip) return ip;
   }
-  if (req.ip) return pick(req.ip);
+  if (process.env.VERCEL) {
+    const ip = pick(req.headers.get('x-real-ip'));
+    if (ip) return ip;
+  }
   const fwd = req.headers.get('x-forwarded-for');
   if (fwd) {
     const parts = fwd.split(',').map((s) => s.trim()).filter(Boolean);
@@ -123,6 +127,17 @@ export function assertSameOrigin(req: NextRequest, allowedOrigin: string) {
   }
 }
 
+/** JSON request bodies are small forms; anything larger is rejected before it is buffered or validated. */
+export const MAX_JSON_BODY_BYTES = 256 * 1024;
+
+/** Reject oversized non-multipart bodies early (also bounds memory spent by schema validation). */
+export function assertBodySize(req: NextRequest, maxBytes = MAX_JSON_BODY_BYTES) {
+  if (req.method === 'GET' || req.method === 'HEAD') return;
+  if ((req.headers.get('content-type') ?? '').includes('multipart/form-data')) return; // uploads enforce their own limit
+  const len = Number(req.headers.get('content-length') ?? 0);
+  if (Number.isFinite(len) && len > maxBytes) throw new AppError(413, 'PAYLOAD_TOO_LARGE', 'Request body is too large');
+}
+
 export async function parseJson<T>(req: NextRequest, schema: ZodSchema<T>): Promise<T> {
   const ct = req.headers.get('content-type') ?? '';
   if (!ct.includes('application/json')) throw badRequest('Expected application/json');
@@ -139,7 +154,8 @@ export function parseQuery<T>(req: NextRequest, schema: ZodSchema<T>): T {
   return schema.parse(Object.fromEntries(req.nextUrl.searchParams.entries()));
 }
 
-type RouteCtx = { params: Record<string, string> };
+/** Next 15 passes route params as a Promise. */
+type RouteCtx = { params: Promise<Record<string, string>> };
 
 export interface CustomerRouteArgs {
   req: NextRequest;
@@ -163,22 +179,23 @@ export function customerRoute(
   opts: { auth: 'required' | 'optional'; rateLimit?: { key: string; limit: number; windowMs: number } },
   handler: (args: CustomerRouteArgs) => Promise<unknown>
 ) {
-  return async (req: NextRequest, ctx: RouteCtx = { params: {} }) => {
+  return async (req: NextRequest, ctx: RouteCtx) => {
     let guestCookieChange: { token: string | null } | null = null;
     const started = performance.now();
     try {
       assertSameOrigin(req, env().APP_URL);
+      assertBodySize(req);
       const customer = await getCustomerBySessionToken(req.cookies.get(customerSessionCookie().name)?.value);
       if (opts.auth === 'required' && !customer) throw new AppError(401, 'UNAUTHORIZED', 'Please sign in to continue');
       if (opts.rateLimit) {
         const who = customer?.id ?? clientMeta(req).ipAddress ?? 'anon';
-        const r = rateLimit(`${opts.rateLimit.key}:${who}`, opts.rateLimit.limit, opts.rateLimit.windowMs);
+        const r = await rateLimit(`${opts.rateLimit.key}:${who}`, opts.rateLimit.limit, opts.rateLimit.windowMs);
         if (!r.ok) throw new AppError(429, 'RATE_LIMITED', 'Too many requests. Please slow down.');
       }
       const guestToken = req.cookies.get(guestCartCookie().name)?.value ?? null;
       const result = await handler({
         req,
-        params: ctx.params ?? {},
+        params: (await ctx?.params) ?? {},
         customer,
         guestToken: guestToken && guestToken.length <= 128 ? guestToken : null,
         setGuestToken: (token) => {
@@ -211,13 +228,14 @@ type AdminHandler = (args: { req: NextRequest; admin: AdminContext; params: Reco
  */
 export function adminRoute(permission: string | string[] | null, handler: AdminHandler) {
   const required = permission === null ? [] : Array.isArray(permission) ? permission : [permission];
-  return async (req: NextRequest, ctx: RouteCtx = { params: {} }) => {
+  return async (req: NextRequest, ctx: RouteCtx) => {
     const started = performance.now();
     try {
       assertSameOrigin(req, env().ADMIN_APP_URL);
+      assertBodySize(req);
       const admin = await getAdminContext(req.cookies.get(adminSessionCookie().name)?.value);
       assertPermission(admin, ...required);
-      const result = await handler({ req, admin, params: ctx.params ?? {} });
+      const result = await handler({ req, admin, params: (await ctx?.params) ?? {} });
       const res = result instanceof Response ? result : json(result ?? { ok: true });
       reportSlow(req, started, res.status);
       return res;

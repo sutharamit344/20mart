@@ -10,7 +10,8 @@ import { OrderActions } from './OrderActions';
 const dt = (d: Date) => d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
 const label = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
 
-export default async function AdminOrderPage({ params }: { params: { id: string } }) {
+export default async function AdminOrderPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('orders.view')) return <AccessDenied permission="orders.view" />;
   const o = await getAdminOrder(params.id).catch(() => null);

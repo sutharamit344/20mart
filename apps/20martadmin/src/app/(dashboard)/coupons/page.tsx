@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic';
 
 const when = (d: Date | null) => (d ? d.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }) : '—');
 
-export default async function CouponsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function CouponsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('coupons.view')) return <AccessDenied permission="coupons.view" />;
   const parsed = couponListQuery.safeParse(searchParams);

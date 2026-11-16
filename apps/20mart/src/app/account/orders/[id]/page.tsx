@@ -7,12 +7,15 @@ import { OrderDetailView, type CustomerOrderDetail } from '../../../../component
 
 export const dynamic = 'force-dynamic';
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   return { title: `Order ${params.id} – 20Mart`, robots: { index: false } };
 }
 
 /** Ownership enforced server-side: other customers' order numbers resolve to 404. */
-export default async function OrderDetailsPage({ params, searchParams }: { params: { id: string }; searchParams: { pay?: string } }) {
+export default async function OrderDetailsPage(props: { params: Promise<{ id: string }>; searchParams: Promise<{ pay?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const customer = await getCurrentCustomer();
   if (!customer) notFound();
   const order = await getCustomerOrder(customer.id, params.id).catch(() => null);

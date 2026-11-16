@@ -7,7 +7,8 @@ import { PoEditor } from '../PoEditor';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PurchaseOrderPage({ params }: { params: { id: string } }) {
+export default async function PurchaseOrderPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('purchasing.view')) return <AccessDenied permission="purchasing.view" />;
   const po = await getPurchaseOrder(params.id).catch((e) => {

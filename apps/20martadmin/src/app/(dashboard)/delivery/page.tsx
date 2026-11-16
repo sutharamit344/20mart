@@ -6,7 +6,8 @@ import { DeliverySettingsForm, PincodeManager, ZoneManager } from './DeliveryCli
 
 export const dynamic = 'force-dynamic';
 
-export default async function DeliveryPage({ searchParams }: { searchParams: { q?: string; page?: string } }) {
+export default async function DeliveryPage(props: { searchParams: Promise<{ q?: string; page?: string }> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('delivery.view')) return <AccessDenied permission="delivery.view" />;
   const canEdit = ctx.permissions.has('delivery.update');

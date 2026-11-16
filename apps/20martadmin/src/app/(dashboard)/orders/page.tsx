@@ -9,7 +9,8 @@ const STATUSES = ['PENDING', 'CONFIRMED', 'PROCESSING', 'PACKED', 'READY_FOR_DIS
 const PAYMENTS = ['PENDING', 'PAID', 'FAILED', 'REFUND_PENDING', 'PARTIALLY_REFUNDED', 'REFUNDED'] as const;
 const label = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ');
 
-export default async function OrdersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function OrdersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('orders.view')) return <AccessDenied permission="orders.view" />;
   const parsed = adminOrderListQuery.safeParse(searchParams);

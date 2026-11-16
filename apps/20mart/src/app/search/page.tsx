@@ -3,7 +3,8 @@ import { CatalogListing } from '../../components/catalog/CatalogListing';
 
 export const metadata: Metadata = { title: 'Search – 20Mart', robots: { index: false } };
 
-export default function SearchPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function SearchPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = await props.searchParams;
   const q = typeof searchParams.q === 'string' ? searchParams.q.trim() : '';
   return (
     <CatalogListing

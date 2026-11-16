@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 };
 export const revalidate = 60;
 
-export default function ShopPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function ShopPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const searchParams = await props.searchParams;
   const q = typeof searchParams.q === 'string' ? searchParams.q : undefined;
   return (
     <CatalogListing

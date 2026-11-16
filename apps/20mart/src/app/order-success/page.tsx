@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Order placed – 20Mart', robots: { index: false } };
 
 /** Confirmation page — shows the real order owned by the signed-in customer, or nothing. */
-export default async function OrderSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
+export default async function OrderSuccessPage(props: { searchParams: Promise<{ order?: string }> }) {
+  const searchParams = await props.searchParams;
   const customer = await getCurrentCustomer();
   const order = customer && searchParams.order ? await getCustomerOrder(customer.id, searchParams.order).catch(() => null) : null;
   if (!order) {

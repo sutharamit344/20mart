@@ -8,7 +8,7 @@ import { clientMeta } from '@20mart/server/next';
 /** Contact form submission → ContactInquiry row in PostgreSQL. */
 export async function POST(req: NextRequest) {
   const ip = clientMeta(req).ipAddress ?? 'unknown';
-  if (!rateLimit(`inquiry:${ip}`, 5, 10 * 60 * 1000).ok) {
+  if (!(await rateLimit(`inquiry:${ip}`, 5, 10 * 60 * 1000)).ok) {
     return NextResponse.json({ error: 'Too many messages. Please try again later.' }, { status: 429 });
   }
   try {

@@ -4,7 +4,8 @@ import { AccessDenied, PageHeader, Pagination, Panel } from '../../../components
 import { FilterBar } from '../../../components/FilterBar';
 import { InquiriesTable } from './InquiriesTable';
 
-export default async function InquiriesPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function InquiriesPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('inquiries.view')) return <AccessDenied permission="inquiries.view" />;
   const parsed = inquiryListQuery.safeParse(searchParams);

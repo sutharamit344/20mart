@@ -158,6 +158,26 @@ describe('webhooks', () => {
     expect(await prisma.stockMovement.count({ where: { inventoryId, movementType: 'SALE' } })).toBe(1);
   });
 
+  it('P5: mismatched amount or currency is never applied, is acknowledged (no endless retries) and recorded', async () => {
+    const { res, inventoryId } = await onlineOrder();
+    const po = res.payment!.providerOrderId;
+    const payId = rz.pay(po);
+    const wrongAmount = { event: 'payment.captured', payload: { payment: { entity: { id: payId, order_id: po, amount: 100, status: 'captured' } } } };
+    expect(await webhook(wrongAmount, 'evt_amt')).toMatchObject({ duplicate: false });
+    const wrongCurrency = { event: 'payment.captured', payload: { payment: { entity: { id: payId, order_id: po, amount: 14000, currency: 'USD', status: 'captured' } } } };
+    expect(await webhook(wrongCurrency, 'evt_cur')).toMatchObject({ duplicate: false });
+    expect((await errOf(markPaymentCaptured(po, payId, 14000, 'USD'))).code).toBe('CURRENCY_MISMATCH');
+    const o = await orderOf(res.orderNumber);
+    expect(o).toMatchObject({ status: 'PENDING', paymentStatus: 'PENDING' });
+    expect(o.payments[0].failureReason).toMatch(/Currency mismatch/);
+    expect(await prisma.paymentEvent.count({ where: { eventId: { in: ['evt_amt', 'evt_cur'] } } })).toBe(2);
+    expect((await inv(inventoryId)).availableQuantity).toBe(5);
+    // A correct INR capture still confirms the order afterwards.
+    const ok = { event: 'payment.captured', payload: { payment: { entity: { id: payId, order_id: po, amount: 14000, currency: 'INR', status: 'captured' } } } };
+    await webhook(ok, 'evt_ok');
+    expect((await orderOf(res.orderNumber)).status).toBe('CONFIRMED');
+  });
+
   it('a payment captured after the order expired triggers a refund request instead of fulfilment', async () => {
     const { res, inventoryId } = await onlineOrder();
     await prisma.order.update({ where: { orderNumber: res.orderNumber }, data: { reservationExpiresAt: new Date(Date.now() - 1000) } });

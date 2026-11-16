@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 
 const STATE_TONE: Record<string, string> = { LIVE: 'ACTIVE', SCHEDULED: 'LOW', ENDED: 'ARCHIVED', INACTIVE: 'INACTIVE' };
 
-export default async function CampaignDetailPage({ params }: { params: { id: string } }) {
+export default async function CampaignDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('campaigns.view')) return <AccessDenied permission="campaigns.view" />;
   let c: Awaited<ReturnType<typeof getCampaign>>;

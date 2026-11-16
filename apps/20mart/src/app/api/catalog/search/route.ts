@@ -4,7 +4,7 @@ import { clientMeta, errorResponse } from '@20mart/server/next';
 
 export async function GET(req: NextRequest) {
   try {
-    if (!rateLimit(`search:${clientMeta(req).ipAddress ?? 'unknown'}`, 60, 60_000).ok) {
+    if (!(await rateLimit(`search:${clientMeta(req).ipAddress ?? 'unknown'}`, 60, 60_000)).ok) {
       return NextResponse.json({ items: [] }, { status: 429 });
     }
     const q = req.nextUrl.searchParams.get('q') ?? '';

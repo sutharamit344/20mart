@@ -13,7 +13,8 @@ export const dynamic = 'force-dynamic';
 const tone = (s: string) =>
   s === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : s === 'CANCELLED' || s === 'FAILED' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-[#E66E00]';
 
-export default async function MyOrdersPage({ searchParams }: { searchParams: { page?: string } }) {
+export default async function MyOrdersPage(props: { searchParams: Promise<{ page?: string }> }) {
+  const searchParams = await props.searchParams;
   const customer = await getCurrentCustomer();
   if (!customer) redirect('/auth?returnTo=/account'); // layout and page render concurrently
   const page = Math.max(1, Number(searchParams.page) || 1);

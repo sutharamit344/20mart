@@ -4,7 +4,8 @@ import { AccessDenied, PageHeader, Pagination, Panel } from '../../../components
 import { FilterBar } from '../../../components/FilterBar';
 import { CategoriesTable } from './CategoriesTable';
 
-export default async function CategoriesPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function CategoriesPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams;
   const ctx = await requireAdminPage();
   if (!ctx.permissions.has('categories.view')) return <AccessDenied permission="categories.view" />;
   const parsed = categoryListQuery.safeParse(searchParams);

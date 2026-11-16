@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 
 const safeNext = (v?: string) => (v && v.startsWith('/') && !v.startsWith('//') && !v.startsWith('/api') ? v : '/');
 
-export default async function AdminLoginPage({ searchParams }: { searchParams: { next?: string } }) {
+export default async function AdminLoginPage(props: { searchParams: Promise<{ next?: string }> }) {
+  const searchParams = await props.searchParams;
   const next = safeNext(searchParams.next);
   if (await getCurrentAdmin()) redirect(next);
 
