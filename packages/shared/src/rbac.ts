@@ -51,6 +51,7 @@ export const PERMISSIONS = {
   'notifications.view': { group: 'Marketing', description: 'View the email and notification log' },
   'notifications.manage': { group: 'Marketing', description: 'Send campaign announcements and retry failed emails' },
   'analytics.view': { group: 'Dashboard', description: 'View sales, customer, coupon and campaign analytics' },
+  'analytics.manage': { group: 'Dashboard', description: 'Change analytics retention, cart-abandonment and consent settings' },
   'users.view': { group: 'Administration', description: 'View admin users and customers' },
   'users.manage': { group: 'Administration', description: 'Create, activate and deactivate admin users' },
   'roles.manage': { group: 'Administration', description: 'Assign roles and edit role permissions' },
@@ -83,7 +84,7 @@ export const ROLE_DEFINITIONS: Record<
   ADMIN: {
     name: 'Admin',
     description: 'Runs day-to-day operations. Cannot change roles or settings.',
-    permissions: ALL_PERMISSIONS.filter((p) => p !== 'roles.manage' && p !== 'settings.update'),
+    permissions: ALL_PERMISSIONS.filter((p) => p !== 'roles.manage' && p !== 'settings.update' && p !== 'analytics.manage'),
   },
   PRODUCT_MANAGER: {
     name: 'Product Manager',

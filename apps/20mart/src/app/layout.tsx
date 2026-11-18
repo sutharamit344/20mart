@@ -9,6 +9,7 @@ import { Footer } from '../components/Footer';
 import { MobileBottomNav } from '../components/MobileBottomNav';
 import { getHeaderCategories } from '../lib/catalog';
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME, siteOrigin } from '../lib/seo';
+import { ConsentBanner } from '../components/ConsentBanner';
 
 const inter = localFont({
   src: [
@@ -77,6 +78,7 @@ export default async function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer categories={categories} />
             <MobileBottomNav />
+            <ConsentBanner />
           </LocationProvider>
         </StoreProvider>
       </body>

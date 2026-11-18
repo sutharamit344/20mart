@@ -52,6 +52,36 @@ export function locationCookie() {
   };
 }
 
+/**
+ * Analytics consent decision (`<version>.<granted|denied>`). Readable by the page so it can skip
+ * sending events; the server re-checks it on every request and it grants nothing.
+ */
+export function analyticsConsentCookie() {
+  const secure = secureFor(env().APP_URL);
+  return {
+    name: '20m_consent',
+    options: { httpOnly: false, secure, sameSite: 'lax', path: '/', maxAge: 365 * 24 * 60 * 60 } satisfies CookieOptions,
+  };
+}
+
+/** Pseudonymous visitor id; set ONLY after analytics consent. Only its SHA-256 is stored. */
+export function analyticsVisitorCookie() {
+  const secure = secureFor(env().APP_URL);
+  return {
+    name: secure ? '__Host-20m_vid' : '20m_vid',
+    options: { httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge: 365 * 24 * 60 * 60 } satisfies CookieOptions,
+  };
+}
+
+/** Browsing-session id (sliding idle timeout set per response); set ONLY after analytics consent. */
+export function analyticsSessionCookie(idleMinutes = 30) {
+  const secure = secureFor(env().APP_URL);
+  return {
+    name: secure ? '__Host-20m_sid' : '20m_sid',
+    options: { httpOnly: true, secure, sameSite: 'lax', path: '/', maxAge: idleMinutes * 60 } satisfies CookieOptions,
+  };
+}
+
 export function adminSessionCookie() {
   const secure = secureFor(env().ADMIN_APP_URL);
   return {

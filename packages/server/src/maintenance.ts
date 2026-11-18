@@ -1,7 +1,8 @@
 import { prisma } from '@20mart/database';
 import { ADMIN_SESSION_IDLE_MS } from './cookies';
 import { LOGIN_WINDOW_MS } from './auth/admin';
-import { logger } from './observability';
+import { captureException, logger } from './observability';
+import { purgeAnalytics } from './tracking/retention';
 
 /** How long rows are kept after they stop being useful. */
 export const RETENTION = {
@@ -47,6 +48,11 @@ export async function runMaintenance(now = new Date()) {
       new Date(now.getTime() - Math.max(RETENTION.loginAttemptsDays * 86_400_000, LOGIN_WINDOW_MS))
     ),
     guestCarts: await purge('Cart', `"userId" IS NULL AND "status" = 'ACTIVE' AND "updatedAt" < ${UTC(1)}`, new Date(now.getTime() - RETENTION.guestCartDays * 86_400_000)),
+    // Analytics retention runs separately with its own settings; its failure never blocks the security purges above.
+    analytics: await purgeAnalytics(now).catch((e) => {
+      captureException(e, 'cron.analytics_purge_failed', { category: 'cron' });
+      return null;
+    }),
   };
   logger.info('cron.maintenance', { category: 'cron', ...result, ms: Date.now() - started });
   return result;

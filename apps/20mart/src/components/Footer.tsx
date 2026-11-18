@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Logo } from '@20mart/ui';
+import { PrivacyChoicesLink } from './ConsentBanner';
 import {
   ShieldCheck,
   Truck,
@@ -142,6 +143,9 @@ export const Footer: React.FC<{ categories: { name: string; slug: string }[] }> 
                 <Link href="/privacy" className="inline-block py-1 hover:text-[#FF7A00] transition-colors">
                   Privacy Policy
                 </Link>
+              </li>
+              <li>
+                <PrivacyChoicesLink className="inline-block py-1 text-left hover:text-[#FF7A00] transition-colors" />
               </li>
             </ul>
           </div>

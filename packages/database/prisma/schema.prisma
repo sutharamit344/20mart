@@ -1331,3 +1331,134 @@ model GoodsReceiptItem {
   @@index([goodsReceiptId])
   @@index([purchaseOrderItemId])
 }
+
+// ───────────────────── Analytics (behavioural + operational events) ─────────────────────
+//
+// Raw events are kept apart from business records: no foreign keys, so analytics writes can never
+// block or fail a cart/order transaction, and events outlive deleted products.
+// Identity fields (userId, visitorId, sessionId) are filled ONLY when the visitor has granted
+// analytics consent. Operational events (cart/checkout/stock signals recorded by the server) are
+// always stored, but without identity unless consent was given.
+
+enum AnalyticsEventName {
+  APP_OPENED
+  HOME_VIEWED
+  CATEGORY_VIEWED
+  PRODUCT_VIEWED
+  PRODUCT_SEARCHED
+  CART_ITEM_ADDED
+  CART_ITEM_REMOVED
+  CART_VIEWED
+  CHECKOUT_STARTED
+  PURCHASE_COMPLETED
+  PRODUCT_UNAVAILABLE_VIEWED
+  OUT_OF_STOCK_ADD_ATTEMPT
+  WISHLIST_ADDED
+  DELIVERY_CHECKED
+  COUPON_APPLIED
+  ORDER_CANCELLED
+  /// A refund confirmed by the payment provider. Not a physical product return.
+  REFUND_PROCESSED
+}
+
+/// BEHAVIORAL = optional, consent-only browsing signals. OPERATIONAL = server-recorded commerce signals.
+enum AnalyticsEventCategory {
+  BEHAVIORAL
+  OPERATIONAL
+}
+
+enum AnalyticsEventSource {
+  CLIENT
+  SERVER
+}
+
+model AnalyticsEvent {
+  /// Event id; client-generated UUID for browser events (deduplication key), server-generated otherwise.
+  id             String                 @id @db.Uuid
+  name           AnalyticsEventName
+  category       AnalyticsEventCategory
+  source         AnalyticsEventSource
+  occurredAt     DateTime
+  receivedAt     DateTime               @default(now())
+  /// Identity — only with analytics consent. visitorId is SHA-256 of the visitor cookie.
+  userId         String?
+  visitorId      String?
+  sessionId      String?
+  productId      String?
+  variantId      String?
+  categoryId     String?
+  cartId         String?
+  orderId        String?
+  warehouseId    String?
+  zoneId         String?
+  /// Delivery PIN from the server-side location cookie (never from the request body).
+  pincode        String?
+  quantity       Int?
+  /// Unit price looked up on the server at ingestion. Never taken from the client.
+  unitPricePaise Int?
+  /// Normalised search term (lower-case, PII-like strings removed).
+  searchTerm     String?
+  resultCount    Int?
+  /// Small whitelisted context (e.g. reason codes). Never personal data.
+  metadata       Json?
+
+  @@index([name, occurredAt])
+  @@index([productId, occurredAt])
+  @@index([category, occurredAt])
+  @@index([visitorId])
+  @@index([sessionId])
+}
+
+/// One browsing session of a consenting visitor (30-minute idle timeout by default).
+model AnalyticsSession {
+  /// SHA-256 of the session cookie (AnalyticsEvent.sessionId refers to this).
+  id           String   @id
+  visitorId    String
+  /// Linked when the visitor is signed in (anonymous → authenticated).
+  userId       String?
+  startedAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  landingPath  String?
+  referrerHost String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  deviceType   String?
+  eventCount   Int      @default(0)
+
+  @@index([visitorId])
+  @@index([userId])
+  @@index([startedAt])
+  @@index([lastSeenAt])
+}
+
+/// Analytics configuration (singleton, id = "default"). Security/audit retention is NOT configured here.
+model AnalyticsSettings {
+  id                       String   @id @default("default")
+  /// Raw behavioural events and sessions are deleted after this many days.
+  behavioralRetentionDays  Int      @default(180)
+  /// Raw operational events are deleted after this many days; identity is stripped after behavioralRetentionDays.
+  operationalRetentionDays Int      @default(365)
+  /// A cart with items and no activity for this many hours counts as abandoned.
+  cartAbandonmentHours     Int      @default(24)
+  sessionIdleMinutes       Int      @default(30)
+  /// Bump to ask every visitor for consent again (e.g. after the purposes change).
+  consentVersion           Int      @default(1)
+  updatedById              String?
+  updatedAt                DateTime @updatedAt
+}
+
+/// Bookkeeping for idempotent daily aggregation jobs (one row per job and IST day).
+model AnalyticsJobRun {
+  id         String    @id @default(uuid())
+  job        String
+  day        DateTime  @db.Date
+  status     String
+  rows       Int       @default(0)
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@unique([job, day])
+  @@index([status])
+}

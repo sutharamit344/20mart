@@ -1,7 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Breadcrumb } from '@20mart/ui';
-import { Shield, Lock, Eye, FileText } from 'lucide-react';
+import { Shield, Lock, Eye, FileText, BarChart3 } from 'lucide-react';
+import { PrivacyChoicesLink } from '../../components/ConsentBanner';
 import type { Metadata } from 'next';
 import { pageMetadata } from '../../lib/seo';
 
@@ -66,8 +67,28 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
+        <section id="analytics" className="space-y-2 scroll-mt-24">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-[#0B5D3B]" />
+            <span>4. Cookies & Shopping Analytics</span>
+          </h2>
+          <p>
+            <b>Essential cookies</b> keep you signed in, remember your cart and your delivery PIN code, and protect the site. They are always on because the store cannot work without them.
+          </p>
+          <p>
+            <b>Optional analytics</b> runs only if you choose &ldquo;Allow analytics&rdquo;. It records which products and categories you view and what you search for on 20Mart, using a random first-party identifier (no advertising networks, nothing sold). If you are signed in, this activity is linked to your account. Search terms that look like an email address or phone number are not stored. If your browser sends a Global Privacy Control or Do Not Track signal, optional analytics stays off.
+          </p>
+          <p>
+            To run the store we also count shopping events such as items added to or removed from carts, checkouts, orders, coupon use and attempts to buy items that are out of stock. Without your analytics permission these counts are stored without any link to you.
+          </p>
+          <p>
+            Optional analytics records are deleted after 180 days. You can change your choice at any time with{' '}
+            <PrivacyChoicesLink className="font-bold text-[#0B5D3B] underline" />; choosing &ldquo;Essential only&rdquo; deletes the browsing records collected in this browser.
+          </p>
+        </section>
+
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">4. Contact Our Data Protection Team</h2>
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">5. Contact Our Data Protection Team</h2>
           <p>
             For inquiries regarding privacy, data deletion, or updating your information, please visit our{' '}
             <Link href="/contact" className="text-[#0B5D3B] font-bold underline">
