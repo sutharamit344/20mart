@@ -213,7 +213,7 @@ export default async function HomePage() {
       {pricePoints.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="mb-2 text-base sm:text-lg font-bold text-gray-900">Shop by price</h2>
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
             {pricePoints.map((pp) => (
               <Link
                 key={pp.amountPaise}
