@@ -28,7 +28,7 @@ const errOf = async (p: Promise<unknown>) => {
 const DAY = 86_400_000;
 async function coupon(over: Record<string, unknown> = {}) {
   return prisma.coupon.create({
-    data: { code: 'SAVE50', title: '₹50 off', discountType: 'FIXED', discountValue: 5000, minOrderValuePaise: 10000, isActive: true, perCustomerLimit: 1, ...over },
+    data: { code: 'SAVE50', title: '₹50 off', discountType: 'FIXED', discountValue: 5000, minOrderValuePaise: 10000, isActive: true, perCustomerLimit: 1, startsAt: new Date(Date.now() - 60_000), ...over },
   });
 }
 

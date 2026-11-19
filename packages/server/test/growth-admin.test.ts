@@ -66,7 +66,7 @@ describe('coupon admin RBAC and validation', () => {
 
   it('manual issue grants once and reports unknown emails without creating accounts', async () => {
     const mm = await adminSession('marketer', ['MARKETING_MANAGER']);
-    const coupon = await prisma.coupon.create({ data: { code: 'VIP200', title: '₹200 off', discountValue: 20000, requiresGrant: true, isActive: true } });
+    const coupon = await prisma.coupon.create({ data: { code: 'VIP200', title: '₹200 off', discountValue: 20000, requiresGrant: true, isActive: true, startsAt: new Date(Date.now() - 60_000) } });
     const c = await createCustomer();
     const issue = await import(`${A}/coupons/[id]/issue/route`);
     const body = { emails: [c.user.email, 'nobody@example.com'] };
