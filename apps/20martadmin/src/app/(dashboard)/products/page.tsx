@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Package, Plus, Star } from 'lucide-react';
+import { Package, Plus, Star, Upload } from 'lucide-react';
 import { brandOptions, categoryOptions, listPricePoints, listProducts, productListQuery } from '@20mart/server';
 import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, PageHeader, Pagination, Panel, StatusBadge, Table, TableEmpty, TBody, Td, Th, THead } from '../../../components/ui';
@@ -23,9 +23,16 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
         description="Catalog, pricing, images and publishing. Stock is managed in Inventory."
         actions={
           can('products.create') ? (
-            <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 text-xs font-semibold text-white hover:bg-[#E66E00]">
-              <Plus className="w-3.5 h-3.5" /> Add product
-            </Link>
+            <div className="flex items-center gap-2">
+              {can('products.update') && can('media.upload') && can('inventory.adjust') && (
+                <Link href="/products/import" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                  <Upload className="w-3.5 h-3.5" /> Bulk import
+                </Link>
+              )}
+              <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 text-xs font-semibold text-white hover:bg-[#E66E00]">
+                <Plus className="w-3.5 h-3.5" /> Add product
+              </Link>
+            </div>
           ) : null
         }
       />
