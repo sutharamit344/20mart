@@ -1,7 +1,13 @@
 /**
  * Runs before the storefront's Vercel PRODUCTION build:
- *   1. prisma migrate deploy  (applies pending migrations only; never resets data)
- *   2. db:seed                (idempotent: permissions, roles, starter drafts/coupons)
+ *   1. prisma migrate deploy  (applies pending migrations only; never resets data).
+ *      Releases run the migration as a controlled step BEFORE merging (see
+ *      docs/release/analytics-phase-a-b.md), so this is normally a no-op safety net.
+ *      Set SKIP_BUILD_MIGRATIONS=1 in Vercel to disable it entirely.
+ *   2. sync-rbac              (permissions, system roles, role grants only — never catalog data).
+ *   3. db:seed                ONLY when RUN_PRODUCTION_SEED=1 is set for that build. The full seed
+ *      creates catalog/coupon starter data; running it on every deploy re-created products that
+ *      had been deleted in the admin, so it no longer runs automatically.
  * Uses the direct (non-pooled) Neon URL because migrations need session-level locks.
  * Does nothing locally or on preview builds.
  */
@@ -24,8 +30,18 @@ const run = (cmd) => {
   console.log(`[vercel-migrate] ${cmd}`);
   execSync(cmd, { cwd: root, env, stdio: 'inherit' });
 };
-run('pnpm --filter @20mart/database db:deploy');
-run('pnpm --filter @20mart/database db:seed');
+if (process.env.SKIP_BUILD_MIGRATIONS === '1') {
+  console.log('[vercel-migrate] SKIP_BUILD_MIGRATIONS=1 — not running prisma migrate deploy');
+} else {
+  run('pnpm --filter @20mart/database db:deploy');
+}
+run('pnpm --filter @20mart/database exec tsx ./src/sync-rbac.ts');
+if (process.env.RUN_PRODUCTION_SEED === '1') {
+  console.warn('[vercel-migrate] RUN_PRODUCTION_SEED=1 — running the full seed (catalog/coupon starter data). Remove the variable afterwards.');
+  run('pnpm --filter @20mart/database db:seed');
+} else {
+  console.log('[vercel-migrate] full seed skipped (set RUN_PRODUCTION_SEED=1 for a one-off run)');
+}
 // Optional one-time admin provisioning/recovery: only when INITIAL_ADMIN_* are set in Vercel (remove them afterwards).
 //   INITIAL_ADMIN_USERNAME + INITIAL_ADMIN_EMAIL + INITIAL_ADMIN_PASSWORD  → create the first SUPER_ADMIN (skipped if one exists)
 //   INITIAL_ADMIN_RECOVER=1 + INITIAL_ADMIN_USERNAME + INITIAL_ADMIN_PASSWORD → reset that SUPER_ADMIN's password, unlock it, revoke its sessions
