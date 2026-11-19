@@ -10,6 +10,7 @@ import {
   normaliseSearchTerm,
   purgeAnalytics,
   recordServerEvent,
+  settleAnalytics,
   trackingContext,
   updateAnalyticsSettings,
   type TrackingContext,
@@ -251,12 +252,13 @@ describe('server-side operational events', () => {
     expect(await prisma.analyticsEvent.count()).toBe(0);
   });
 
-  it('leave existing cart behaviour unchanged (no events are wired in Phase A)', async () => {
+  it('leave existing cart behaviour unchanged; a call without a request records an anonymous event', async () => {
     const { product } = await makeSellable({ sku: 'ZM-AN-8' });
     const c = await createCustomer();
     await addItem({ userId: c.user.id }, { productId: product.id, quantity: 1 });
     expect(await prisma.cartItem.count()).toBe(1);
-    expect(await prisma.analyticsEvent.count()).toBe(0);
+    await settleAnalytics();
+    expect(await prisma.analyticsEvent.findFirstOrThrow()).toMatchObject({ name: 'CART_ITEM_ADDED', userId: null, visitorId: null, cartId: null, quantity: 1, unitPricePaise: 2000 });
   });
 });
 

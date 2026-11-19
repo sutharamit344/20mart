@@ -7,7 +7,7 @@ const owner = (c: { id: string } | null, g: string | null) => (c ? { userId: c.i
 export const POST = customerRoute(
   { auth: 'optional', rateLimit: { key: 'cart-add', limit: 60, windowMs: 60_000 } },
   async ({ req, customer, guestToken, setGuestToken }) => {
-    const { cart, newGuestToken } = await addItem(owner(customer, guestToken), await req.json().catch(() => ({})), locationFrom(req));
+    const { cart, newGuestToken } = await addItem(owner(customer, guestToken), await req.json().catch(() => ({})), locationFrom(req), { req, userId: customer?.id ?? null });
     if (newGuestToken) setGuestToken(newGuestToken);
     return cart;
   }

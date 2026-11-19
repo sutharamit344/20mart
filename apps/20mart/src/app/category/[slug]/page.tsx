@@ -10,6 +10,7 @@ import { getCategories, getCategory } from '../../../lib/catalog';
 import { getCategoryTheme } from '../../../lib/category-theme';
 import { breadcrumbJsonLd, pageMetadata } from '../../../lib/seo';
 import { JsonLd } from '../../../components/JsonLd';
+import { TrackView } from '../../../components/TrackView';
 
 export const revalidate = 60;
 
@@ -57,6 +58,7 @@ export default async function CategoryDetailPage({
         { name: category.name, path: `/category/${category.slug}` },
       ])}
     />
+    <TrackView name="CATEGORY_VIEWED" categoryId={sub?.id ?? category.id} />
     <CatalogListing
       searchParams={searchParams}
       fixed={{ category: sub?.slug ?? category.slug }}

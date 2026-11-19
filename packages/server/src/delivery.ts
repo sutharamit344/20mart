@@ -2,6 +2,7 @@ import { prisma } from '@20mart/database';
 import { formatPaise } from '@20mart/shared';
 import { getStoreSettings, PINCODE_REGEX, type StoreSettingsRow } from './settings';
 import { warehouseCandidates, type WarehouseCandidate } from './fulfillment';
+import { consentedVisitorId, istDay, trackServerEvents, type AnalyticsCaller } from './tracking/events';
 
 const TZ = 'Asia/Kolkata';
 
@@ -138,4 +139,29 @@ export async function quoteDelivery(
     blockers,
     serviceability,
   };
+}
+
+/**
+ * DELIVERY_CHECKED: a shopper checked whether a PIN code is delivered to (PIN check or choosing a
+ * location). Unserviceable results are the "unmet area demand" signal. Malformed PINs are not
+ * recorded. `ownerKey` (customer id / cart or visitor cookie) only de-duplicates repeat checks of
+ * the same PIN on the same day; it is hashed into the event id and never stored.
+ */
+export function trackDeliveryCheck(result: ServiceabilityResult, analytics: AnalyticsCaller, source: 'pincode_check' | 'location_set', ownerKey: string | null) {
+  if (result.code === 'INVALID') return;
+  const day = istDay();
+  trackServerEvents(analytics, (ctx) => {
+    // Same shopper + PIN + IST day counts once: by session/cart key, else the consented visitor id,
+    // else one shared anonymous bucket (under-counts rather than identify a non-consenting visitor).
+    const visitorId = ownerKey ? null : consentedVisitorId(ctx);
+    const [dedupeScope, owner] = ownerKey ? ['shopper', ownerKey] : visitorId ? ['visitor', `v:${visitorId}`] : ['anonymous', 'a'];
+    return [
+      {
+        name: 'DELIVERY_CHECKED',
+        pincode: result.pincode,
+        metadata: { serviceable: result.serviceable, code: result.code, source, dedupeScope },
+        dedupeKey: `${owner}:${result.pincode}:${day}`,
+      },
+    ];
+  });
 }

@@ -10,6 +10,7 @@ import { captureException } from '@20mart/server';
 import type { Metadata } from 'next';
 import { organizationJsonLd, pageMetadata, websiteJsonLd } from '../lib/seo';
 import { JsonLd } from '../components/JsonLd';
+import { TrackView } from '../components/TrackView';
 import { formatPaise } from '@20mart/shared';
 import { resolveImageSrc } from '@20mart/ui';
 
@@ -51,6 +52,7 @@ export default async function HomePage() {
     <>
     {/* Outside the space-y container: a <script> sibling would otherwise add top margin to the first section */}
     <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+    <TrackView name="HOME_VIEWED" />
     <div className="space-y-6 sm:space-y-8 pb-8">
       {/* Top Section: Category Strip + Hero Banner with tight Amazon-style spacing & gap */}
       <div className="space-y-1.5 sm:space-y-2">
@@ -213,7 +215,7 @@ export default async function HomePage() {
       {pricePoints.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="mb-2 text-base sm:text-lg font-bold text-gray-900">Shop by price</h2>
-          <div className="grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
             {pricePoints.map((pp) => (
               <Link
                 key={pp.amountPaise}

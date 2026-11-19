@@ -5,6 +5,7 @@ import { PERMISSIONS, ROLE_DEFINITIONS, ROLE_KEYS, type RoleKey } from '@20mart/
 import { hashPassword } from '../src/auth/password';
 import { getAdminContext, loginAdmin, type AdminContext } from '../src/auth/admin';
 import { resetRateLimits } from '../src/rateLimit';
+import { settleAnalytics } from '../src/tracking/schedule';
 
 export const ADMIN_ORIGIN = 'http://localhost:3001';
 export const PASSWORD = 'correct-horse-battery-staple';
@@ -13,6 +14,7 @@ export const PASSWORD = 'correct-horse-battery-staple';
 export async function resetDb() {
   const url = process.env.DATABASE_URL ?? '';
   if (!url.includes('test')) throw new Error('resetDb refused: not a test database');
+  await settleAnalytics(); // background analytics from the previous test must not leak into this one
   const tables = await prisma.$queryRaw<{ tablename: string }[]>`
     SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
   await prisma.$executeRawUnsafe(`TRUNCATE ${tables.map((t) => `"${t.tablename}"`).join(', ')} RESTART IDENTITY CASCADE`);

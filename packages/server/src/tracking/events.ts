@@ -13,16 +13,18 @@
  *  - Event ids are UUIDs; re-sent events are ignored (deduplication).
  *  - Nothing here ever throws into a customer-facing flow: recordServerEvent swallows and logs failures.
  */
-import { randomBytes, randomUUID } from 'node:crypto';
+import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { prisma, Prisma } from '@20mart/database';
 import { z } from 'zod';
 import { CLIENT_EVENT_NAMES, MAX_CLIENT_EVENT_BATCH, SERVER_EVENT_NAMES, parseConsent, type ConsentState, type ServerEventName } from '@20mart/shared';
 import { sha256 } from '../crypto';
 import { analyticsConsentCookie, analyticsSessionCookie, analyticsVisitorCookie, locationCookie } from '../cookies';
 import { env } from '../env';
+import { availabilityForPincode } from '../fulfillment';
 import { logger } from '../observability';
 import { PINCODE_REGEX } from '../settings';
 import { getAnalyticsSettings } from './settings';
+import { runAfterResponse } from './schedule';
 
 /* ───────────────────────── request context ───────────────────────── */
 
@@ -38,7 +40,7 @@ export interface TrackingContext {
   userAgent: string | null;
 }
 
-interface RequestLike {
+export interface RequestLike {
   headers: Headers;
   cookies: { get(name: string): { value: string } | undefined };
 }
@@ -96,12 +98,14 @@ export function normaliseSearchTerm(raw: string | null | undefined) {
 }
 
 const META_KEY = /^[a-zA-Z][a-zA-Z0-9_]{0,31}$/;
+/** A record id. Its hex digits can look like a long number once hyphens are stripped, but it is not personal data. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** Whitelisted, small, non-personal context only. */
 export const eventMetadata = z
   .record(z.union([z.string().max(64), z.number().finite(), z.boolean()]))
   .refine((m) => Object.keys(m).length <= 8, 'Too many metadata keys')
   .refine((m) => Object.keys(m).every((k) => META_KEY.test(k)), 'Invalid metadata key')
-  .refine((m) => Object.values(m).every((v) => typeof v !== 'string' || !looksPersonal(v)), 'Metadata must not contain personal data');
+  .refine((m) => Object.values(m).every((v) => typeof v !== 'string' || UUID_RE.test(v) || !looksPersonal(v)), 'Metadata must not contain personal data');
 
 const BOT_RE = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|facebookexternalhit|curl|wget|python-requests/i;
 export const isBot = (ua: string | null) => !ua || BOT_RE.test(ua);
@@ -131,44 +135,116 @@ export const serverEventInput = z
     unitPricePaise: z.number().int().min(0).max(100_000_000).optional(),
     metadata: eventMetadata.optional(),
     occurredAt: z.date().optional(),
+    /**
+     * Natural key of a business fact that may be reported more than once (retried request, duplicate
+     * webhook, concurrent verify + webhook). Events with the same name and key share one id, so only
+     * the first is stored. Never stored itself.
+     */
+    dedupeKey: z.string().min(1).max(200).optional(),
   })
   .strict();
 export type ServerEventInput = z.input<typeof serverEventInput>;
 
 /**
- * Record an OPERATIONAL event from server code. Call it AFTER the business transaction has committed,
- * outside any transaction. It never throws: an analytics failure is logged and ignored, so checkout,
- * cart and order flows can never fail because of analytics. Returns whether the event was stored.
+ * Deterministic UUID (version-5 layout) for an event name + natural key. Keyed with a server secret,
+ * so an event id cannot be re-derived from database contents alone (e.g. to re-link an anonymous
+ * event to a cart).
  */
-export async function recordServerEvent(input: ServerEventInput, ctx?: TrackingContext | null): Promise<boolean> {
+export function stableEventId(name: string, key: string) {
+  const h = createHmac('sha256', env().AUTH_SECRET).update(`20mart-analytics:${name}:${key}`).digest('hex');
+  const v = `5${h.slice(13, 16)}`;
+  const variant = ((parseInt(h[16], 16) & 0x3) | 0x8).toString(16) + h.slice(17, 20);
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${v}-${variant}-${h.slice(20, 32)}`;
+}
+
+function serverRow(e: z.output<typeof serverEventInput>, ctx: TrackingContext | null | undefined): Prisma.AnalyticsEventCreateManyInput {
+  const consented = ctx?.consent === 'granted';
+  return {
+    id: e.dedupeKey ? stableEventId(e.name, e.dedupeKey) : randomUUID(),
+    name: e.name,
+    category: 'OPERATIONAL',
+    source: 'SERVER',
+    occurredAt: e.occurredAt ?? new Date(),
+    ...identity(ctx),
+    productId: e.productId,
+    variantId: e.variantId,
+    categoryId: e.categoryId,
+    // A cart id points at its owner, so it is kept only with consent (like the identity columns).
+    cartId: consented ? e.cartId : null,
+    orderId: e.orderId,
+    warehouseId: e.warehouseId,
+    zoneId: e.zoneId,
+    pincode: e.pincode ?? ctx?.pincode ?? null,
+    quantity: e.quantity,
+    unitPricePaise: e.unitPricePaise,
+    metadata: e.metadata,
+  };
+}
+
+/**
+ * Record OPERATIONAL events from server code, AFTER the business transaction has committed and
+ * outside any transaction. Never throws: an analytics failure is logged and ignored, so checkout,
+ * cart and order flows can never fail because of analytics. Invalid events are dropped
+ * individually. Returns how many new events were stored (duplicates are not counted).
+ */
+export async function recordServerEvents(inputs: ServerEventInput[], ctx?: TrackingContext | null): Promise<number> {
   try {
-    const e = serverEventInput.parse(input);
-    await prisma.analyticsEvent.create({
-      data: {
-        id: randomUUID(),
-        name: e.name,
-        category: 'OPERATIONAL',
-        source: 'SERVER',
-        occurredAt: e.occurredAt ?? new Date(),
-        ...identity(ctx),
-        productId: e.productId,
-        variantId: e.variantId,
-        categoryId: e.categoryId,
-        cartId: e.cartId,
-        orderId: e.orderId,
-        warehouseId: e.warehouseId,
-        zoneId: e.zoneId,
-        pincode: e.pincode ?? ctx?.pincode ?? null,
-        quantity: e.quantity,
-        unitPricePaise: e.unitPricePaise,
-        metadata: e.metadata,
-      },
-    });
-    return true;
+    const rows: Prisma.AnalyticsEventCreateManyInput[] = [];
+    for (const input of inputs) {
+      const parsed = serverEventInput.safeParse(input);
+      if (parsed.success) rows.push(serverRow(parsed.data, ctx));
+      else logger.warn('analytics.record_invalid', { category: 'app', event: (input as { name?: string })?.name, error: parsed.error.issues[0]?.message?.slice(0, 200) });
+    }
+    if (!rows.length) return 0;
+    return (await prisma.analyticsEvent.createMany({ data: rows, skipDuplicates: true })).count;
   } catch (err) {
-    logger.warn('analytics.record_failed', { category: 'app', event: (input as { name?: string })?.name, error: (err as Error)?.message?.slice(0, 200) });
-    return false;
+    logger.warn('analytics.record_failed', { category: 'app', event: (inputs[0] as { name?: string })?.name, error: (err as Error)?.message?.slice(0, 200) });
+    return 0;
   }
+}
+
+/** Record one OPERATIONAL event (see recordServerEvents). Returns whether a new event was stored. */
+export async function recordServerEvent(input: ServerEventInput, ctx?: TrackingContext | null): Promise<boolean> {
+  return (await recordServerEvents([input], ctx)) === 1;
+}
+
+/**
+ * Who triggered a server event. Routes pass the request and the signed-in customer; consent and
+ * identity are resolved from the request's cookies only when the event is written.
+ * `null` (webhooks, admin actions, cron) records the event without any identity.
+ */
+export type AnalyticsCaller = { req: RequestLike; userId: string | null } | null | undefined;
+
+/**
+ * Schedule operational events to be written after the response. `build` runs deferred as well, so
+ * even the queries that describe the event (prices, order lines) cannot delay or break the request.
+ */
+export function trackServerEvents(caller: AnalyticsCaller, build: (ctx: TrackingContext | null) => ServerEventInput[] | Promise<ServerEventInput[]>) {
+  // The business action happened now; writing is deferred, so stamp the time before deferring.
+  const occurredAt = new Date();
+  runAfterResponse(async () => {
+    let ctx: TrackingContext | null = null;
+    if (caller) {
+      try {
+        ctx = await trackingContext(caller.req, caller.userId);
+      } catch {
+        ctx = null; // consent unknown → record without identity
+      }
+    }
+    const inputs = await build(ctx);
+    if (!inputs.length) return;
+    await recordServerEvents(inputs.map((i) => ({ occurredAt, ...i })), ctx);
+  });
+}
+
+/** Hashed analytics visitor id, only when the visitor granted consent (otherwise null). */
+export function consentedVisitorId(ctx: TrackingContext | null | undefined) {
+  return ctx?.consent === 'granted' && ctx.visitorToken ? sha256(ctx.visitorToken) : null;
+}
+
+/** IST calendar day (YYYY-MM-DD), used to scope "once per day" dedupe keys. */
+export function istDay(d = new Date()) {
+  return new Date(d.getTime() + 330 * 60_000).toISOString().slice(0, 10);
 }
 
 /* ───────────────────────── browser events ───────────────────────── */
@@ -269,6 +345,17 @@ export async function ingestClientEvents(raw: unknown, ctx: TrackingContext, now
   const productById = new Map(products.map((p) => [p.id, p]));
   const categorySet = new Set(categories.map((c) => c.id));
 
+  // PRODUCT_UNAVAILABLE_VIEWED is a demand signal, so the browser's "out of stock" claim is not
+  // trusted: it is re-checked live against the warehouses serving the visitor's delivery PIN (the
+  // same rules as the cart). Without a served PIN it cannot be verified and is dropped.
+  const unavailableIds = [...new Set(batch.events.filter((e) => e.name === 'PRODUCT_UNAVAILABLE_VIEWED' && e.productId).map((e) => e.productId!))];
+  const live = unavailableIds.length && ctx.pincode ? await availabilityForPincode(ctx.pincode, unavailableIds) : null;
+  const confirmedUnavailable = (productId: string | undefined, variantId: string | undefined) => {
+    const p = live?.covered && productId ? live.products[productId] : undefined;
+    if (!p) return false;
+    return (variantId ? (p.variants[variantId] ?? 'OUT') : p.state) === 'OUT';
+  };
+
   const rows: Prisma.AnalyticsEventCreateManyInput[] = [];
   let dropped = 0;
   for (const e of batch.events) {
@@ -284,6 +371,10 @@ export async function ingestClientEvents(raw: unknown, ctx: TrackingContext, now
       continue;
     }
     if (e.name === 'CATEGORY_VIEWED' && (!e.categoryId || !categorySet.has(e.categoryId))) {
+      dropped++;
+      continue;
+    }
+    if (e.name === 'PRODUCT_UNAVAILABLE_VIEWED' && !confirmedUnavailable(e.productId, e.variantId)) {
       dropped++;
       continue;
     }

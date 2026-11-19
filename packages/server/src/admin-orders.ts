@@ -1,3 +1,4 @@
+import { trackServerEvents } from './tracking/events';
 import { prisma, type OrderStatus, type Prisma } from '@20mart/database';
 import { z } from 'zod';
 import type { AdminContext } from './auth/admin';
@@ -212,6 +213,31 @@ export async function addOrderNote(actor: AdminContext, orderId: string, raw: un
 
 /* ──────────────────────────────── Refunds ──────────────────────────────── */
 
+/**
+ * REFUND_PROCESSED: money confirmed returned to the customer (provider response/webhook or a
+ * recorded manual refund). This is a refund, never a product return. Keyed by refund id, so the
+ * API response, the webhook and a manual sync of the same refund record it once.
+ */
+function trackRefundProcessed(refundId: string) {
+  trackServerEvents(null, async () => {
+    const r = await prisma.refund.findUnique({
+      where: { id: refundId },
+      select: { orderId: true, amountPaise: true, provider: true, status: true, order: { select: { totalPaise: true, shipPincode: true, fulfillmentWarehouseId: true } } },
+    });
+    if (!r || r.status !== 'PROCESSED') return [];
+    return [
+      {
+        name: 'REFUND_PROCESSED' as const,
+        orderId: r.orderId,
+        warehouseId: r.order.fulfillmentWarehouseId ?? undefined,
+        pincode: r.order.shipPincode,
+        metadata: { amountPaise: r.amountPaise, provider: r.provider, fullRefund: r.amountPaise >= r.order.totalPaise },
+        dedupeKey: refundId,
+      },
+    ];
+  });
+}
+
 async function settleOrderRefundStatus(tx: Prisma.TransactionClient, orderId: string) {
   const [order, processed] = await Promise.all([
     tx.order.findUniqueOrThrow({ where: { id: orderId }, select: { totalPaise: true } }),
@@ -250,6 +276,7 @@ export async function initiateRefund(actor: AdminContext, refundId: string) {
       await settleOrderRefundStatus(tx, r.orderId);
       await audit(tx, actor, { action: 'Initiated refund', category: 'PAYMENT', entityType: 'Order', entityId: r.orderId, details: `${r.order.orderNumber}: ${r.amountPaise} paise → ${pr.status}` });
     });
+    if (pr.status === 'processed') trackRefundProcessed(r.id);
     return { status: pr.status };
   } catch (e) {
     await prisma.refund.update({ where: { id: r.id }, data: { status: 'FAILED', failureReason: (e as Error).message.slice(0, 300) } });
@@ -284,6 +311,7 @@ export async function recordManualRefund(actor: AdminContext, refundId: string, 
     await settleOrderRefundStatus(tx, r.orderId);
     await audit(tx, actor, { action: 'Recorded manual refund', category: 'PAYMENT', entityType: 'Order', entityId: r.orderId, details: `${r.order.orderNumber}: ref ${reference}` });
   });
+  trackRefundProcessed(r.id);
 }
 
 export async function markRefundProcessed(providerRefundId: string) {
@@ -294,6 +322,7 @@ export async function markRefundProcessed(providerRefundId: string) {
     await tx.refund.update({ where: { id: r.id }, data: { status: 'PROCESSED', processedAt: new Date() } });
     await settleOrderRefundStatus(tx, r.orderId);
   });
+  trackRefundProcessed(r.id);
   return { applied: true };
 }
 

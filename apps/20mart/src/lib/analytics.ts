@@ -120,12 +120,22 @@ export function track(name: ClientEventName, props: TrackProps = {}) {
 
 /** Save the visitor's choice on the server (which also sets/clears the analytics cookies). */
 export async function saveConsent(analytics: boolean) {
-  if (!analytics) queue.length = 0;
+  if (!analytics) {
+    queue.length = 0;
+    // Withdrawal takes effect in this browser at once, even if the shopper navigates away before the
+    // server answers (the server's response would otherwise be the only thing flipping the cookie).
+    // The version prefix is kept, so the server reads it as "denied" too; the server response then
+    // erases the data and clears the analytics identifiers.
+    const version = readCookie(CONSENT_COOKIE)?.split('.')[0] || '0';
+    const secure = window.location.protocol === 'https:' ? '; secure' : '';
+    document.cookie = `${CONSENT_COOKIE}=${version}.denied; path=/; max-age=${365 * 24 * 60 * 60}; samesite=lax${secure}`;
+  }
   const r = await fetch('/api/analytics/consent', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ analytics }),
     credentials: 'same-origin',
+    keepalive: true, // completes (erasure + cookie clearing) even if the page is left immediately
   });
   if (!r.ok) throw new Error('Could not save your choice');
   window.dispatchEvent(new Event(CONSENT_CHANGED_EVENT));

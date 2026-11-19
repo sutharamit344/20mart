@@ -16,6 +16,7 @@ export default async function ShopPage(props: { searchParams: Promise<Record<str
       searchParams={searchParams}
       title={q ? `Search results for “${q}”` : 'All Products'}
       breadcrumb={[{ label: 'Home', href: '/' }, { label: q ? `Search: “${q}”` : 'Shop – All Products' }]}
+      trackSearch
     />
   );
 }

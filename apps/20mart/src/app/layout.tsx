@@ -10,6 +10,7 @@ import { MobileBottomNav } from '../components/MobileBottomNav';
 import { getHeaderCategories } from '../lib/catalog';
 import { DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME, siteOrigin } from '../lib/seo';
 import { ConsentBanner } from '../components/ConsentBanner';
+import { AppOpened } from '../components/TrackView';
 
 const inter = localFont({
   src: [
@@ -79,6 +80,7 @@ export default async function RootLayout({
             <Footer categories={categories} />
             <MobileBottomNav />
             <ConsentBanner />
+            <AppOpened />
           </LocationProvider>
         </StoreProvider>
       </body>

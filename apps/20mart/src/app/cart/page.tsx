@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumb, resolveImageSrc } from '@20mart/ui';
@@ -10,6 +10,7 @@ import { storeApi, useStore } from '../../lib/store';
 import { useLocation } from '../../lib/location';
 import { ServiceabilityNote } from '../../components/LocationPicker';
 import { CouponBox } from '../../components/CouponBox';
+import { track } from '../../lib/analytics';
 
 interface StoreInfo {
   deliveryEnabled: boolean;
@@ -53,6 +54,14 @@ export default function CartPage() {
   useEffect(() => {
     storeApi<StoreInfo>('/api/store-info').then(setInfo).catch(() => undefined);
   }, []);
+
+  // CART_VIEWED once per visit to this page, after the cart has loaded (a no-op without consent).
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (!cartReady || viewed.current) return;
+    viewed.current = true;
+    track('CART_VIEWED');
+  }, [cartReady]);
 
   if (!cartReady) {
     return (

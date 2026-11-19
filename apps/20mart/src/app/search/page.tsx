@@ -12,6 +12,7 @@ export default async function SearchPage(props: { searchParams: Promise<Record<s
       title={q ? `Results for “${q}”` : 'Search products'}
       subtitle={(total) => (q ? `${total} matching item${total === 1 ? '' : 's'}` : 'Type in the search bar above to find products')}
       breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Search' }]}
+      trackSearch
     />
   );
 }

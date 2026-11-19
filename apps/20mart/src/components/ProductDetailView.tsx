@@ -8,6 +8,7 @@ import { useStore } from '../lib/store';
 import { useLocation, useProductAvailability } from '../lib/location';
 import { ProductGrid } from './StoreProductCard';
 import { MapPin } from 'lucide-react';
+import { TrackView } from './TrackView';
 
 /** Location-aware delivery line: no promise is shown unless the selected PIN is actually served. */
 function DeliveryInfo({ deliverable }: { deliverable: boolean | null }) {
@@ -134,6 +135,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                 </span>
               )}
               <DeliveryInfo deliverable={avail ? !outOfStock : null} />
+              {/* Demand signal: the shopper saw this item (or option) as unavailable for their delivery
+                  location. Only from live location availability (already fetched above), never from
+                  the cached page; the server re-verifies it. Consent-only. */}
+              {avail && outOfStock && <TrackView name="PRODUCT_UNAVAILABLE_VIEWED" productId={product.id} variantId={variant?.id} />}
             </div>
 
             <div className="flex items-baseline gap-2 pt-0.5 flex-wrap">

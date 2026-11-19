@@ -7,6 +7,7 @@ import { getBrands, getCategories, getPricePoints, getProducts } from '../../lib
 import { ProductGrid } from '../StoreProductCard';
 import { CatalogPagination, FilterSidebar, MobileFilterButton, SortSelect } from './CatalogControls';
 import { PRICE_BUCKETS } from './price-buckets';
+import { TrackView } from '../TrackView';
 
 export const PAGE_SIZE = 24;
 
@@ -45,7 +46,10 @@ export async function CatalogListing({
   showCategoryFilter = true,
   emptyAction,
   banner,
+  trackSearch = false,
 }: {
+  /** Record PRODUCT_SEARCHED (term + result count) for this listing's query. */
+  trackSearch?: boolean;
   banner?: React.ReactNode;
   searchParams: SP;
   title: string;
@@ -76,6 +80,9 @@ export async function CatalogListing({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10">
+      {trackSearch && query.q && result && (
+        <TrackView name="PRODUCT_SEARCHED" searchTerm={query.q} resultCount={total} once={query.q.trim().toLowerCase()} />
+      )}
       <Breadcrumb items={breadcrumb} className="mb-2 sm:mb-2.5" />
       {banner}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 pb-2.5 border-b border-gray-100 mb-3.5 sm:mb-4">

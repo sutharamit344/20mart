@@ -6,6 +6,7 @@ import { ProductDetailView } from '../../../components/ProductDetailView';
 import { getProduct, getProducts, getRelated } from '../../../lib/catalog';
 import { breadcrumbJsonLd, pageMetadata, productJsonLd } from '../../../lib/seo';
 import { JsonLd } from '../../../components/JsonLd';
+import { TrackView } from '../../../components/TrackView';
 
 export const revalidate = 60;
 
@@ -54,6 +55,7 @@ export default async function ProductDetailPage(props: ProductPageProps) {
           ]),
         ]}
       />
+      <TrackView name="PRODUCT_VIEWED" productId={product.id} />
       <ProductDetailView product={product} relatedProducts={relatedProducts} />
     </>
   );

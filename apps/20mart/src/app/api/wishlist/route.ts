@@ -7,6 +7,6 @@ export const dynamic = 'force-dynamic';
 export const GET = customerRoute({ auth: 'required' }, async ({ customer }) => listWishlist(customer!.id));
 export const POST = customerRoute({ auth: 'required', rateLimit: { key: 'wishlist', limit: 60, windowMs: 60_000 } }, async ({ req, customer }) => {
   const { productId } = z.object({ productId: z.string() }).parse(await req.json().catch(() => ({})));
-  await addToWishlist(customer!.id, productId);
+  await addToWishlist(customer!.id, productId, { req, userId: customer!.id });
   return listWishlist(customer!.id);
 });

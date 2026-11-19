@@ -2,13 +2,14 @@ import { evaluateCart, findCartId, summarise, summariseLines } from './cart';
 import { listAddresses } from './addresses';
 import { quoteDelivery } from './delivery';
 import { enabledPaymentMethods, getStoreSettings } from './settings';
+import { istDay, trackServerEvents, type AnalyticsCaller } from './tracking/events';
 
 /**
  * Everything the checkout page needs, computed on the server:
  * cart re-priced and checked against the warehouse that would ship to the chosen address,
  * saved addresses, delivery quote, payment methods that are actually enabled, and blockers.
  */
-export async function getCheckoutSummary(userId: string, addressId?: string | null) {
+export async function getCheckoutSummary(userId: string, addressId?: string | null, analytics: AnalyticsCaller = null) {
   const settings = await getStoreSettings();
   const [cartId, addresses] = await Promise.all([findCartId({ userId }), listAddresses(userId)]);
   const selected = addresses.find((a) => a.id === addressId) ?? addresses.find((a) => a.isDefault) ?? addresses[0] ?? null;
@@ -28,6 +29,22 @@ export async function getCheckoutSummary(userId: string, addressId?: string | nu
   if (!selected) blockers.push('Add a delivery address');
   if (cart.coupon && !cart.coupon.valid) blockers.push(`Coupon ${cart.coupon.code}: ${cart.coupon.message ?? 'not valid'} — remove it to continue`);
   if (!paymentMethods.length) blockers.push('Ordering is temporarily unavailable — no payment method is enabled');
+  // CHECKOUT_STARTED: the customer reached checkout with a non-empty cart. Reloads, address changes
+  // and retries on the same day count once per cart.
+  if (cartId && cart.lines.length) {
+    const day = istDay();
+    trackServerEvents(analytics, () => [
+      {
+        name: 'CHECKOUT_STARTED',
+        cartId,
+        warehouseId: evaluation?.warehouse?.id,
+        pincode: selected?.pincode ?? undefined,
+        quantity: cart.totalQuantity,
+        metadata: { lines: cart.lines.length, subtotalPaise: cart.subtotalPaise, canPlaceOrder: blockers.length === 0, blockers: blockers.length },
+        dedupeKey: `${cartId}:${day}`,
+      },
+    ]);
+  }
   return {
     cart,
     addresses,

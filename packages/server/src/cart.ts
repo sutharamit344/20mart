@@ -6,6 +6,7 @@ import { AppError, badRequest, conflict, notFound } from './errors';
 import { evaluateCartCoupon } from './coupon-engine';
 import { getStoreSettings, PINCODE_REGEX } from './settings';
 import { bestLineStock, lineKey, selectWarehouseFor, stockRows, warehouseCandidates, type StockRow, type WarehouseCandidate } from './fulfillment';
+import { consentedVisitorId, istDay, trackServerEvents, type AnalyticsCaller, type ServerEventInput } from './tracking/events';
 
 type Db = Prisma.TransactionClient | typeof prisma;
 
@@ -221,6 +222,7 @@ async function loadPurchasable(productId: string, variantId: string | null, loc:
       id: true,
       name: true,
       status: true,
+      categoryId: true,
       sellingPricePaise: true,
       category: { select: { status: true } },
       brand: { select: { status: true } },
@@ -244,8 +246,117 @@ async function loadPurchasable(productId: string, variantId: string | null, loc:
   const candidates = pin ? (await warehouseCandidates(pin)).filter((c) => !c.atCapacity) : [];
   const rows = await stockRows([productId], candidates.length ? candidates.map((c) => c.id) : 'active');
   const sellable = bestLineStock(rows, productId, variantId)?.sellable ?? 0;
-  return { name: product.name, price, sellable, atLocation: candidates.length > 0 };
+  return { name: product.name, categoryId: product.categoryId, price, sellable, atLocation: candidates.length > 0 };
 }
+
+/* ─────────────────────────────── Analytics ─────────────────────────────── */
+// Operational cart events are written after the response (see tracking/schedule) and never
+// affect the cart operation itself. Prices and categories always come from the database.
+
+type Purchasable = Awaited<ReturnType<typeof loadPurchasable>>;
+const STOCK_ERRORS = new Set(['OUT_OF_STOCK', 'INSUFFICIENT_STOCK']);
+
+/**
+ * Check a requested quantity; a refusal caused by stock is recorded as unfulfilled demand
+ * (OUT_OF_STOCK_ADD_ATTEMPT) with the units that could not be supplied. One shopper's repeated
+ * attempts for the same item on the same IST day count once (retries and repeated taps never inflate
+ * demand). The shopper is identified, for deduplication only, by the first of:
+ *   cart      - the existing cart (signed-in customers always have one here; guests with a cart cookie)
+ *   visitor   - the analytics visitor id, only when the guest granted consent
+ *   anonymous - no cart and no consent: one count per item, PIN code and day for ALL such guests.
+ * The anonymous bucket deliberately under-counts rather than identify a visitor who did not consent
+ * (no IP, fingerprint or new cookie is used). The scope is stored in metadata.dedupeScope.
+ * Refusals for the per-line limit are not demand signals and are not recorded.
+ */
+function assertQuantityTracked(
+  analytics: AnalyticsCaller,
+  t: { cartId: string | null; productId: string; variantId: string | null; previousQty: number; desiredQty: number; source: string; pincode: string | null },
+  item: Purchasable,
+  maxPerLine: number
+) {
+  try {
+    assertQuantity(t.desiredQty, item.sellable, maxPerLine, item.name, item.atLocation);
+  } catch (e) {
+    if (e instanceof AppError && STOCK_ERRORS.has(e.code)) {
+      const increase = t.desiredQty - t.previousQty;
+      const shortfall = Math.max(1, Math.min(increase, t.desiredQty - Math.max(item.sellable, 0)));
+      const itemKey = `${t.productId}:${t.variantId ?? '-'}:${istDay()}`;
+      trackServerEvents(analytics, (ctx) => {
+        const visitorId = t.cartId ? null : consentedVisitorId(ctx);
+        const [dedupeScope, owner] = t.cartId ? ['cart', `c:${t.cartId}`] : visitorId ? ['visitor', `v:${visitorId}`] : ['anonymous', `a:${t.pincode ?? '-'}`];
+        return [
+          {
+            name: 'OUT_OF_STOCK_ADD_ATTEMPT',
+            productId: t.productId,
+            variantId: t.variantId ?? undefined,
+            categoryId: item.categoryId,
+            cartId: t.cartId ?? undefined,
+            pincode: t.pincode ?? undefined,
+            quantity: shortfall,
+            unitPricePaise: item.price,
+            metadata: {
+              reason: e.code === 'OUT_OF_STOCK' ? 'out_of_stock' : 'insufficient_stock',
+              atLocation: item.atLocation,
+              source: t.source,
+              sellable: Math.max(item.sellable, 0),
+              dedupeScope,
+            },
+            dedupeKey: `${owner}:${itemKey}`,
+          },
+        ];
+      });
+    }
+    throw e;
+  }
+}
+
+/** CART_ITEM_REMOVED events for lines that left the cart; price/category are looked up when written. */
+function trackRemoved(analytics: AnalyticsCaller, cartId: string, removed: { productId: string; variantId: string | null; quantity: number }[], reason: string, pincode: string | null) {
+  if (!removed.length) return;
+  trackServerEvents(analytics, async () => {
+    const products = await prisma.product.findMany({
+      where: { id: { in: [...new Set(removed.map((r) => r.productId))] } },
+      select: { id: true, categoryId: true, sellingPricePaise: true, variants: { select: { id: true, sellingPricePaise: true } } },
+    });
+    const byId = new Map(products.map((p) => [p.id, p]));
+    return removed.map((r): ServerEventInput => {
+      const p = byId.get(r.productId);
+      const price = r.variantId ? p?.variants.find((v) => v.id === r.variantId)?.sellingPricePaise : p?.sellingPricePaise;
+      return {
+        name: 'CART_ITEM_REMOVED',
+        productId: r.productId,
+        variantId: r.variantId ?? undefined,
+        categoryId: p?.categoryId,
+        cartId,
+        pincode: pincode ?? undefined,
+        quantity: r.quantity,
+        unitPricePaise: price,
+        metadata: { reason },
+      };
+    });
+  });
+}
+
+/**
+ * Set a line's quantity and return the quantity it actually replaced. Compare-and-set, so when two
+ * requests change the same line at once each sees its own predecessor and the recorded add/remove
+ * deltas always sum to the real change (no double counting). The final quantity is still the last
+ * request's, as before.
+ */
+async function swapLineQuantity(lineId: string, expected: number, quantity: number) {
+  let previous = expected;
+  for (let i = 0; i < 5; i++) {
+    const { count } = await prisma.cartItem.updateMany({ where: { id: lineId, quantity: previous }, data: { quantity } });
+    if (count) return previous;
+    const current = await prisma.cartItem.findUnique({ where: { id: lineId }, select: { quantity: true } });
+    if (!current) throw notFound('Cart item');
+    previous = current.quantity;
+  }
+  throw conflict('Your cart was just changed. Please try again.');
+}
+
+/** Keep the cart's last-activity time (used for abandonment) current when lines change or leave. */
+const touchCart = (cartId: string) => prisma.cart.update({ where: { id: cartId }, data: { updatedAt: new Date() } });
 
 function assertQuantity(qty: number, sellable: number, maxPerLine: number, name: string, atLocation = false) {
   if (sellable <= 0) {
@@ -255,15 +366,27 @@ function assertQuantity(qty: number, sellable: number, maxPerLine: number, name:
   if (qty > sellable) throw new AppError(409, 'INSUFFICIENT_STOCK', `Only ${Math.min(sellable, maxPerLine)} of ${name} available${atLocation ? ' for your location' : ''}`);
 }
 
-export async function addItem(owner: CartOwner | null, raw: unknown, loc: CartLocation = {}) {
+export async function addItem(owner: CartOwner | null, raw: unknown, loc: CartLocation = {}, analytics: AnalyticsCaller = null, source: 'cart' | 'wishlist' = 'cart') {
   const input = addItemInput.parse(raw);
   const settings = await getStoreSettings();
   const item = await loadPurchasable(input.productId, input.variantId, loc);
-  const { cartId, newGuestToken } = await ensureCart(owner);
-  const where = { cartId, productId: input.productId, variantId: input.variantId };
-  const existing = await prisma.cartItem.findFirst({ where, select: { id: true, quantity: true } });
+  // Signed-in customers get their (single) cart up front. A guest's cart is created only once the
+  // add is accepted: a refused add must not leave an orphan empty cart behind (its new cookie never
+  // reached the browser on the error response, so every retry used to create another cart).
+  const known = owner?.userId ? await ensureCart(owner) : { cartId: owner ? await findCartId(owner) : null, newGuestToken: null };
+  const existing = known.cartId
+    ? await prisma.cartItem.findFirst({ where: { cartId: known.cartId, productId: input.productId, variantId: input.variantId }, select: { id: true, quantity: true } })
+    : null;
   const newQty = (existing?.quantity ?? 0) + input.quantity;
-  assertQuantity(newQty, item.sellable, settings.maxQtyPerLine, item.name, item.atLocation);
+  const pincode = validPin(loc);
+  assertQuantityTracked(
+    analytics,
+    { cartId: known.cartId, productId: input.productId, variantId: input.variantId, previousQty: existing?.quantity ?? 0, desiredQty: newQty, source, pincode },
+    item,
+    settings.maxQtyPerLine
+  );
+  const { cartId, newGuestToken } = known.cartId ? { cartId: known.cartId, newGuestToken: known.newGuestToken } : await ensureCart(owner);
+  const where = { cartId, productId: input.productId, variantId: input.variantId };
   if (existing) {
     await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: newQty, addedPricePaise: item.price } });
   } else {
@@ -277,6 +400,19 @@ export async function addItem(owner: CartOwner | null, raw: unknown, loc: CartLo
     }
   }
   await prisma.cart.update({ where: { id: cartId }, data: { updatedAt: new Date() } });
+  trackServerEvents(analytics, () => [
+    {
+      name: 'CART_ITEM_ADDED',
+      productId: input.productId,
+      variantId: input.variantId ?? undefined,
+      categoryId: item.categoryId,
+      cartId,
+      pincode: pincode ?? undefined,
+      quantity: input.quantity,
+      unitPricePaise: item.price,
+      metadata: { source },
+    },
+  ]);
   return { cart: await summariseCart(cartId, loc), newGuestToken };
 }
 
@@ -306,32 +442,76 @@ async function ownLine(owner: CartOwner | null, itemId: string) {
   return { cartId, line };
 }
 
-export async function setQuantity(owner: CartOwner | null, itemId: string, raw: unknown, loc: CartLocation = {}) {
+export async function setQuantity(owner: CartOwner | null, itemId: string, raw: unknown, loc: CartLocation = {}, analytics: AnalyticsCaller = null) {
   const { quantity } = setQuantityInput.parse(raw);
   const { cartId, line } = await ownLine(owner, itemId);
+  const pincode = validPin(loc);
   if (quantity === 0) {
     await prisma.cartItem.delete({ where: { id: line.id } });
+    await touchCart(cartId);
+    trackRemoved(analytics, cartId, [line], 'removed', pincode);
   } else {
     const settings = await getStoreSettings();
     // Decreasing is always allowed (helps fix "insufficient" lines); increasing re-checks stock.
+    let added: Purchasable | null = null;
     if (quantity > line.quantity) {
-      const item = await loadPurchasable(line.productId, line.variantId, loc);
-      assertQuantity(quantity, item.sellable, settings.maxQtyPerLine, item.name, item.atLocation);
+      added = await loadPurchasable(line.productId, line.variantId, loc);
+      assertQuantityTracked(
+        analytics,
+        { cartId, productId: line.productId, variantId: line.variantId, previousQty: line.quantity, desiredQty: quantity, source: 'quantity_update', pincode },
+        added,
+        settings.maxQtyPerLine
+      );
     }
-    await prisma.cartItem.update({ where: { id: line.id }, data: { quantity } });
+    const previous = await swapLineQuantity(line.id, line.quantity, quantity);
+    if (quantity !== previous) await touchCart(cartId);
+    if (quantity > previous) {
+      const checked = added;
+      trackServerEvents(analytics, async () => {
+        // Price/category come from the stock check; in the rare race where the change only became an
+        // increase concurrently, they are looked up after the response instead.
+        const item = checked ?? (await loadPurchasable(line.productId, line.variantId, loc).catch(() => null));
+        return [
+          {
+            name: 'CART_ITEM_ADDED',
+            productId: line.productId,
+            variantId: line.variantId ?? undefined,
+            categoryId: item?.categoryId,
+            cartId,
+            pincode: pincode ?? undefined,
+            quantity: quantity - previous,
+            unitPricePaise: item?.price,
+            metadata: { source: 'quantity_update' },
+          },
+        ];
+      });
+    } else if (quantity < previous) {
+      trackRemoved(analytics, cartId, [{ ...line, quantity: previous - quantity }], 'quantity_decrease', pincode);
+    }
   }
   return summariseCart(cartId, loc);
 }
 
-export async function removeItem(owner: CartOwner | null, itemId: string, loc: CartLocation = {}) {
+export async function removeItem(owner: CartOwner | null, itemId: string, loc: CartLocation = {}, analytics: AnalyticsCaller = null) {
   const { cartId, line } = await ownLine(owner, itemId);
   await prisma.cartItem.delete({ where: { id: line.id } });
+  await touchCart(cartId);
+  trackRemoved(analytics, cartId, [line], 'removed', validPin(loc));
   return summariseCart(cartId, loc);
 }
 
-export async function clearCart(owner: CartOwner | null, loc: CartLocation = {}) {
+export async function clearCart(owner: CartOwner | null, loc: CartLocation = {}, analytics: AnalyticsCaller = null) {
   const cartId = owner ? await findCartId(owner) : null;
-  if (cartId) await prisma.cartItem.deleteMany({ where: { cartId } });
+  if (cartId) {
+    const lines = await prisma.cartItem.findMany({ where: { cartId }, select: { id: true, productId: true, variantId: true, quantity: true } });
+    // Record exactly the lines this call deleted (a concurrent removal is not counted twice).
+    const { count } = await prisma.cartItem.deleteMany({ where: { cartId, id: { in: lines.map((l) => l.id) } } });
+    if (count) {
+      await touchCart(cartId);
+      if (count === lines.length) trackRemoved(analytics, cartId, lines, 'cleared', validPin(loc));
+    }
+    await prisma.cartItem.deleteMany({ where: { cartId } }); // anything added concurrently is cleared too, as before
+  }
   return getCart(owner, loc);
 }
 

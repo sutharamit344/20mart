@@ -6,13 +6,14 @@ import { findCartId, loadCartLines, summariseCart } from './cart';
 import { COUPON_CODE_RE, couponIsLive, evaluateCoupon, findCouponByCode, normaliseCode } from './coupon-engine';
 import { AppError, conflict, notFound } from './errors';
 import { notifyCouponIssued } from './notifications';
+import { trackServerEvents, type AnalyticsCaller } from './tracking/events';
 
 /* ───────────────────────────── Customer: apply / remove ───────────────────────────── */
 
 export const applyCouponInput = z.object({ code: z.string().trim().min(1, 'Enter a coupon code').max(40) });
 
 /** Validate a code against the customer's live cart; only a valid coupon is stored on the cart. */
-export async function applyCouponToCart(userId: string, raw: unknown) {
+export async function applyCouponToCart(userId: string, raw: unknown, analytics: AnalyticsCaller = null) {
   const { code } = applyCouponInput.parse(raw);
   const cartId = await findCartId({ userId });
   if (!cartId) throw new AppError(409, 'COUPON_INVALID', 'Add items to your cart to use this coupon');
@@ -20,7 +21,18 @@ export async function applyCouponToCart(userId: string, raw: unknown) {
   const ev = await evaluateCoupon(await findCouponByCode(code), userId, lines);
   if (!ev.ok) throw new AppError(409, 'COUPON_INVALID', ev.message, { reason: ev.reason });
   await prisma.cart.update({ where: { id: cartId }, data: { couponCode: ev.coupon.code } });
-  return summariseCart(cartId);
+  const view = await summariseCart(cartId);
+  // Only a coupon that was validated and stored counts; re-applying the same code to the same cart is one event.
+  // The coupon is identified by id (codes can be personalised); the discount is the server's figure.
+  trackServerEvents(analytics, () => [
+    {
+      name: 'COUPON_APPLIED',
+      cartId,
+      metadata: { couponId: ev.coupon.id, discountPaise: view.discountPaise, subtotalPaise: view.subtotalPaise },
+      dedupeKey: `${cartId}:${ev.coupon.id}`,
+    },
+  ]);
+  return view;
 }
 
 export async function removeCouponFromCart(userId: string) {

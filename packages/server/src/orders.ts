@@ -10,6 +10,7 @@ import { countBy } from './counts';
 import { AppError, badRequest, conflict, notFound } from './errors';
 import { getPaymentProvider, PaymentProviderError } from './payments';
 import { enabledPaymentMethods, getStoreSettings } from './settings';
+import { trackServerEvents, type AnalyticsCaller, type ServerEventInput } from './tracking/events';
 
 type Tx = Prisma.TransactionClient;
 const TX_OPTS = { timeout: 20_000, maxWait: 20_000 } as const;
@@ -135,6 +136,48 @@ export async function addHistory(
   });
 }
 
+/* ─────────────────────────────── Analytics ─────────────────────────────── */
+
+/**
+ * One operational event per order line, built from the order's immutable snapshots (server prices),
+ * written after the response. Keyed by order line, so a fact reported twice (retry, verify + webhook,
+ * concurrent cancel) is stored once.
+ */
+function trackOrderLines(
+  analytics: AnalyticsCaller,
+  name: 'PURCHASE_COMPLETED' | 'ORDER_CANCELLED',
+  orderId: string,
+  metadata: Record<string, string | number | boolean>
+) {
+  trackServerEvents(analytics, async () => {
+    const o = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        fulfillmentWarehouseId: true,
+        shipPincode: true,
+        paymentMethod: true,
+        items: { select: { id: true, productId: true, variantId: true, quantity: true, unitPricePaise: true, product: { select: { categoryId: true } } } },
+      },
+    });
+    if (!o) return [];
+    return o.items.map(
+      (it): ServerEventInput => ({
+        name,
+        orderId,
+        productId: it.productId,
+        variantId: it.variantId ?? undefined,
+        categoryId: it.product.categoryId,
+        warehouseId: o.fulfillmentWarehouseId ?? undefined,
+        pincode: o.shipPincode,
+        quantity: it.quantity,
+        unitPricePaise: it.unitPricePaise,
+        metadata: { paymentMethod: o.paymentMethod, orderLines: o.items.length, ...metadata },
+        dedupeKey: `${orderId}:${it.id}`,
+      })
+    );
+  });
+}
+
 /* ─────────────────────────────── Place order ─────────────────────────────── */
 
 export const placeOrderInput = z.object({
@@ -205,10 +248,10 @@ function cartBlockers(lines: CartLine[]) {
  * Atomically convert the customer's cart into an order.
  * Every amount is computed here from database prices; the browser sends none.
  */
-export async function placeOrder(userId: string, raw: unknown): Promise<PlaceOrderResult> {
+export async function placeOrder(userId: string, raw: unknown, analytics: AnalyticsCaller = null): Promise<PlaceOrderResult> {
   const input = placeOrderInput.parse(raw);
   try {
-    return await placeOrderOnce(userId, input);
+    return await placeOrderOnce(userId, input, analytics);
   } catch (e) {
     // A concurrent duplicate submit may have won (e.g. its cart conversion made ours look empty):
     // the same idempotency key must always resolve to that one order.
@@ -221,7 +264,7 @@ export async function placeOrder(userId: string, raw: unknown): Promise<PlaceOrd
   }
 }
 
-async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderInput>): Promise<PlaceOrderResult> {
+async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderInput>, analytics: AnalyticsCaller): Promise<PlaceOrderResult> {
 
   const existing = await prisma.order.findUnique({
     where: { userId_idempotencyKey: { userId, idempotencyKey: input.idempotencyKey } },
@@ -384,6 +427,9 @@ async function placeOrderOnce(userId: string, input: z.infer<typeof placeOrderIn
   let payment: CheckoutPaymentParams | null = null;
   let paymentError: string | null = null;
   if (!isOnline) await notifyOrderPlaced(orderId); // online orders are announced once payment is confirmed
+  // A cash-on-delivery order is a completed purchase when it is placed; an online order only once
+  // its payment is captured (markPaymentCaptured). Duplicate submits return before this point.
+  if (!isOnline) trackOrderLines(analytics, 'PURCHASE_COMPLETED', orderId, {});
   if (isOnline) {
     try {
       payment = await startOnlinePayment(orderId, { name: user.name, email: user.email, contact: user.profile?.phone ?? null });
@@ -462,7 +508,7 @@ export const verifyCheckoutInput = z.object({
  * Browser callback after checkout. NOT trusted on its own: the signature is verified,
  * then the payment is re-fetched from the provider and its status and amount checked.
  */
-export async function verifyCheckoutPayment(userId: string, raw: unknown) {
+export async function verifyCheckoutPayment(userId: string, raw: unknown, analytics: AnalyticsCaller = null) {
   const input = verifyCheckoutInput.parse(raw);
   const payment = await prisma.payment.findUnique({
     where: { providerOrderId: input.razorpay_order_id },
@@ -480,7 +526,7 @@ export async function verifyCheckoutPayment(userId: string, raw: unknown) {
     await handlePaymentFailed(input.razorpay_order_id, p.id, p.errorDescription ?? `Payment ${p.status}`);
     throw new AppError(402, 'PAYMENT_NOT_CAPTURED', 'Payment was not completed');
   }
-  const result = await markPaymentCaptured(input.razorpay_order_id, p.id, p.amountPaise, p.currency);
+  const result = await markPaymentCaptured(input.razorpay_order_id, p.id, p.amountPaise, p.currency, analytics);
   return { orderNumber: payment.order.orderNumber, ...result };
 }
 
@@ -488,7 +534,7 @@ export async function verifyCheckoutPayment(userId: string, raw: unknown) {
  * Single idempotent entry point for a confirmed capture (browser verify or webhook).
  * Amount must match exactly. Applies at most once per Payment row.
  */
-export async function markPaymentCaptured(providerOrderId: string, providerPaymentId: string, amountPaise: number, currency?: string | null) {
+export async function markPaymentCaptured(providerOrderId: string, providerPaymentId: string, amountPaise: number, currency?: string | null, analytics: AnalyticsCaller = null) {
   const payment = await prisma.payment.findUnique({
     where: { providerOrderId },
     select: { id: true, status: true, amountPaise: true, providerPaymentId: true, orderId: true, order: { select: { orderNumber: true, totalPaise: true } } },
@@ -533,7 +579,11 @@ export async function markPaymentCaptured(providerOrderId: string, providerPayme
     });
     return { applied: true, status: 'refund_required' as const };
   }, TX_OPTS);
-  if (result.status === 'confirmed') await notifyPaymentConfirmed(payment.orderId);
+  if (result.status === 'confirmed') {
+    await notifyPaymentConfirmed(payment.orderId);
+    // Only the call that actually confirmed the order records the purchase (verify vs webhook race).
+    trackOrderLines(analytics, 'PURCHASE_COMPLETED', payment.orderId, {});
+  }
   return result;
 }
 
@@ -585,8 +635,9 @@ export const cancelInput = z.object({ reason: z.string().trim().min(3, 'Please g
 /** Shared cancellation core: status, stock, payment/refund and history in one transaction. */
 export async function cancelOrderCore(
   orderId: string,
-  opts: { by: 'customer' | 'admin'; reason: string; actorLabel: string; adminId?: string | null; userId?: string | null }
+  opts: { by: 'customer' | 'admin'; reason: string; actorLabel: string; adminId?: string | null; userId?: string | null; analytics?: AnalyticsCaller }
 ) {
+  let fromStatus: OrderStatus | null = null;
   const result = await prisma.$transaction(async (tx) => {
     const o = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
@@ -601,6 +652,7 @@ export async function cancelOrderCore(
       data: { status: 'CANCELLED', cancelReason: opts.reason, cancelledAt: new Date(), reservationExpiresAt: null },
     });
     if (!n.count) throw conflict('The order was updated at the same time. Please refresh and try again.');
+    fromStatus = o.status;
     const released =
       (await releaseOrderStock(tx, o.id, o.orderNumber, 'Order cancelled', opts.adminId ?? null)) ||
       (await restockOrder(tx, o.id, o.orderNumber, 'Order cancelled', opts.adminId ?? null));
@@ -619,15 +671,17 @@ export async function cancelOrderCore(
     return { orderNumber: o.orderNumber, refundRequired };
   }, TX_OPTS);
   await notifyOrderCancelled(orderId, result.refundRequired);
+  // Free-text reasons are never sent to analytics (they may contain personal data).
+  trackOrderLines(opts.analytics, 'ORDER_CANCELLED', orderId, { by: opts.by, fromStatus: fromStatus ?? 'UNKNOWN', refundRequired: result.refundRequired });
   return result;
 }
 
-export async function customerCancelOrder(userId: string, orderNumber: string, raw: unknown) {
+export async function customerCancelOrder(userId: string, orderNumber: string, raw: unknown, analytics: AnalyticsCaller = null) {
   orderNumberParam.parse(orderNumber);
   const { reason } = cancelInput.parse(raw);
   const o = await prisma.order.findFirst({ where: { orderNumber, userId }, select: { id: true } });
   if (!o) throw notFound('Order');
-  return cancelOrderCore(o.id, { by: 'customer', reason, actorLabel: 'customer', userId });
+  return cancelOrderCore(o.id, { by: 'customer', reason, actorLabel: 'customer', userId, analytics });
 }
 
 /* ─────────────────────────────── Customer views ─────────────────────────────── */

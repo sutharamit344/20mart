@@ -10,5 +10,5 @@ export const GET = customerRoute({ auth: 'required' }, async ({ req, customer })
 });
 /** Place an order. The body carries only the address, method and an idempotency key — never amounts. */
 export const POST = customerRoute({ auth: 'required', rateLimit: { key: 'place-order', limit: 5, windowMs: 60_000 } }, async ({ req, customer }) =>
-  json(await placeOrder(customer!.id, await req.json().catch(() => ({}))), 201)
+  json(await placeOrder(customer!.id, await req.json().catch(() => ({})), { req, userId: customer!.id }), 201)
 );
