@@ -16,3 +16,7 @@ backups/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Local asset folders (not code)
+/instagram-stories/
+/products/
