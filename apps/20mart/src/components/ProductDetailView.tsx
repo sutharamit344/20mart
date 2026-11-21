@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { ProductGallery, Breadcrumb } from '@20mart/ui';
 import { discountPercent, formatPaise, type StorefrontProduct, type StorefrontProductDetail } from '@20mart/shared';
-import { ShieldCheck, Truck, Heart, Plus, Minus, Sparkles } from 'lucide-react';
+import { ShieldCheck, Truck, Heart, Plus, Minus, Sparkles, ShoppingCart } from 'lucide-react';
 import { useStore } from '../lib/store';
 import { useLocation, useProductAvailability } from '../lib/location';
 import { ProductGrid } from './StoreProductCard';
@@ -55,7 +56,7 @@ interface ProductDetailViewProps {
 const MAX_QTY = 10;
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, relatedProducts }) => {
-  const { addToCart, toggleWishlist, isWishlisted, cartBusy } = useStore();
+  const { cart, addToCart, toggleWishlist, isWishlisted, cartBusy } = useStore();
   const [variantId, setVariantId] = useState<string | null>(
     product.variants.find((v) => v.stockState !== 'OUT')?.id ?? product.variants[0]?.id ?? null
   );
@@ -67,6 +68,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
   const stockState = avail ? (variant ? (avail.variants[variant.id] ?? 'OUT') : avail.state) : (variant?.stockState ?? product.stockState);
   const outOfStock = stockState === 'OUT';
   const discount = discountPercent(price, mrp);
+  // Quantity of this exact product + option already in the cart; once added, the CTA becomes "Go to Cart".
+  const inCartQty = cart.lines
+    .filter((l) => l.productId === product.id && (l.variantId ?? null) === (variant?.id ?? null))
+    .reduce((a, l) => a + l.quantity, 0);
+  const inCart = inCartQty > 0 && !outOfStock;
 
   const [quantity, setQuantity] = useState(1);
   const [isStickyVisible, setIsStickyVisible] = useState(false);
@@ -186,6 +192,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
 
           <div className="space-y-2.5 pt-3 border-t border-gray-100">
             <div ref={mainActionsRef} className="flex items-center gap-2 sm:gap-2.5">
+              {!inCart && (
               <div className="flex shrink-0 items-center rounded-xl border border-gray-200 bg-gray-50 p-0.5">
                 <button
                   type="button"
@@ -209,7 +216,17 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                   <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
+              )}
 
+              {inCart ? (
+                <Link
+                  href="/cart"
+                  className="flex-1 min-w-0 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 bg-[#0B5D3B] hover:bg-[#094D31] text-white active:scale-[0.98] transition-all py-2.5"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Go to Cart <span className="font-semibold opacity-80">({inCartQty} in cart)</span>
+                </Link>
+              ) : (
               <button
                 type="button"
                 onClick={add}
@@ -218,6 +235,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
               >
                 {outOfStock ? 'Out of stock' : 'Add to Cart'}
               </button>
+              )}
 
               <button
                 type="button"
@@ -265,6 +283,15 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                 {mrp > price && <span className="text-xs text-gray-400 line-through">{formatPaise(mrp * quantity)}</span>}
               </div>
             </div>
+            {inCart ? (
+              <Link
+                href="/cart"
+                className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-[#0B5D3B] text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                <span>Go to Cart</span>
+              </Link>
+            ) : (
             <button
               type="button"
               onClick={add}
@@ -280,6 +307,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                 </>
               )}
             </button>
+            )}
           </div>
         </div>
       </div>
