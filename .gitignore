@@ -13,3 +13,6 @@ build
 storage/
 .next-*
 backups/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
