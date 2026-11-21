@@ -53,7 +53,7 @@ const nextConfig = {
   transpilePackages: ['@20mart/ui', '@20mart/shared', '@20mart/database', '@20mart/server'],
   poweredByHeader: false,
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }, ...storageHost],
+    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }, { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }, ...storageHost],
   },
   serverExternalPackages: ['@node-rs/argon2', '@prisma/client'],
   experimental: {

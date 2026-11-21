@@ -73,6 +73,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      // Production product images (Vercel Blob) — also used by the local catalogue seeded from live.
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
       ...storageHost,
     ],
   },
