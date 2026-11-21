@@ -421,17 +421,18 @@ export function WarehousesClient({ warehouses, zones, perms }: { warehouses: War
   const [creating, setCreating] = useState(false);
   return (
     <div className="space-y-3">
-      {perms.manage && (
-        <Panel title={creating ? 'New warehouse' : undefined} bodyClassName="p-3 sm:p-4">
-          {creating ? (
+      {perms.manage &&
+        (creating ? (
+          <Panel title="New warehouse" bodyClassName="p-3 sm:p-4">
             <WarehouseForm id={null} initial={EMPTY} onDone={() => setCreating(false)} />
-          ) : (
-            <Button size="sm" onClick={() => setCreating(true)}>
-              <Plus className="w-4 h-4 mr-1" /> Add warehouse
+          </Panel>
+        ) : (
+          <div className="flex justify-end">
+            <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setCreating(true)}>
+              Add warehouse
             </Button>
-          )}
-        </Panel>
-      )}
+          </div>
+        ))}
       {zones.length === 0 && (
         <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
           No delivery areas yet. Create one under <Link href="/delivery" className="font-bold underline">Delivery &amp; Payments</Link> and assign PIN codes to it, then map it here.
