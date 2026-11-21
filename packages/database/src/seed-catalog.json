@@ -1,0 +1,1298 @@
+{
+ "source": "https://20mart-xi.vercel.app",
+ "pulledAt": "2026-11-19",
+ "products": [
+  {
+   "sku": "20M-BT-007",
+   "name": "Mesh Bath Loofah - Assorted Colour",
+   "slug": "mesh-bath-loofah-assorted-colour",
+   "category": "daily-use",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Loofah · 1 piece",
+   "description": "Lightweight mesh bath puff for applying body wash during bathing.\n\n• Mesh puff\n• Hanging loop\n• Rinse and air dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/8f2765a4-316d-4aac-9f51-410097cb104f.png",
+     "altText": "Mesh Bath Loofah - Assorted Colour",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-010",
+   "name": "Handheld Scalp Massage Brush - Pink",
+   "slug": "handheld-scalp-massage-brush-pink",
+   "category": "daily-use",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Brush · 1 piece",
+   "description": "Handheld scalp massage brush for use with shampoo during hair washing.\n\n• Handheld grip\n• Soft bristle style\n• Rinse and air dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/03dd2dcf-28ce-454b-9689-7ba491198e26.png",
+     "altText": "Handheld Scalp Massage Brush - Pink",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-011",
+   "name": "Handheld Silicone Bath Scrubber - Green",
+   "slug": "handheld-silicone-bath-scrubber-green",
+   "category": "daily-use",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Brush · 1 piece",
+   "description": "Compact handheld bath scrubber for routine washing; use gentle pressure and clean after each use.\n\n• Palm-size format\n• Textured scrubbing face\n• Rinse and air dry",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b72e8e37-0ace-43a9-a97b-23cc53c1f0d8.png",
+     "altText": "Handheld Silicone Bath Scrubber - Green",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-012",
+   "name": "Plastic Soap Dish with Drain Insert - Pastel",
+   "slug": "plastic-soap-dish-with-drain-insert-pastel",
+   "category": "daily-use",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Dish · 1 set",
+   "description": "Compact bathroom soap holder with a removable insert to help keep bar soap off standing water.\n\n• Two-piece dish and insert\n• Easy to rinse",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b84ce598-7a0c-48d7-833c-c172275e24b1.png",
+     "altText": "Plastic Soap Dish with Drain Insert - Pastel",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-017",
+   "name": "Wall-Mount Bathroom Organizer Caddy",
+   "slug": "wall-mount-bathroom-organizer-caddy",
+   "category": "daily-use",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Caddy · 1 piece",
+   "description": "Compact wall-mount bathroom caddy for keeping small toiletries organized near a wash area. Verify mounting method and included fittings.\n\n• Compartmented organizer\n• Drainage slots\n• Mounting hardware not included unless confirmed",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/4ce692f5-d4e6-4aeb-8acc-03ea09a465d9.png",
+     "altText": "Wall-Mount Bathroom Organizer Caddy",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-018",
+   "name": "Refillable Handwash Pump Dispenser",
+   "slug": "refillable-handwash-pump-dispenser",
+   "category": "daily-use",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Dispenser · 1 piece",
+   "description": "Refillable pump dispenser for liquid handwash or soap. Product is the empty dispenser only; liquid is not included.\n\n• Refillable bottle\n• Pump top\n• Liquid contents not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/af76ceaa-82c5-4581-b556-2691574e42b9.png",
+     "altText": "Refillable Handwash Pump Dispenser",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-020",
+   "name": "Soft Terry Hand Towels - Pair",
+   "slug": "soft-terry-hand-towels-pair",
+   "category": "daily-use",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "Pack of 2 · 2 pieces",
+   "description": "Pair of soft hand towels for bathroom or wash-area use. Confirm actual fabric composition and dimensions before listing.\n\n• Two towels\n• Reusable and washable per care label\n• For hand drying",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/696664c3-234b-471a-b825-4abab4b2e68f.png",
+     "altText": "Soft Terry Hand Towels - Pair",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-021",
+   "name": "Long Handle Toilet Cleaning Brush - Orange",
+   "slug": "long-handle-toilet-cleaning-brush-orange",
+   "category": "daily-use",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Brush · 1 piece",
+   "description": "Long-handle toilet cleaning brush for routine bathroom cleaning. Use only with compatible cleaners and follow the cleaner label.\n\n• Long handle\n• Compact bristle head\n• Rinse and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/917e1f2f-4fca-4e59-9037-d0cf0842fbcd.png",
+     "altText": "Long Handle Toilet Cleaning Brush - Orange",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-022",
+   "name": "Plastic Bathroom Bucket and Mug Set",
+   "slug": "plastic-bathroom-bucket-and-mug-set",
+   "category": "daily-use",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "Set of 2 · 2 pieces",
+   "description": "Everyday plastic bathroom bucket with a matching water mug. Confirm capacity and material before publishing.\n\n• Bucket and mug included\n• For household bathroom use\n• Capacity not verified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/7d0d8c0c-7d57-4910-bcf8-20818d2a2284.png",
+     "altText": "Plastic Bathroom Bucket and Mug Set",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-023",
+   "name": "Wall-Mount Toothbrush Holder with 3 Cups",
+   "slug": "wall-mount-toothbrush-holder-with-3-cups",
+   "category": "daily-use",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "Set of 4 · 1 set",
+   "description": "Wall-mount toothbrush organizer with three removable cups for keeping toothbrushes and small bathroom items together. Verify adhesive/mounting parts and exact contents.\n\n• Organizer with three cups\n• Wall-mount style\n• Mounting fittings must be confirmed",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/35fa198b-ce27-40dd-ab9e-a6af98456d8d.png",
+     "altText": "Wall-Mount Toothbrush Holder with 3 Cups",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-BT-026",
+   "name": "Mesh Bath Loofah Set - 2 Pieces",
+   "slug": "mesh-bath-loofah-set-2-pieces",
+   "category": "daily-use",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Pack of 2 · 2 pieces",
+   "description": "Two mesh bath puffs for applying body wash. Rinse thoroughly and air dry after use.\n\n• Two bath puffs\n• Assorted colours\n• Rinse and air dry",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/8c634b9f-5c9c-48b6-be9d-50cb73ed4d75.png",
+     "altText": "Mesh Bath Loofah Set - 2 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-001",
+   "name": "Everyday Plastic Comb Set - Assorted Colours",
+   "slug": "everyday-plastic-comb-set-assorted-colours",
+   "category": "daily-use",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Set of 4 · 4 combs",
+   "description": "Set of four everyday plastic combs in assorted colours for routine grooming at home or while travelling.\n\n• Four practical comb styles\n• Lightweight\n• Easy to store",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/7176f20a-7bb7-4ee3-bc25-f498fd8fa70d.png",
+     "altText": "Everyday Plastic Comb Set - Assorted Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-002",
+   "name": "Long Handle Floor Mop - Blue Grip",
+   "slug": "long-handle-floor-mop-blue-grip",
+   "category": "home",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Mop · 1 piece",
+   "description": "Everyday long-handle mop for routine floor cleaning in kitchens, bathrooms and living spaces.\n\n• Long handle\n• Reusable mop head\n• Suitable for common hard floors",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/4a67e148-9631-48fd-b60d-f100046a9f22.png",
+     "altText": "Long Handle Floor Mop - Blue Grip",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-004",
+   "name": "Microfiber Cleaning Cloth - Grey",
+   "slug": "microfiber-cleaning-cloth-grey",
+   "category": "home",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Cloth · 1 piece",
+   "description": "Reusable microfiber-style cloth for dusting and wiping household surfaces.\n\n• Soft textured surface\n• Reusable\n• Washable as per care label",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/5f5a35aa-4345-494c-8196-32daf55f9f42.png",
+     "altText": "Microfiber Cleaning Cloth - Grey",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-006",
+   "name": "Multipurpose Scouring Pad - Charcoal",
+   "slug": "multipurpose-scouring-pad-charcoal",
+   "category": "home",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Pad · 1 piece",
+   "description": "Textured multipurpose scouring pad for routine cleaning of suitable household surfaces.\n\n• Compact rectangular pad\n• Reusable until worn\n• Test delicate surfaces first",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/e3daee62-1318-49af-8987-d83a7ef17cd6.png",
+     "altText": "Multipurpose Scouring Pad - Charcoal",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-009",
+   "name": "Household Cleaning Wipes - Pack",
+   "slug": "household-cleaning-wipes-pack",
+   "category": "home",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Pack · 1 pack",
+   "description": "Convenient pre-packed household wipes for quick surface wipe-downs; check the actual pack label for intended surfaces and disposal guidance.\n\n• Ready-to-use format\n• Keep pack sealed between uses",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/46914b72-1899-4b9d-b867-92fa2fcabd11.png",
+     "altText": "Household Cleaning Wipes - Pack",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-015",
+   "name": "Large Reusable Water Storage Canister - Blue",
+   "slug": "large-reusable-water-storage-canister-blue",
+   "category": "home",
+   "price": 30000,
+   "mrp": 30000,
+   "shortDescription": "1 Canister · 1 piece",
+   "description": "Large reusable blue household water storage canister. Confirm capacity, food-contact rating, cap and intended use from the product label before sale.\n\n• Large cylindrical vessel\n• Reusable household container\n• Capacity and food-contact use must be verified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/8a6706f0-8d29-4699-a7d0-d0ea61b7b9a1.png",
+     "altText": "Large Reusable Water Storage Canister - Blue",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-019",
+   "name": "Small Plastic Storage Container Set - 3 Pieces",
+   "slug": "small-plastic-storage-container-set-3-pieces",
+   "category": "home",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Set of 3 · 3 pieces",
+   "description": "Three small lidded plastic containers for organizing household or kitchen items. Confirm capacity, lid closure and food-contact rating before sale.\n\n• Three containers\n• Fitted lids\n• Colours may vary only if actual stock varies",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/e7059348-0938-47c5-8690-08448200b799.png",
+     "altText": "Small Plastic Storage Container Set - 3 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-HK-035",
+   "name": "Long Bottle and Jar Cleaning Brush",
+   "slug": "long-bottle-and-jar-cleaning-brush",
+   "category": "home",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Brush · 1 piece",
+   "description": "Long-handled brush for cleaning suitable bottles and jars. Check brush dimensions against the containers you sell for.\n\n• Long narrow brush head\n• Handle grip\n• Rinse and air dry",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/37eaff05-a16c-488a-8895-dea9f198b7b4.png",
+     "altText": "Long Bottle and Jar Cleaning Brush",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-003",
+   "name": "Plastic Kitchen Strainer Set - 2 Sizes",
+   "slug": "plastic-kitchen-strainer-set-2-sizes",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Set of 2 · 2 pieces",
+   "description": "Two practical handled plastic strainers for rinsing produce and draining everyday ingredients.\n\n• Two sizes\n• Handled design\n• Rinse after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b1d3f5b6-1f11-4c1c-abb4-af725f204273.png",
+     "altText": "Plastic Kitchen Strainer Set - 2 Sizes",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-005",
+   "name": "Fine Mesh Tea Strainer with Handle",
+   "slug": "fine-mesh-tea-strainer-with-handle",
+   "category": "kitchen",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Strainer · 1 piece",
+   "description": "Fine-mesh tea strainer for filtering brewed tea into a cup or small serving vessel.\n\n• Fine mesh\n• Handled format\n• Rinse and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/7f44b9a1-6352-4213-bc86-3d8a2f7e23e0.png",
+     "altText": "Fine Mesh Tea Strainer with Handle",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-008",
+   "name": "Stainless Steel Scrubber Pack - 3 Pieces",
+   "slug": "stainless-steel-scrubber-pack-3-pieces",
+   "category": "kitchen",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "Pack of 3 · 3 pieces",
+   "description": "Three metal scrubber balls for cleaning durable cookware and utensils.\n\n• Pack of three\n• Compact storage\n• Avoid delicate/non-stick surfaces",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/fdf94797-a5c0-4754-8857-9dfe574c18a6.png",
+     "altText": "Stainless Steel Scrubber Pack - 3 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-013",
+   "name": "Stainless Steel Kitchen Canister Set - 3 Pieces",
+   "slug": "stainless-steel-kitchen-canister-set-3-pieces",
+   "category": "kitchen",
+   "price": 30000,
+   "mrp": 30000,
+   "shortDescription": "Set of 3 · 3 pieces",
+   "description": "Three everyday stainless steel canisters for storing dry kitchen ingredients. Confirm capacity and steel grade from the actual product before listing.\n\n• Three canisters\n• Fitted lids\n• For dry ingredient storage",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/036bbcd6-02f8-4c64-8f29-52e057b03a6c.png",
+     "altText": "Stainless Steel Kitchen Canister Set - 3 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-014",
+   "name": "Stainless Steel Kitchen Utensil Set - 5 Pieces",
+   "slug": "stainless-steel-kitchen-utensil-set-5-pieces",
+   "category": "kitchen",
+   "price": 30000,
+   "mrp": 30000,
+   "shortDescription": "Set of 5 · 5 pieces",
+   "description": "Everyday kitchen serving and cooking utensil set for routine meal preparation. Confirm exact pieces, handle material and steel grade before listing.\n\n• Five-piece assortment (verify actual pieces)\n• For cooking and serving\n• Wash and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/9b9a0c72-7e44-4f41-99db-16910664445d.png",
+     "altText": "Stainless Steel Kitchen Utensil Set - 5 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-016",
+   "name": "Round Plastic Kitchen Basket with Lid",
+   "slug": "round-plastic-kitchen-basket-with-lid",
+   "category": "kitchen",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Basket · 1 piece",
+   "description": "Round lidded kitchen basket for keeping small food items or household essentials together. Confirm whether the real item is food-safe and its exact use before listing.\n\n• Round basket with fitted cover\n• Lightweight storage\n• Confirm food-contact suitability",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/956ada96-ac99-4ddf-a2f8-479291cdbc9b.png",
+     "altText": "Round Plastic Kitchen Basket with Lid",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-024",
+   "name": "Countertop Stainless Steel Dish Drying Rack",
+   "slug": "countertop-stainless-steel-dish-drying-rack",
+   "category": "kitchen",
+   "price": 30000,
+   "mrp": 30000,
+   "shortDescription": "1 Rack · 1 piece",
+   "description": "Countertop rack for air-drying washed plates and utensils. Confirm dimensions, tray and included accessories.\n\n• Countertop format\n• Plate and utensil storage\n• Check dimensions before purchase",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/38c50d18-678a-46a4-bfe7-3eb75d3bf7ca.png",
+     "altText": "Countertop Stainless Steel Dish Drying Rack",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-025",
+   "name": "Plastic Cutting Board - Turquoise",
+   "slug": "plastic-cutting-board-turquoise",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Board · 1 piece",
+   "description": "Compact plastic cutting board for routine food preparation. Wash before use and replace if deeply scored. Confirm exact dimensions and food-contact suitability.\n\n• Integrated hanging handle\n• Compact rectangular shape\n• Wash before first use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/e0efbec5-76a9-45ba-b6c9-eabeaf940aba.png",
+     "altText": "Plastic Cutting Board - Turquoise",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-027",
+   "name": "Everyday Kitchen Scissors - Pink Handle",
+   "slug": "everyday-kitchen-scissors-pink-handle",
+   "category": "kitchen",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Scissor · 1 piece",
+   "description": "Multipurpose household scissors for light kitchen and home tasks. Confirm blade material and intended food-contact use before selling as kitchen scissors.\n\n• Pink grip handles\n• Stainless blade appearance (verify grade)\n• Keep away from children",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/abfc61ba-fca7-497a-ab42-7c0c941d0827.png",
+     "altText": "Everyday Kitchen Scissors - Pink Handle",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-028",
+   "name": "Stainless Steel Kitchen Serving Tongs",
+   "slug": "stainless-steel-kitchen-serving-tongs",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Tong · 1 piece",
+   "description": "Single kitchen tong for serving or handling food. Confirm grip material and heat-use guidance from the product label.\n\n• Scissor-style grip\n• For serving and handling\n• Material/temperature rating not verified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/46221846-a191-4097-8460-e4b5dd729e1a.png",
+     "altText": "Stainless Steel Kitchen Serving Tongs",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-029",
+   "name": "Stainless Steel Wire Skimmer Spoon",
+   "slug": "stainless-steel-wire-skimmer-spoon",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Skimmer · 1 piece",
+   "description": "Round wire skimmer spoon for lifting or draining foods while cooking. Confirm wire construction and handle material before listing.\n\n• Round wire basket\n• Long handle\n• Rinse and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/0ae341b9-fd87-4544-ac51-c22f93da4c75.png",
+     "altText": "Stainless Steel Wire Skimmer Spoon",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-030",
+   "name": "Four-Sided Stainless Steel Kitchen Grater",
+   "slug": "four-sided-stainless-steel-kitchen-grater",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Grater · 1 piece",
+   "description": "Four-sided hand grater for common kitchen preparation tasks. Use carefully and confirm steel grade and dimensions.\n\n• Multiple grating surfaces\n• Stable box shape\n• Hand wash and dry",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/83e2d71e-b4ea-4016-98f2-a4f7c296bb06.png",
+     "altText": "Four-Sided Stainless Steel Kitchen Grater",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-031",
+   "name": "Handheld Vegetable Peeler - Green Grip",
+   "slug": "handheld-vegetable-peeler-green-grip",
+   "category": "kitchen",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Peeler · 1 piece",
+   "description": "Handheld peeler for removing thin outer skins from suitable fruits and vegetables. Handle carefully and store safely.\n\n• Compact handheld tool\n• Horizontal blade\n• Wash and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/a74252a4-6896-43bc-93e1-c775ebecc145.png",
+     "altText": "Handheld Vegetable Peeler - Green Grip",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-032",
+   "name": "Manual Stainless Steel Potato Masher",
+   "slug": "manual-stainless-steel-potato-masher",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Masher · 1 piece",
+   "description": "Manual masher for soft cooked vegetables. Confirm actual construction and handle material.\n\n• Manual press design\n• For soft cooked foods\n• Wash and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/ee3c44bf-02f8-44c6-8ceb-7a128fb9242d.png",
+     "altText": "Manual Stainless Steel Potato Masher",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-033",
+   "name": "Manual Gas Stove Lighter",
+   "slug": "manual-gas-stove-lighter",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Lighter · 1 piece",
+   "description": "Manual spark lighter for gas stoves. Keep away from children and follow the device instructions. Confirm compatibility and safety certification before sale.\n\n• Manual ignition tool\n• For compatible gas stoves\n• Follow product instructions",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/d112e1d5-0d9a-415b-9cb2-b510fca062d6.png",
+     "altText": "Manual Gas Stove Lighter",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-034",
+   "name": "Stainless Steel Balloon Hand Whisk",
+   "slug": "stainless-steel-balloon-hand-whisk",
+   "category": "kitchen",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Whisk · 1 piece",
+   "description": "Small manual whisk for mixing or beating ingredients by hand. Confirm size and steel grade.\n\n• Manual balloon whisk\n• Easy to store\n• Wash and dry after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/bdb78891-c421-4d00-a3c4-e15d165ba4aa.png",
+     "altText": "Stainless Steel Balloon Hand Whisk",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-KT-036",
+   "name": "Manual Stainless Steel Garlic Press",
+   "slug": "manual-stainless-steel-garlic-press",
+   "category": "kitchen",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Press · 1 piece",
+   "description": "Hinged manual press for crushing garlic cloves. Confirm material and care instructions.\n\n• Hinged press mechanism\n• Compact kitchen tool\n• Clean after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/05088f75-e27f-4fea-8697-b6c218c75ed5.png",
+     "altText": "Manual Stainless Steel Garlic Press",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-001",
+   "name": "Ruled School Notebook Pack - 3 Books",
+   "slug": "ruled-school-notebook-pack-3-books",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Pack of 3 · 3 pieces",
+   "description": "Three soft-cover ruled notebooks for school, study or everyday notes. Confirm page count, size and ruling before listing.\n\n• Three notebooks\n• Ruled pages\n• Cover designs may vary only if actual stock varies",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/9669bb47-4ee5-4a61-ac7b-050ecb45db89.png",
+     "altText": "Ruled School Notebook Pack - 3 Books",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-002",
+   "name": "Blue Ballpoint Pen Pack - 10 Pens",
+   "slug": "blue-ballpoint-pen-pack-10-pens",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Pack of 10 · 10 pieces",
+   "description": "Pack of blue-ink ballpoint pens for school, office and everyday writing. Confirm tip size and ink colour from stock.\n\n• Blue ink (verify)\n• Ballpoint format\n• Pack of ten",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b21d074d-7199-4167-8ffb-d2a7e4ff2783.png",
+     "altText": "Blue Ballpoint Pen Pack - 10 Pens",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-003",
+   "name": "HB Graphite Pencil Pack - 10 Pencils",
+   "slug": "hb-graphite-pencil-pack-10-pencils",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Pack of 10 · 10 pieces",
+   "description": "HB graphite pencils for writing, drawing and school work. Confirm grade and eraser quality on actual stock.\n\n• HB grade (verify)\n• Sharpened wood pencils\n• Pack of ten",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/a9b00483-83d9-4e86-be48-6ba8bb8b0c29.png",
+     "altText": "HB Graphite Pencil Pack - 10 Pencils",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-004",
+   "name": "Mechanical Pencil Starter Kit",
+   "slug": "mechanical-pencil-starter-kit",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Kit · 1 kit",
+   "description": "Mechanical pencil starter kit for writing and note-taking. Check included pencils, lead size and refill quantity.\n\n• Mechanical pencil(s)\n• Graphite leads included only if confirmed\n• Lead size to be verified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/382b6d5d-13e4-4f4c-ba48-15a00b4b6654.png",
+     "altText": "Mechanical Pencil Starter Kit",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-005",
+   "name": "Colour Pencil Set - 12 Colours",
+   "slug": "colour-pencil-set-12-colours",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Set of 12 · 12 pieces",
+   "description": "Twelve-colour pencil set for colouring, school projects and drawing. Confirm pigment, wood and pack count.\n\n• Twelve colours\n• Sharpenable pencils\n• For drawing and colouring",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/5dfe89e5-120f-4568-985d-d508b9ec20e7.png",
+     "altText": "Colour Pencil Set - 12 Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-006",
+   "name": "Student Geometry Set - Basic 5 Piece",
+   "slug": "student-geometry-set-basic-5-piece",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Set of 5 · 5 pieces",
+   "description": "Basic geometry tools for school mathematics and drawing. Confirm the set contents and measurement markings.\n\n• Compass and ruler-style tools\n• For school geometry\n• Exact pieces to be confirmed",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/e8af0d4c-ce23-43c9-87ff-f82c980445e1.png",
+     "altText": "Student Geometry Set - Basic 5 Piece",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-007",
+   "name": "Washable Sketch Marker Set - 4 Colours",
+   "slug": "washable-sketch-marker-set-4-colours",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Set of 4 · 4 pieces",
+   "description": "Four broad-tip sketch markers for school projects and drawing. Verify washability and age guidance on the product packaging.\n\n• Four marker colours\n• Broad-tip style\n• Washability not claimed until confirmed",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/94f7dfa8-20f8-4f53-a1eb-898bf0022ed0.png",
+     "altText": "Washable Sketch Marker Set - 4 Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-008",
+   "name": "Chisel Tip Highlighter Set - 2 Colours",
+   "slug": "chisel-tip-highlighter-set-2-colours",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Set of 2 · 2 pieces",
+   "description": "Two chisel-tip highlighters for emphasizing notes and documents. Confirm colours and ink type.\n\n• Chisel tip\n• Two-piece set\n• Cap after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/ff7cd9af-1591-4306-836f-a140a569f3aa.png",
+     "altText": "Chisel Tip Highlighter Set - 2 Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-009",
+   "name": "Glue Stick - 15 g",
+   "slug": "glue-stick-15-g",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Stick · 1 piece",
+   "description": "Twist-up glue stick for paper and light craft use. Follow packaging directions and verify net weight before listing.\n\n• 15 g net weight (verify)\n• Twist-up applicator\n• For paper/craft use per label",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/d1db71f9-eb07-49e4-bb49-8991e6b3c91d.png",
+     "altText": "Glue Stick - 15 g",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-010",
+   "name": "Fabric Pencil Pouch - Navy",
+   "slug": "fabric-pencil-pouch-navy",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Pouch · 1 piece",
+   "description": "Zippered fabric pouch for storing pens, pencils and small stationery items. Confirm dimensions and whether stationery is included.\n\n• Zipper closure\n• Reusable storage pouch\n• Pens shown for illustration only",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/d3e54cdd-eb14-42ee-859f-750f4bd71b54.png",
+     "altText": "Fabric Pencil Pouch - Navy",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-011",
+   "name": "Non-Dust Eraser Pack - 5 Pieces",
+   "slug": "non-dust-eraser-pack-5-pieces",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "Pack of 5 · 5 pieces",
+   "description": "Five erasers for removing graphite marks from paper. Confirm size, material and pack count.\n\n• Five erasers\n• For graphite marks\n• Keep away from young children",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/0fe32a22-c4d5-43f9-a079-6c52d3968633.png",
+     "altText": "Non-Dust Eraser Pack - 5 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-012",
+   "name": "Pencil Sharpener Set - 2 Pieces",
+   "slug": "pencil-sharpener-set-2-pieces",
+   "category": "stationery",
+   "price": 2000,
+   "mrp": 2000,
+   "shortDescription": "Set of 2 · 2 pieces",
+   "description": "Two compact pencil sharpeners with shavings containers. Confirm hole size and container design.\n\n• Two sharpeners\n• Compact format\n• Empty shavings after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/54d45b0b-7d58-4b94-b99e-5ed7f0f5908c.png",
+     "altText": "Pencil Sharpener Set - 2 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-013",
+   "name": "Transparent 30 cm Plastic Ruler",
+   "slug": "transparent-30-cm-plastic-ruler",
+   "category": "stationery",
+   "price": 2000,
+   "mrp": 2000,
+   "shortDescription": "1 Ruler · 1 piece",
+   "description": "Transparent metric ruler for school, drawing and everyday measurement. Confirm scale accuracy and markings.\n\n• 30 cm length (verify)\n• Metric markings\n• Transparent plastic body",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/e47981f2-75f6-4aad-8f4f-d1c9eef77f87.png",
+     "altText": "Transparent 30 cm Plastic Ruler",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-014",
+   "name": "Mini Desktop Stapler with Staples",
+   "slug": "mini-desktop-stapler-with-staples",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Set · 1 set",
+   "description": "Compact desktop stapler for joining small paper stacks. Confirm staple size and included staple count.\n\n• Desktop format\n• Staples included only if verified\n• Use compatible staple size",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/d4020c13-09a2-4b33-b6ba-322a2ffdebcb.png",
+     "altText": "Mini Desktop Stapler with Staples",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-015",
+   "name": "Multicolour Sticky Notes Pad Set",
+   "slug": "multicolour-sticky-notes-pad-set",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Set · 1 set",
+   "description": "Multicolour self-adhesive notes for reminders and page markers. Confirm sheet count, pad size and adhesive type.\n\n• Multiple colours\n• Self-adhesive paper notes\n• Sheet count to be verified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/98bb684c-9544-42c5-8399-a7cfc0835caa.png",
+     "altText": "Multicolour Sticky Notes Pad Set",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-016",
+   "name": "A4 Drawing Book - 40 Sheets",
+   "slug": "a4-drawing-book-40-sheets",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Book · 1 book",
+   "description": "A4 drawing book for sketching, colouring and school projects. Confirm sheet count, paper weight and binding.\n\n• A4 format (verify)\n• For drawing and colouring\n• Paper weight not specified",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/89c2eebe-35e2-4965-90f1-384e32034074.png",
+     "altText": "A4 Drawing Book - 40 Sheets",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-017",
+   "name": "Wax Crayon Set - 12 Colours",
+   "slug": "wax-crayon-set-12-colours",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Set of 12 · 12 pieces",
+   "description": "Twelve-colour wax crayon set for basic colouring and school activities. Confirm colour count and age guidance.\n\n• 12 colours\n• For colouring and school projects\n• Check packaging safety guidance",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/15cd29b9-4a4a-40fc-bcdb-d5fd4f2258bd.png",
+     "altText": "Wax Crayon Set - 12 Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-018",
+   "name": "Watercolour Paint Set - 12 Shades with Brush",
+   "slug": "watercolour-paint-set-12-shades-with-brush",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Set · 1 set",
+   "description": "Student watercolour set with twelve paint shades and a brush. Confirm included tray, brush and age/safety information.\n\n• 12 paint shades\n• Brush included only if verified\n• For paper painting activities",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/4f7b59f9-5dc6-48b9-9282-b14b7f96b7aa.png",
+     "altText": "Watercolour Paint Set - 12 Shades with Brush",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-019",
+   "name": "Hard Plastic Pencil Box - Teal",
+   "slug": "hard-plastic-pencil-box-teal",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Box · 1 piece",
+   "description": "Reusable hard-shell pencil box for storing pens, pencils and small school supplies. Confirm dimensions and latch style.\n\n• Rigid plastic shell\n• Snap closure\n• Stationery not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/6ec29754-16db-40b6-a248-ea2903b6abd6.png",
+     "altText": "Hard Plastic Pencil Box - Teal",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-020",
+   "name": "A4 Document Folder with Button Closure",
+   "slug": "a4-document-folder-with-button-closure",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Folder · 1 piece",
+   "description": "Translucent plastic folder for carrying and organizing A4 papers. Confirm closure type and paper capacity.\n\n• A4 paper format (verify)\n• Button closure\n• Documents not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/6d075faf-3966-4363-bdef-ab2980fa768d.png",
+     "altText": "A4 Document Folder with Button Closure",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-021",
+   "name": "A4 Mini Whiteboard Kit with Marker and Eraser",
+   "slug": "a4-mini-whiteboard-kit-with-marker-and-eraser",
+   "category": "stationery",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Kit · 1 kit",
+   "description": "Compact blank whiteboard for practice and quick notes, supplied with one marker and eraser only if confirmed in the actual pack.\n\n• A4-size format (verify)\n• Blank reusable surface\n• Marker and eraser inclusion to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/04039242-5edb-4905-8f37-63315028cbf5.png",
+     "altText": "A4 Mini Whiteboard Kit with Marker and Eraser",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-022",
+   "name": "Correction Tape Dispenser",
+   "slug": "correction-tape-dispenser",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Piece · 1 piece",
+   "description": "Handheld correction tape dispenser for covering small writing errors on paper. Confirm tape length and refill compatibility.\n\n• Compact dispenser\n• Dry correction tape format\n• Tape length/refillability to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/ee0b4198-08d4-4664-8ca7-d74b78402375.png",
+     "altText": "Correction Tape Dispenser",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-023",
+   "name": "Desktop Clear Tape Dispenser with Tape",
+   "slug": "desktop-clear-tape-dispenser-with-tape",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Set · 1 set",
+   "description": "Desktop dispenser with a roll of clear adhesive tape for paper and light office use. Confirm tape width and length.\n\n• Desktop dispenser\n• Clear tape included only if verified\n• Tape size to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/1bf3fd52-65c6-4858-a71a-5d62fee696c3.png",
+     "altText": "Desktop Clear Tape Dispenser with Tape",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-024",
+   "name": "Black Binder Clips - Assorted Sizes, 12 Pieces",
+   "slug": "black-binder-clips-assorted-sizes-12-pieces",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "Pack of 12 · 12 pieces",
+   "description": "Twelve metal foldback binder clips in assorted sizes for holding stacks of paper. Confirm size mix and count.\n\n• 12 clips\n• Foldback metal design\n• Assorted sizes to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/00cca437-7cd0-44bc-9bc8-f5895cb1b50e.png",
+     "altText": "Black Binder Clips - Assorted Sizes, 12 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-025",
+   "name": "Four-Compartment Desk Pen Stand",
+   "slug": "four-compartment-desk-pen-stand",
+   "category": "stationery",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "1 Stand · 1 piece",
+   "description": "Four-compartment desk organizer for pens, pencils and small stationery items. Confirm dimensions and material.\n\n• Four compartments\n• Desktop storage\n• Stationery not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/8f60f6cf-a4fb-426c-a64d-ad8d3e1b1c72.png",
+     "altText": "Four-Compartment Desk Pen Stand",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-026",
+   "name": "Single-Hole Manual Paper Punch",
+   "slug": "single-hole-manual-paper-punch",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Punch · 1 piece",
+   "description": "Compact manual punch for making a single hole in sheets. Confirm punch capacity and hole diameter.\n\n• Single-hole design\n• Hand-operated\n• Capacity and hole size to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/dcdc55b3-3c2c-4a06-b265-4acbd357d49a.png",
+     "altText": "Single-Hole Manual Paper Punch",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-027",
+   "name": "A4 Ring Binder File - Blue",
+   "slug": "a4-ring-binder-file-blue",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 File · 1 piece",
+   "description": "A4 ring binder file for organizing loose sheets. Confirm ring count, spine width and paper capacity.\n\n• A4 paper size (verify)\n• Ring binding\n• Papers not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/dce770f4-297c-48be-8737-a3ef01b2ee04.png",
+     "altText": "A4 Ring Binder File - Blue",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-028",
+   "name": "Blank Study Flash Cards - Pack of 50",
+   "slug": "blank-study-flash-cards-pack-of-50",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Pack of 50 · 50 pieces",
+   "description": "Blank study cards for handwritten revision notes, vocabulary or classroom activities. Confirm card size and paper thickness.\n\n• Blank writable cards\n• Pack of 50 (verify)\n• For study and revision",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/29604255-88d3-45c6-8709-cd94b62d3972.png",
+     "altText": "Blank Study Flash Cards - Pack of 50",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-029",
+   "name": "Plain A4 Document Envelopes - Pack of 10",
+   "slug": "plain-a4-document-envelopes-pack-of-10",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "Pack of 10 · 10 pieces",
+   "description": "Plain paper envelopes for carrying or storing A4 documents. Confirm whether the envelope fits unfolded A4 sheets and verify closure style.\n\n• Pack of ten\n• Plain white paper\n• Closure style to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/4bdf3d5d-0773-431e-b2e1-a5f06d170158.png",
+     "altText": "Plain A4 Document Envelopes - Pack of 10",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-030",
+   "name": "Permanent Marker Pack - Black and Blue",
+   "slug": "permanent-marker-pack-black-and-blue",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "Pack of 2 · 2 pieces",
+   "description": "Two permanent ink markers for labeling suitable surfaces. Check the package for ink type, ventilation guidance and compatible surfaces.\n\n• Two markers\n• Black and blue ink (verify)\n• Cap after use",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b287e08a-4975-4742-808f-8d2de0387b5b.png",
+     "altText": "Permanent Marker Pack - Black and Blue",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-031",
+   "name": "Basic 12-Digit Desktop Calculator",
+   "slug": "basic-12-digit-desktop-calculator",
+   "category": "stationery",
+   "price": 30000,
+   "mrp": 30000,
+   "shortDescription": "1 Calculator · 1 piece",
+   "description": "Compact desktop calculator for basic arithmetic at school, home or office. Confirm digit count, power source and functions.\n\n• 12-digit display (verify)\n• Basic arithmetic functions\n• Battery/solar details to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/1e684d0c-cd91-4342-b927-f2b53b6b785b.png",
+     "altText": "Basic 12-Digit Desktop Calculator",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-032",
+   "name": "A4 Copier Paper - 100 Sheets",
+   "slug": "a4-copier-paper-100-sheets",
+   "category": "stationery",
+   "price": 20000,
+   "mrp": 20000,
+   "shortDescription": "Pack of 100 · 100 sheets",
+   "description": "A4 white copier paper for printing, copying and everyday document use. Confirm GSM, whiteness and sheet count.\n\n• A4 size (verify)\n• 100 sheets (verify)\n• GSM not confirmed",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/5679c0b9-1ee9-40d2-9625-1be5b88ef9c5.png",
+     "altText": "A4 Copier Paper - 100 Sheets",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-033",
+   "name": "A4 Hardboard Clipboard with Metal Clip",
+   "slug": "a4-hardboard-clipboard-with-metal-clip",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "1 Clipboard · 1 piece",
+   "description": "A4 hardboard clipboard for writing on loose sheets while standing or working away from a desk. Confirm board dimensions.\n\n• A4 format (verify)\n• Spring metal clip\n• Paper not included",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/d2126422-2b97-41e6-a45c-09a5500bba77.png",
+     "altText": "A4 Hardboard Clipboard with Metal Clip",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-034",
+   "name": "Student Paint Brush Set - 6 Pieces",
+   "slug": "student-paint-brush-set-6-pieces",
+   "category": "stationery",
+   "price": 10000,
+   "mrp": 10000,
+   "shortDescription": "Set of 6 · 6 pieces",
+   "description": "Six assorted paint brushes for school art and craft activities. Confirm sizes, bristle type and handle material.\n\n• Six brushes\n• Assorted brush shapes\n• For water-based projects only if compatible",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/fceda0d7-c525-49d1-aa2c-7c0597d21367.png",
+     "altText": "Student Paint Brush Set - 6 Pieces",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-035",
+   "name": "Origami Craft Paper Pack - Assorted Colours",
+   "slug": "origami-craft-paper-pack-assorted-colours",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Pack · 1 pack",
+   "description": "Assorted coloured craft paper for folding, school projects and paper crafts. Confirm sheet count, dimensions and GSM.\n\n• Assorted colours\n• For folding and crafts\n• Count and GSM to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/a1b5d843-dda1-464f-8ff9-9adceb5c8de8.png",
+     "altText": "Origami Craft Paper Pack - Assorted Colours",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-036",
+   "name": "0.5 mm Mechanical Pencil Lead Refills",
+   "slug": "0-5-mm-mechanical-pencil-lead-refills",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "3 Tubes · 3 tubes",
+   "description": "Replacement 0.5 mm graphite leads for compatible mechanical pencils. Confirm lead grade and tube count.\n\n• 0.5 mm diameter (verify)\n• Graphite lead\n• Check pencil compatibility",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b81fa6e2-8b9a-4f5f-87a3-323c8fa461a1.png",
+     "altText": "0.5 mm Mechanical Pencil Lead Refills",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-037",
+   "name": "Blank Adhesive Label Sticker Sheets",
+   "slug": "blank-adhesive-label-sticker-sheets",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "Pack of 3 Sheets · 3 sheets",
+   "description": "Blank adhesive labels for organizing files, boxes and household items. Confirm sheet dimensions and label count.\n\n• Blank writable labels\n• Adhesive backing\n• Sheet count and size to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/2788c8e5-ac61-4bec-abe0-ddf0155fd9e5.png",
+     "altText": "Blank Adhesive Label Sticker Sheets",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-038",
+   "name": "Retractable Paper Cutter - Teal",
+   "slug": "retractable-paper-cutter-teal",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Cutter · 1 piece",
+   "description": "Retractable utility cutter for paper and light craft materials. Keep blade retracted when stored and away from children.\n\n• Retractable blade\n• Teal handle\n• Use with care",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/b833602d-0b78-4cd1-9942-49a56c42872c.png",
+     "altText": "Retractable Paper Cutter - Teal",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-039",
+   "name": "Manual Staple Remover",
+   "slug": "manual-staple-remover",
+   "category": "stationery",
+   "price": 6000,
+   "mrp": 6000,
+   "shortDescription": "1 Tool · 1 piece",
+   "description": "Small manual staple remover for removing standard office staples from paper. Confirm staple compatibility.\n\n• Handheld tool\n• For standard staples (verify)\n• Keep away from children",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/c865c3fa-5a3a-4963-bdc3-7bd26e567d65.png",
+     "altText": "Manual Staple Remover",
+     "isPrimary": true
+    }
+   ]
+  },
+  {
+   "sku": "20M-ST-040",
+   "name": "Assorted Rubber Bands - Small Pack",
+   "slug": "assorted-rubber-bands-small-pack",
+   "category": "stationery",
+   "price": 4000,
+   "mrp": 4000,
+   "shortDescription": "1 Pack · 1 pack",
+   "description": "Assorted rubber bands for bundling papers and lightweight household items. Confirm band count, size and material.\n\n• Assorted elastic bands\n• For light bundling\n• Pack count to verify",
+   "images": [
+    {
+     "url": "https://wvsolkb0ywkas9ss.public.blob.vercel-storage.com/products/2026/11/dc264353-018a-4451-bb98-024434e44ed7.png",
+     "altText": "Assorted Rubber Bands - Small Pack",
+     "isPrimary": true
+    }
+   ]
+  }
+ ]
+}

@@ -13,7 +13,8 @@
     "db:status": "prisma migrate status",
     "db:seed": "tsx ./src/seed.ts",
     "type-check": "tsc --noEmit",
-    "db:seed:dev-delivery": "tsx ./src/seed-dev-delivery.ts"
+    "db:seed:dev-delivery": "tsx ./src/seed-dev-delivery.ts",
+    "db:seed:dev-live": "tsx ./src/seed-dev-live-catalog.ts"
   },
   "dependencies": {
     "@20mart/shared": "workspace:*",

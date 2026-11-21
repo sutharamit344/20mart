@@ -3,11 +3,28 @@
  *   pnpm db:seed
  *
  * Seeds: permissions, system roles + role→permission mappings, initial
- * categories and price points. It never deletes data and never creates admin
- * accounts (use `pnpm admin:bootstrap` for the first SUPER_ADMIN).
+ * categories, price points and the real product catalogue (seed-catalog.json).
+ * The only data it removes is the old placeholder demo products (by SKU). It
+ * never creates admin accounts (use `pnpm admin:bootstrap` for the first SUPER_ADMIN).
  */
 import { PrismaClient } from '@prisma/client';
 import { PERMISSIONS, RETIRED_PERMISSIONS, ROLE_DEFINITIONS, ROLE_KEYS, SUPER_ADMIN_ROLE, type PermissionKey } from '@20mart/shared';
+import catalog from './seed-catalog.json';
+
+type SeedProduct = {
+  sku: string;
+  name: string;
+  slug: string;
+  category: string;
+  price: number;
+  mrp: number;
+  featured?: boolean;
+  shortDescription?: string;
+  description?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  images: { url: string; altText?: string; isPrimary?: boolean; width?: number; height?: number }[];
+};
 
 const prisma = new PrismaClient();
 
@@ -18,24 +35,35 @@ const INITIAL_CATEGORIES = [
   { name: 'Daily Use', slug: 'daily-use', description: 'Small daily-use items you reach for every day.' },
 ];
 
-const INITIAL_PRICE_POINTS = [2000, 4000, 6000, 10000];
+const INITIAL_PRICE_POINTS = [2000, 4000, 6000, 10000, 20000, 30000];
 
-// Draft examples give the admin catalog something to work with after setup.
-// They intentionally have no stock or images and are not visible to customers.
-const INITIAL_PRODUCTS = [
-  { name: 'Cotton Kitchen Towel Set', slug: 'cotton-kitchen-towel-set', sku: '20M-KIT-001', category: 'kitchen', price: 10000, mrp: 12900, shortDescription: 'Absorbent everyday cotton towels for kitchen cleanup.', description: 'A practical set of reusable cotton kitchen towels for drying dishes and keeping counters clean.' },
-  { name: 'Reusable Storage Clips', slug: 'reusable-storage-clips', sku: '20M-KIT-002', category: 'kitchen', price: 4000, mrp: 4900, shortDescription: 'Keep opened food packets neatly sealed.', description: 'Reusable clips for sealing snack, pantry and freezer packets between uses.' },
-  { name: 'Measuring Spoon Set', slug: 'measuring-spoon-set', sku: '20M-KIT-003', category: 'kitchen', price: 6000, mrp: 7900, shortDescription: 'A compact set for everyday cooking and baking.', description: 'Easy-to-store measuring spoons for portioning common dry and liquid ingredients.' },
-  { name: 'Drawer Organizer Tray', slug: 'drawer-organizer-tray', sku: '20M-HOM-001', category: 'home', price: 10000, mrp: 14900, shortDescription: 'Keep small household essentials sorted.', description: 'A versatile organizer tray for desk drawers, bedside tables and household storage.' },
-  { name: 'Microfiber Cleaning Cloths', slug: 'microfiber-cleaning-cloths', sku: '20M-HOM-002', category: 'home', price: 6000, mrp: 8900, shortDescription: 'Reusable cloths for everyday surface cleaning.', description: 'Soft reusable microfiber cloths for dusting and wiping common household surfaces.' },
-  { name: 'Cable Organizer Clips', slug: 'cable-organizer-clips', sku: '20M-HOM-003', category: 'home', price: 4000, mrp: 5900, shortDescription: 'Keep charging and desk cables within reach.', description: 'Compact clips that help route charging cables and reduce desk clutter.' },
-  { name: 'Ruled Pocket Notebook', slug: 'ruled-pocket-notebook', sku: '20M-STA-001', category: 'stationery', price: 2000, mrp: 2900, shortDescription: 'A handy notebook for quick notes on the go.', description: 'A compact ruled notebook for lists, reminders and everyday note-taking.' },
-  { name: 'Smooth Ballpoint Pen Pack', slug: 'smooth-ballpoint-pen-pack', sku: '20M-STA-002', category: 'stationery', price: 4000, mrp: 5900, shortDescription: 'Reliable pens for school, work and home.', description: 'A convenient pack of smooth-writing ballpoint pens for daily use.' },
-  { name: 'Sticky Note Pad Set', slug: 'sticky-note-pad-set', sku: '20M-STA-003', category: 'stationery', price: 6000, mrp: 7900, shortDescription: 'Colorful reminders for desks and notebooks.', description: 'Self-adhesive note pads for reminders, bookmarks and quick messages.' },
-  { name: 'Reusable Shopping Bag', slug: 'reusable-shopping-bag', sku: '20M-DLY-001', category: 'daily-use', price: 4000, mrp: 5900, shortDescription: 'A reusable carry bag for everyday errands.', description: 'A lightweight reusable bag for groceries, small shopping trips and daily carry.' },
-  { name: 'Travel Toothbrush Case', slug: 'travel-toothbrush-case', sku: '20M-DLY-002', category: 'daily-use', price: 2000, mrp: 2900, shortDescription: 'Keep a toothbrush protected while travelling.', description: 'A simple travel case for storing a toothbrush in a bag or luggage.' },
-  { name: 'Compact Sewing Kit', slug: 'compact-sewing-kit', sku: '20M-DLY-003', category: 'daily-use', price: 6000, mrp: 8900, shortDescription: 'Basic mending supplies in a compact kit.', description: 'A small household sewing kit for quick clothing repairs and simple mending.' },
+// The real 20Mart catalogue, pulled from the live storefront (see seed-catalog.json "pulledAt").
+// Published with their live image URLs; no stock rows (stock is recorded per warehouse).
+const INITIAL_PRODUCTS: SeedProduct[] = catalog.products;
+
+// SKUs of the placeholder products earlier versions of this seed created. Removed
+// (or archived, if something already references them) so only the real catalogue remains.
+const RETIRED_DEMO_SKUS = [
+  '20M-KIT-001', '20M-KIT-002', '20M-KIT-003', '20M-HOM-001', '20M-HOM-002', '20M-HOM-003',
+  '20M-STA-001', '20M-STA-002', '20M-STA-003', '20M-DLY-001', '20M-DLY-002', '20M-DLY-003',
 ];
+
+async function removeDemoProducts() {
+  const demo = await prisma.product.findMany({ where: { sku: { in: RETIRED_DEMO_SKUS } }, select: { id: true, sku: true } });
+  let deleted = 0;
+  let archived = 0;
+  for (const p of demo) {
+    try {
+      await prisma.product.delete({ where: { id: p.id } });
+      deleted++;
+    } catch {
+      // Referenced by an order/cart/wishlist row: keep the history, hide the product.
+      await prisma.product.update({ where: { id: p.id }, data: { status: 'ARCHIVED', isFeatured: false } });
+      archived++;
+    }
+  }
+  if (demo.length) console.log(`Demo products: deleted=${deleted} archived=${archived}`);
+}
 
 async function seedPermissions() {
   const newlyCreated = new Set<string>();
@@ -174,11 +202,24 @@ async function seedCatalog() {
         shortDescription: product.shortDescription,
         description: product.description,
         categoryId: categoryIdBySlug.get(product.category)!,
-        pricePointId: pricePointIdByAmount.get(product.price)!,
+        pricePointId: pricePointIdByAmount.get(product.price) ?? null,
         sellingPricePaise: product.price,
         mrpPaise: product.mrp,
-        status: 'DRAFT',
-        seoTitle: `${product.name} | 20Mart`,
+        status: 'ACTIVE',
+        isFeatured: product.featured ?? false,
+        publishedAt: new Date(),
+        seoTitle: product.seoTitle ?? `${product.name} | 20Mart`,
+        seoDescription: product.seoDescription ?? null,
+        images: {
+          create: product.images.map((img, i) => ({
+            url: img.url,
+            altText: img.altText ?? product.name,
+            isPrimary: img.isPrimary ?? i === 0,
+            sortOrder: i,
+            width: img.width ?? null,
+            height: img.height ?? null,
+          })),
+        },
       },
       select: { id: true },
     });
@@ -192,6 +233,7 @@ async function main() {
   const newPerms = await seedPermissions();
   await seedRoles(newPerms);
   await retirePermissions();
+  await removeDemoProducts();
   await seedCatalog();
   await seedStarterCoupons();
   const [perms, roles, cats, pps, products] = await Promise.all([
