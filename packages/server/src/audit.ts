@@ -21,7 +21,8 @@ export type AuditCategory =
   | 'NOTIFICATION'
   | 'DELIVERY'
   | 'WAREHOUSE'
-  | 'PROCUREMENT';
+  | 'PROCUREMENT'
+  | 'ANALYTICS';
 
 export async function audit(
   tx: Tx,

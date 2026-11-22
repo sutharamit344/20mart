@@ -5,3 +5,4 @@ export * from './abandonment';
 export * from './schedule';
 export * from './demand';
 export * from './product-daily';
+export * from './product-demand';
