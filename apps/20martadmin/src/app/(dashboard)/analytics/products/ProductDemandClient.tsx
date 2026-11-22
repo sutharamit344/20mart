@@ -148,7 +148,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-left text-xs text-gray-600" aria-busy={loading}>
+          <table className="w-full text-left text-xs text-gray-600 sm:min-w-[680px]" aria-busy={loading}>
             <thead className="border-b border-gray-100 bg-gray-50/80 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="w-8 px-3 py-2">
@@ -159,7 +159,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
                 <SortTh k="unitsSold" label="Units" sort={sort} dir={dir} onSort={toggleSort} hint={DEF.units} />
                 <SortTh k="revenue" label="Revenue" sort={sort} dir={dir} onSort={toggleSort} hint={DEF.revenue} />
                 <SortTh k="estLostRevenue" label="Est. lost" sort={sort} dir={dir} onSort={toggleSort} hint={DEF.estLost} estimate />
-                <SortTh k="outOfStockUnits" label="OOS attempts" sort={sort} dir={dir} onSort={toggleSort} hint={`${DEF.oos} Sorted by units refused.`} estimate />
+                <SortTh k="outOfStockUnits" label="OOS" sort={sort} dir={dir} onSort={toggleSort} hint={`Out-of-stock attempts. ${DEF.oos} Sorted by units refused.`} estimate />
                 <SortTh k="availability" label="Availability" sort={sort} dir={dir} onSort={toggleSort} hint={DEF.availability} />
               </tr>
             </thead>
@@ -196,7 +196,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
 function Kpis({ data }: { data: ListResponse }) {
   const t = data.totals;
   return (
-    <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 xl:grid-cols-3">
       <MetricGroup title="Actual sales" tone="green" note="From orders. Cancelled, failed and unpaid online orders excluded.">
         <Metric label="Orders" value={num(t.actual.orders)} hint={DEF.orders} tone="green" />
         <Metric label="Units sold" value={num(t.actual.unitsSold)} hint={DEF.units} tone="green" />
@@ -204,7 +204,7 @@ function Kpis({ data }: { data: ListResponse }) {
       </MetricGroup>
       <MetricGroup title="Estimated lost demand (not revenue)" tone="amber" note="Never added to revenue. — = not tracked in this range.">
         <Metric label="Est. lost revenue" value={inr(t.estimated.lostRevenuePaise)} hint={DEF.estLost} tone="amber" />
-        <Metric label="OOS attempts" value={num(t.estimated.outOfStockAttempts)} hint={DEF.oos} tone="amber" />
+        <Metric label="OOS" value={num(t.estimated.outOfStockAttempts)} hint={DEF.oos} tone="amber" />
         <Metric label="Units refused" value={num(t.estimated.outOfStockUnits)} tone="amber" />
       </MetricGroup>
       <MetricGroup title="Availability" tone="neutral" note={`${data.total.toLocaleString('en-IN')} product(s) matching the filters.`}>
@@ -223,7 +223,7 @@ function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: str
       <td className="px-3 py-2">
         <input type="checkbox" checked={checked} disabled={disabled} onChange={onToggle} aria-label={`Select ${s.name} for comparison`} className="h-3.5 w-3.5 accent-[#0B5D3B]" />
       </td>
-      <td className="max-w-[280px] px-3 py-2">
+      <td className="max-w-[200px] px-3 py-2 xl:max-w-[280px]">
         <Link href={`${BASE}/${s.productId}${range ? `?${range}` : ''}`} className="block truncate font-bold text-gray-900 hover:text-[#0B5D3B] hover:underline">
           {s.name}
         </Link>
@@ -233,16 +233,23 @@ function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: str
           {s.status !== 'ACTIVE' && <StatusBadge status={s.status} />}
           {s.eventCoverage !== 'FULL' && <CoverageBadge value={s.eventCoverage} title={`Event coverage for this product: ${s.eventCoverage}. ${DEF.coverage}`} />}
         </p>
+        {/* Phones: key figures inline (the full columns appear from 640px). */}
+        <p className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] tabular-nums text-gray-500 sm:hidden">
+          <span>{num(s.actual.unitsSold)} units</span>
+          <span className="font-bold text-[#0B5D3B]">{inr(s.actual.revenuePaise)}</span>
+          <span className="text-amber-700">est. lost {inr(s.estimated.lostRevenuePaise)}</span>
+          <span className={a.availabilityPct !== null && a.availabilityPct < 90 ? 'font-bold text-red-600' : ''}>avail. {pct(a.availabilityPct)}</span>
+        </p>
       </td>
-      <td className="px-3 py-2 text-right tabular-nums">{num(s.actual.orders)}</td>
-      <td className="px-3 py-2 text-right tabular-nums">{num(s.actual.unitsSold)}</td>
-      <td className="px-3 py-2 text-right font-bold tabular-nums text-[#0B5D3B]">{inr(s.actual.revenuePaise)}</td>
-      <td className="px-3 py-2 text-right tabular-nums text-amber-700">{inr(s.estimated.lostRevenuePaise)}</td>
-      <td className="px-3 py-2 text-right tabular-nums text-amber-700">
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.orders)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.unitsSold)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell font-bold tabular-nums text-[#0B5D3B]">{inr(s.actual.revenuePaise)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">{inr(s.estimated.lostRevenuePaise)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">
         {num(s.estimated.outOfStockAttempts)}
         {s.estimated.outOfStockUnits ? <span className="block text-[10px] text-gray-400">{s.estimated.outOfStockUnits} units</span> : null}
       </td>
-      <td className="px-3 py-2 text-right">
+      <td className="hidden px-2 py-2 text-right sm:table-cell">
         <span className={`font-bold tabular-nums ${a.availabilityPct !== null && a.availabilityPct < 90 ? 'text-red-600' : 'text-gray-800'}`}>{pct(a.availabilityPct)}</span>
         <span className="mt-0.5 flex justify-end gap-1">
           {a.unstockedDays === s.daysWithData && s.daysWithData > 0 ? (
@@ -261,7 +268,7 @@ function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: str
 function SortTh({ k, label, sort, dir, onSort, hint, estimate, className = 'text-right' }: { k: string; label: string; sort: string; dir: string; onSort: (k: string) => void; hint?: string; estimate?: boolean; className?: string }) {
   const active = sort === k;
   return (
-    <th className={`whitespace-nowrap px-3 py-2 ${className}`} aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+    <th className={`whitespace-nowrap py-2 ${k === 'name' ? 'px-3' : 'hidden px-2 sm:table-cell'} ${className}`} aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
       <span className={`inline-flex items-center gap-1 ${estimate ? 'text-amber-700' : ''}`}>
         <button type="button" onClick={() => onSort(k)} className={`inline-flex items-center gap-0.5 uppercase hover:text-gray-900 ${active ? 'text-gray-900' : ''}`}>
           {label}

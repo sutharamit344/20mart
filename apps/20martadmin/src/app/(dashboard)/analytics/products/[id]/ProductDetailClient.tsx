@@ -149,11 +149,10 @@ export function ProductDetailClient({ id, maxDay }: { id: string; maxDay: string
         </MetricGroup>
       </div>
 
-      <Panel
-        title="Daily trend"
-        actions={<Segmented label="Daily metric" value={trend} onChange={setTrend} options={TRENDS.map((t) => ({ value: t.value, label: t.label }))} />}
-        bodyClassName="p-3"
-      >
+      <Panel title="Daily trend" bodyClassName="p-3">
+        <div className="mb-2">
+          <Segmented label="Daily metric" value={trend} onChange={setTrend} options={TRENDS.map((t) => ({ value: t.value, label: t.label }))} />
+        </div>
         <ColumnChart
           key={trend}
           ariaLabel={`${TRENDS.find((t) => t.value === trend)!.label} per day`}

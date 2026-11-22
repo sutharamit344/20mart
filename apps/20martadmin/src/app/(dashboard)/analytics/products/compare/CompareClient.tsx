@@ -186,7 +186,10 @@ export function CompareClient({ maxDay }: { maxDay: string }) {
             </div>
           </Panel>
 
-          <Panel title="Daily trend (same scale)" actions={<Segmented label="Compared metric" value={metric} onChange={setMetric} options={SERIES.map((s) => ({ value: s.value, label: s.label }))} />} bodyClassName="p-3">
+          <Panel title="Daily trend (same scale)" bodyClassName="p-3">
+            <div className="mb-2">
+              <Segmented label="Compared metric" value={metric} onChange={setMetric} options={SERIES.map((s) => ({ value: s.value, label: s.label }))} />
+            </div>
             {m.estimate && <p className="mb-2 text-[10px] font-semibold text-amber-700">Estimate, not revenue. Untracked days show as no data.</p>}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {products.map((p) => (
