@@ -1434,18 +1434,21 @@ model AnalyticsSession {
 
 /// Analytics configuration (singleton, id = "default"). Security/audit retention is NOT configured here.
 model AnalyticsSettings {
-  id                       String   @id @default("default")
+  id                       String    @id @default("default")
   /// Raw behavioural events and sessions are deleted after this many days.
-  behavioralRetentionDays  Int      @default(180)
+  behavioralRetentionDays  Int       @default(180)
   /// Raw operational events are deleted after this many days; identity is stripped after behavioralRetentionDays.
-  operationalRetentionDays Int      @default(365)
+  operationalRetentionDays Int       @default(365)
   /// A cart with items and no activity for this many hours counts as abandoned.
-  cartAbandonmentHours     Int      @default(24)
-  sessionIdleMinutes       Int      @default(30)
+  cartAbandonmentHours     Int       @default(24)
+  sessionIdleMinutes       Int       @default(30)
   /// Bump to ask every visitor for consent again (e.g. after the purposes change).
-  consentVersion           Int      @default(1)
+  consentVersion           Int       @default(1)
+  /// When event tracking actually started in this database (time of the first recorded event).
+  /// Set once by the daily aggregation; days before it have NO behavioural data (not zero demand).
+  trackingStartedAt        DateTime?
   updatedById              String?
-  updatedAt                DateTime @updatedAt
+  updatedAt                DateTime  @updatedAt
 }
 
 /// Bookkeeping for idempotent daily aggregation jobs (one row per job and IST day).
@@ -1461,4 +1464,92 @@ model AnalyticsJobRun {
 
   @@unique([job, day])
   @@index([status])
+}
+
+// ───────────────────── Analytics Phase C: daily product demand aggregates ─────────────────────
+
+/// How much event tracking covered a day: NONE (before tracking existed — no data, not zero demand),
+/// PARTIAL (tracking started during that day) or FULL.
+enum AnalyticsCoverage {
+  NONE
+  PARTIAL
+  FULL
+}
+
+/// One row per product per IST calendar day. Rebuilt idempotently by the daily aggregation job.
+/// Actual sales (from orders) and estimates are kept in separate, clearly named columns.
+/// Contains no customer identity.
+model ProductDailyAnalytics {
+  /// IST calendar day.
+  day                 DateTime          @db.Date
+  productId           String
+  /// Category at aggregation time.
+  categoryId          String?
+  /// Event coverage for this day; behavioural/operational counts are only meaningful when not NONE.
+  eventCoverage       AnalyticsCoverage
+  /// Behavioural (consented visitors only, so a lower bound).
+  views               Int               @default(0)
+  uniqueViewers       Int               @default(0)
+  unavailableViews    Int               @default(0)
+  /// Operational (all shoppers).
+  cartAddUnits        Int               @default(0)
+  cartAddEvents       Int               @default(0)
+  cartRemoveUnits     Int               @default(0)
+  wishlistAdds        Int               @default(0)
+  outOfStockAttempts  Int               @default(0)
+  outOfStockUnits     Int               @default(0)
+  /// ESTIMATE: units refused for stock reasons × server price at the time. Never added to actual sales.
+  estLostRevenuePaise Int               @default(0)
+  /// ACTUAL sales from orders placed this day (cancelled, failed and unpaid online orders excluded).
+  orders              Int               @default(0)
+  unitsSold           Int               @default(0)
+  /// Gross item-line revenue (before order-level coupons).
+  revenuePaise        Int               @default(0)
+  cancelledUnits      Int               @default(0)
+  failedDeliveryUnits Int               @default(0)
+  /// Per IST hour (0–23).
+  cartAddUnitsByHour  Int[]
+  unitsSoldByHour     Int[]
+  /// Availability across ACTIVE warehouses: minutes in the day with no sellable stock anywhere.
+  stockoutMinutes     Int               @default(0)
+  /// Number of stock rows at active warehouses (0 = not stocked anywhere that day).
+  activeStockRows     Int               @default(0)
+  inStockAtClose      Boolean           @default(false)
+  computedAt          DateTime          @default(now())
+
+  @@id([day, productId])
+  @@index([productId, day])
+  @@index([categoryId, day])
+}
+
+/// One row per stock row (product/variant × warehouse) per IST day, replayed from StockMovement history.
+/// Preserves per-warehouse availability and stockout history.
+model InventoryDailySnapshot {
+  day                    DateTime @db.Date
+  inventoryId            String
+  productId              String
+  variantId              String?
+  warehouseId            String
+  /// Warehouse status when the snapshot was computed (status history is not recorded).
+  warehouseActive        Boolean
+  openingAvailable       Int
+  openingReserved        Int
+  closingAvailable       Int
+  closingReserved        Int
+  /// Current safety stock (not historised) used for sellable = available − reserved − safety stock.
+  safetyStock            Int
+  closingSellable        Int
+  movements              Int      @default(0)
+  /// Minutes of the day this stock row existed.
+  trackedMinutes         Int
+  stockoutMinutes        Int      @default(0)
+  longestStockoutMinutes Int      @default(0)
+  stockouts              Int      @default(0)
+  /// False when the replay produced impossible (negative) quantities, i.e. history is incomplete.
+  consistent             Boolean  @default(true)
+  computedAt             DateTime @default(now())
+
+  @@id([day, inventoryId])
+  @@index([productId, day])
+  @@index([warehouseId, day])
 }

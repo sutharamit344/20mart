@@ -4,3 +4,4 @@ export * from './retention';
 export * from './abandonment';
 export * from './schedule';
 export * from './demand';
+export * from './product-daily';
