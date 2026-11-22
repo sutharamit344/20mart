@@ -361,9 +361,9 @@ export async function listProductDemand(raw: unknown = {}, now = new Date()) {
     rangeCoverage(r),
     prisma.$queryRaw<SummaryRow[]>`${base} ${orderSql(q.sort, q.dir)} LIMIT ${q.pageSize} OFFSET ${(q.page - 1) * q.pageSize}`,
     prisma.$queryRaw<
-      { products: bigint; orders: bigint | null; units_sold: bigint | null; revenue: bigint | null; est_lost: bigint | null; oos_units: bigint | null; tracked: bigint | null; stockout: bigint | null }[]
+      { products: bigint; orders: bigint | null; units_sold: bigint | null; revenue: bigint | null; est_lost: bigint | null; oos_attempts: bigint | null; oos_units: bigint | null; tracked: bigint | null; stockout: bigint | null }[]
     >`SELECT count(*) AS products, sum(orders) AS orders, sum(units_sold) AS units_sold, sum(revenue) AS revenue,
-             sum(est_lost) AS est_lost, sum(oos_units) AS oos_units, sum(tracked_minutes) AS tracked, sum(stockout_minutes) AS stockout
+             sum(est_lost) AS est_lost, sum(oos_attempts) AS oos_attempts, sum(oos_units) AS oos_units, sum(tracked_minutes) AS tracked, sum(stockout_minutes) AS stockout
         FROM (${base}) t`,
   ]);
   const t = totals[0];
@@ -380,7 +380,7 @@ export async function listProductDemand(raw: unknown = {}, now = new Date()) {
     totals: {
       actual: { orders: n(t?.orders), unitsSold: n(t?.units_sold), revenuePaise: n(t?.revenue) },
       // Null when no product in the result has a tracked day.
-      estimated: { lostRevenuePaise: nn(t?.est_lost), outOfStockUnits: nn(t?.oos_units) },
+      estimated: { lostRevenuePaise: nn(t?.est_lost), outOfStockAttempts: nn(t?.oos_attempts), outOfStockUnits: nn(t?.oos_units) },
       availability: { stockoutMinutes: n(t?.stockout), trackedMinutes: tracked, availabilityPct: tracked ? Math.round(1000 * (1 - Math.min(n(t?.stockout), tracked) / tracked)) / 10 : null },
     },
     items: rows.map(toSummary),

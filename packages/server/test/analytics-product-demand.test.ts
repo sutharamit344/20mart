@@ -195,6 +195,7 @@ describe('product demand list', () => {
     expect(b.availability).toEqual({ trackedMinutes: 5 * 1440, stockoutMinutes: 1800, availabilityPct: 75, stockoutDays: 5, unstockedDays: 0, inStockAtClose: false });
     expect(body.totals.actual.revenuePaise).toBe(12500);
     expect(body.totals.estimated.lostRevenuePaise).toBe(22500);
+    expect(body.totals.estimated.outOfStockAttempts).toBe(6);
   });
 
   it('distinguishes zero demand (0) from no data (null)', async () => {
@@ -253,7 +254,7 @@ describe('product demand list', () => {
     expect(body).toMatchObject({ total: 0, totalPages: 0, items: [] });
     expect(body.coverage).toMatchObject({ aggregatedDays: 0, eventCoverage: 'NONE', trackingStartedAt: null });
     expect(body.coverage.missingDays).toHaveLength(5);
-    expect(body.totals).toEqual({ actual: { orders: 0, unitsSold: 0, revenuePaise: 0 }, estimated: { lostRevenuePaise: null, outOfStockUnits: null }, availability: { stockoutMinutes: 0, trackedMinutes: 0, availabilityPct: null } });
+    expect(body.totals).toEqual({ actual: { orders: 0, unitsSold: 0, revenuePaise: 0 }, estimated: { lostRevenuePaise: null, outOfStockAttempts: null, outOfStockUnits: null }, availability: { stockoutMinutes: 0, trackedMinutes: 0, availabilityPct: null } });
   });
 
   it('counts only the part of the creation day the product existed', async () => {

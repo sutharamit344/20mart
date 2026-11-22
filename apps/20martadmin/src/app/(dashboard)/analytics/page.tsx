@@ -3,6 +3,7 @@ import { requireAdminPage } from '@20mart/server/next';
 import { AccessDenied, formatINR, PageHeader, Panel, StatCard } from '../../../components/ui';
 import { BarList, ColumnChart } from '../../../components/charts';
 import { RangePicker } from './RangePicker';
+import { AnalyticsTabs } from './AnalyticsTabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,7 @@ export default async function AnalyticsPage(props: { searchParams: Promise<Recor
   return (
     <div className="space-y-3 sm:space-y-4">
       <PageHeader title="Analytics" description={`Real data only · ${r.range.label} (IST)`} />
+      <AnalyticsTabs active="overview" />
       <RangePicker range={r.range.range} from={r.range.fromDate} to={r.range.toDate} />
       {error && <p role="alert" className="rounded-lg bg-amber-50 p-2 text-xs font-semibold text-amber-900">{error} — showing the last 30 days.</p>}
 

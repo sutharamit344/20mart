@@ -21,6 +21,8 @@ export interface Point {
   display?: string;
   /** Optional second line in the tooltip. */
   note?: string;
+  /** No data for this point (not zero): drawn as a dashed baseline mark, shown as "No data". */
+  missing?: boolean;
 }
 
 function niceMax(v: number) {
@@ -46,7 +48,7 @@ function TableView({ points, valueLabel }: { points: Point[]; valueLabel: string
             {points.map((p) => (
               <tr key={p.label} className="border-t border-gray-50">
                 <td className="px-2 py-1">{p.label}</td>
-                <td className="px-2 py-1 text-right tabular-nums">{p.display ?? p.value.toLocaleString('en-IN')}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{p.missing ? <span className="text-gray-400">No data</span> : (p.display ?? p.value.toLocaleString('en-IN'))}</td>
               </tr>
             ))}
           </tbody>
@@ -62,10 +64,28 @@ const shortINR = (paise: number) => {
 };
 
 /** Vertical columns. `tickFormat` is a name (not a function) so Server Components can render it. */
-export function ColumnChart({ points, valueLabel, tickFormat = 'number', height = 180, ariaLabel }: { points: Point[]; valueLabel: string; tickFormat?: 'number' | 'inr'; height?: number; ariaLabel: string }) {
+export function ColumnChart({
+  points,
+  valueLabel,
+  tickFormat = 'number',
+  height = 180,
+  ariaLabel,
+  max: fixedMax,
+  zeroLabel = 'No data in this range',
+}: {
+  points: Point[];
+  valueLabel: string;
+  tickFormat?: 'number' | 'inr';
+  height?: number;
+  ariaLabel: string;
+  /** Shared y-axis maximum (e.g. small multiples on one scale). */
+  max?: number;
+  /** Overlay text when every point is a real zero. */
+  zeroLabel?: string;
+}) {
   const formatTick = (v: number) => (tickFormat === 'inr' ? shortINR(v) : Number.isInteger(v) ? v.toLocaleString('en-IN') : v.toFixed(1));
   const [hover, setHover] = useState<number | null>(null);
-  const max = useMemo(() => niceMax(Math.max(0, ...points.map((p) => p.value))), [points]);
+  const max = useMemo(() => niceMax(fixedMax ?? Math.max(0, ...points.filter((p) => !p.missing).map((p) => p.value))), [points, fixedMax]);
   // Draw in real pixels (viewBox = measured width) so text stays 10px at every screen size.
   const box = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(640);
@@ -85,7 +105,8 @@ export function ColumnChart({ points, valueLabel, tickFormat = 'number', height 
   const barW = Math.max(2, Math.min(24, slot - 2)); // ≤24px, 2px surface gap
   const ticks = [0, max / 2, max];
   const labelEvery = Math.ceil(points.length / Math.max(2, Math.floor(plotW / 64)));
-  const empty = points.every((p) => p.value === 0);
+  const allMissing = points.length > 0 && points.every((p) => p.missing);
+  const empty = !allMissing && points.every((p) => p.value === 0 || p.missing);
   const hp = hover != null ? points[hover] : null;
 
   return (
@@ -103,12 +124,13 @@ export function ColumnChart({ points, valueLabel, tickFormat = 'number', height 
           );
         })}
         {points.map((p, i) => {
-          const h = (p.value / max) * plotH;
+          const h = p.missing ? 0 : (p.value / max) * plotH;
           const x = padL + i * slot + (slot - barW) / 2;
           const y = padT + plotH - h;
           const r = Math.min(4, barW / 2, h);
           return (
             <g key={p.label}>
+              {p.missing && <line x1={x} x2={x + barW} y1={padT + plotH - 2} y2={padT + plotH - 2} stroke="#b8b7b2" strokeWidth={2} strokeDasharray="2 2" />}
               {h > 0 && (
                 <path
                   d={`M${x},${padT + plotH} V${y + r} Q${x},${y} ${x + r},${y} H${x + barW - r} Q${x + barW},${y} ${x + barW},${y + r} V${padT + plotH} Z`}
@@ -123,7 +145,7 @@ export function ColumnChart({ points, valueLabel, tickFormat = 'number', height 
                 height={plotH}
                 fill="transparent"
                 tabIndex={0}
-                aria-label={`${p.label}: ${p.display ?? p.value}`}
+                aria-label={`${p.label}: ${p.missing ? 'No data' : (p.display ?? p.value)}`}
                 onPointerEnter={() => setHover(i)}
                 onFocus={() => setHover(i)}
                 onBlur={() => setHover(null)}
@@ -139,14 +161,16 @@ export function ColumnChart({ points, valueLabel, tickFormat = 'number', height 
         })}
         <line x1={padL} x2={W - 8} y1={padT + plotH} y2={padT + plotH} stroke="#d6d5d1" strokeWidth={1} />
       </svg>
-      {empty && <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-[11px] text-gray-400">No data in this range</p>}
+      {(empty || allMissing) && (
+        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-[11px] text-gray-400">{allMissing ? 'No data in this range' : points.some((p) => p.missing) ? 'Zero on every day with data' : zeroLabel}</p>
+      )}
       {hp && hover != null && (
         <div
           className="pointer-events-none absolute top-1 z-10 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] shadow-md"
           style={{ left: `clamp(0px, calc(${((padL + hover * slot + slot / 2) / W) * 100}% - 60px), calc(100% - 140px))` }}
           role="status"
         >
-          <p className="font-black tabular-nums text-gray-900">{hp.display ?? hp.value.toLocaleString('en-IN')}</p>
+          <p className="font-black tabular-nums text-gray-900">{hp.missing ? 'No data' : (hp.display ?? hp.value.toLocaleString('en-IN'))}</p>
           <p className="text-gray-500">{hp.label}</p>
           {hp.note && <p className="text-gray-500">{hp.note}</p>}
         </div>
