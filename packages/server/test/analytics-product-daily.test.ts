@@ -5,6 +5,8 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
 import { prisma } from '@20mart/database';
 import { addItem } from '../src/cart';
 import { createAddress } from '../src/addresses';
@@ -16,6 +18,7 @@ import {
   backfillProductDaily,
   clearAnalyticsSettingsCache,
   coverageFor,
+  firstDataDay,
   getAnalyticsDataCoverage,
   istDayOf,
   istDayWindow,
@@ -351,5 +354,86 @@ describe('catch-up, backfill and failure isolation', () => {
     const r = await runProductDailyAggregation({ now: NOW });
     expect(r.failed).toEqual([]);
     expect(await prisma.analyticsJobRun.findFirst({ where: { job: PRODUCT_DAILY_JOB, day: dbDay(D) } })).toMatchObject({ status: 'done' });
+  });
+});
+
+/* ───────────────────────────── dry run is read-only ───────────────────────────── */
+
+describe('backfill dry run never writes', () => {
+  const settings = () => prisma.analyticsSettings.findMany();
+  const FIRST_EVENT = () => ist(addDays(D, -2), '10:15');
+  const seedEvents = () =>
+    events([
+      { name: 'PRODUCT_VIEWED', at: FIRST_EVENT() },
+      { name: 'PRODUCT_VIEWED', at: ist(D, '11:00') },
+    ]);
+
+  /** The real CLI script, against the test database (a local URL, so no --confirm-production needed). */
+  const runScript = (...args: string[]) => {
+    const r = spawnSync(process.execPath, [path.resolve(__dirname, '../node_modules/tsx/dist/cli.mjs'), path.resolve(__dirname, '../scripts/analytics-backfill.ts'), ...args], {
+      cwd: path.resolve(__dirname, '..'),
+      env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
+      encoding: 'utf8',
+      timeout: 120_000,
+    });
+    return { status: r.status, out: `${r.stdout}
+${r.stderr}` };
+  };
+
+  it('read-only coverage reports the tracking start without creating the settings row', async () => {
+    await seedEvents();
+    expect(await settings()).toHaveLength(0);
+    const cov = await getAnalyticsDataCoverage({ readOnly: true });
+    expect(cov.trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
+    expect(cov.firstTrackedDay).toBe(addDays(D, -2));
+    expect(await firstDataDay({ readOnly: true })).toBe(addDays(D, -2));
+    expect(await settings()).toHaveLength(0); // nothing created
+  });
+
+  it('read-only coverage never fills an empty trackingStartedAt on an existing settings row', async () => {
+    await seedEvents();
+    await prisma.analyticsSettings.create({ data: { id: 'default' } });
+    const before = await prisma.analyticsSettings.findUniqueOrThrow({ where: { id: 'default' } });
+    expect(before.trackingStartedAt).toBeNull();
+    expect((await getAnalyticsDataCoverage({ readOnly: true })).trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
+    await firstDataDay({ readOnly: true });
+    expect(await prisma.analyticsSettings.findUniqueOrThrow({ where: { id: 'default' } })).toEqual(before); // row unchanged
+  });
+
+  it('`analytics:backfill --dry-run` writes nothing; the real run initialises trackingStartedAt and aggregates', async () => {
+    await seedEvents();
+    const dry = runScript('--dry-run');
+    expect(dry.status, dry.out).toBe(0);
+    expect(dry.out).toMatch(/DRY RUN: would aggregate \d+ day\(s\)/);
+    expect(dry.out).toContain(`first tracked IST day: ${addDays(D, -2)}`);
+    // No settings row, no job records, no aggregates.
+    expect(await settings()).toHaveLength(0);
+    expect(await prisma.analyticsJobRun.count()).toBe(0);
+    expect(await prisma.productDailyAnalytics.count()).toBe(0);
+    expect(await prisma.inventoryDailySnapshot.count()).toBe(0);
+
+    // An existing row with an empty tracking start is not filled by a dry run either.
+    await prisma.analyticsSettings.create({ data: { id: 'default' } });
+    expect(runScript('--dry-run').status).toBe(0);
+    expect((await prisma.analyticsSettings.findUniqueOrThrow({ where: { id: 'default' } })).trackingStartedAt).toBeNull();
+
+    // The real backfill initialises the tracking start (as designed) and aggregates every day.
+    const real = runScript();
+    expect(real.status, real.out).toBe(0);
+    expect(real.out).toMatch(/Done: \d+ aggregated, 0 skipped, 0 failed\./);
+    expect((await prisma.analyticsSettings.findUniqueOrThrow({ where: { id: 'default' } })).trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
+    expect(await prisma.analyticsJobRun.count({ where: { job: PRODUCT_DAILY_JOB, status: 'done' } })).toBeGreaterThan(0);
+  });
+
+  it('the real backfill (service) initialises trackingStartedAt from the first event and keeps it', async () => {
+    await seedEvents();
+    const r = await backfillProductDaily();
+    expect(r.failed).toEqual([]);
+    const s = await prisma.analyticsSettings.findUniqueOrThrow({ where: { id: 'default' } });
+    expect(s.trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
+    // Later purging of old raw events never moves the stored start.
+    await prisma.analyticsEvent.deleteMany({ where: { occurredAt: { lt: ist(D, '00:00') } } });
+    expect((await getAnalyticsDataCoverage({ readOnly: true })).trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
+    expect((await getAnalyticsDataCoverage()).trackingStartedAt?.toISOString()).toBe(FIRST_EVENT().toISOString());
   });
 });

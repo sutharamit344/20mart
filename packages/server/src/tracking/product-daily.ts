@@ -66,6 +66,17 @@ export async function getTrackingStartedAt(): Promise<Date | null> {
   return first.occurredAt;
 }
 
+/**
+ * Read-only variant for previews such as `analytics:backfill --dry-run`: the stored tracking start,
+ * else the first recorded event. Never creates or updates AnalyticsSettings.
+ */
+export async function peekTrackingStartedAt(): Promise<Date | null> {
+  const s = await prisma.analyticsSettings.findUnique({ where: { id: 'default' }, select: { trackingStartedAt: true } });
+  if (s?.trackingStartedAt) return s.trackingStartedAt;
+  const first = await prisma.analyticsEvent.findFirst({ orderBy: { occurredAt: 'asc' }, select: { occurredAt: true } });
+  return first?.occurredAt ?? null;
+}
+
 export function coverageFor(day: string, trackingStartedAt: Date | null): 'NONE' | 'PARTIAL' | 'FULL' {
   if (!trackingStartedAt) return 'NONE';
   const { start, end } = istDayWindow(day);
@@ -73,10 +84,13 @@ export function coverageFor(day: string, trackingStartedAt: Date | null): 'NONE'
   return trackingStartedAt > start ? 'PARTIAL' : 'FULL';
 }
 
-/** Where each kind of data begins (for reports to tell "no data" from "zero"). */
-export async function getAnalyticsDataCoverage() {
+/**
+ * Where each kind of data begins (for reports to tell "no data" from "zero").
+ * `readOnly` (dry runs, previews) never writes; otherwise the tracking start is persisted on first use.
+ */
+export async function getAnalyticsDataCoverage(opts: { readOnly?: boolean } = {}) {
   const [trackingStartedAt, order, stock, inv] = await Promise.all([
-    getTrackingStartedAt(),
+    opts.readOnly ? peekTrackingStartedAt() : getTrackingStartedAt(),
     prisma.order.findFirst({ orderBy: { createdAt: 'asc' }, select: { createdAt: true } }),
     prisma.stockMovement.findFirst({ orderBy: { createdAt: 'asc' }, select: { createdAt: true } }),
     prisma.inventory.findFirst({ orderBy: { createdAt: 'asc' }, select: { createdAt: true } }),
@@ -438,8 +452,8 @@ export async function aggregateProductDay(day: string, opts: { now?: Date } = {}
 /* ───────────────────────────── Catch-up / backfill ───────────────────────────── */
 
 /** First IST day with any data to aggregate (orders, stock or events), or null. */
-export async function firstDataDay(): Promise<string | null> {
-  const c = await getAnalyticsDataCoverage();
+export async function firstDataDay(opts: { readOnly?: boolean } = {}): Promise<string | null> {
+  const c = await getAnalyticsDataCoverage(opts);
   const days = [c.firstTrackedDay, c.salesFromDay, c.stockHistoryFromDay].filter((d): d is string => !!d).sort();
   return days[0] ?? null;
 }

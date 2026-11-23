@@ -3,6 +3,9 @@
  *
  *   pnpm --filter @20mart/server analytics:backfill [--from YYYY-MM-DD] [--to YYYY-MM-DD] [--force] [--dry-run]
  *
+ * --dry-run reads only: it reports what would be aggregated and writes nothing (not even the
+ * tracking start date in AnalyticsSettings).
+ *
  * Aggregates every finished IST day from the first day with data (orders, stock or events) up to
  * yesterday. Days already done are skipped unless --force. Rebuilding is idempotent, and days whose
  * raw events may have been purged by retention are never rebuilt once done.
@@ -43,16 +46,18 @@ async function main() {
   const { prisma } = await import('@20mart/database');
   const t = await import('../src/tracking/product-daily');
   try {
-    const coverage = await t.getAnalyticsDataCoverage();
+    // A dry run is strictly read-only: it must not even initialise AnalyticsSettings.trackingStartedAt.
+    const dryRun = args.includes('--dry-run');
+    const coverage = await t.getAnalyticsDataCoverage({ readOnly: dryRun });
     console.log(`Database: ${local ? 'local' : host}`);
     console.log(`Event tracking started: ${coverage.trackingStartedAt?.toISOString() ?? 'never (no events yet)'} (first tracked IST day: ${coverage.firstTrackedDay ?? '—'})`);
     console.log(`Sales data from: ${coverage.salesFromDay ?? '—'} · stock history from: ${coverage.stockHistoryFromDay ?? '—'}`);
 
-    const from = arg('--from') ?? (await t.firstDataDay());
+    const from = arg('--from') ?? (await t.firstDataDay({ readOnly: dryRun }));
     const yesterday = t.addDays(t.istDayOf(new Date()), -1);
     const to = arg('--to') ?? yesterday;
     if (!from) return console.log('Nothing to backfill: no orders, stock or events yet.');
-    if (args.includes('--dry-run')) {
+    if (dryRun) {
       let days = 0;
       for (let d = from; d <= to && d <= yesterday; d = t.addDays(d, 1)) days++;
       return console.log(`DRY RUN: would aggregate ${days} day(s), ${from} → ${to <= yesterday ? to : yesterday}${args.includes('--force') ? ' (including already-done days)' : ''}.`);
