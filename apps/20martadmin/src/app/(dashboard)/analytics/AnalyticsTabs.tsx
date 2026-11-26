@@ -13,7 +13,7 @@ export function AnalyticsTabs({ active }: { active: 'overview' | 'products' }) {
           key={t.key}
           href={t.href}
           aria-current={active === t.key ? 'page' : undefined}
-          className={`-mb-px border-b-2 px-2.5 py-1.5 text-xs font-bold ${active === t.key ? 'border-[#0B5D3B] text-[#0B5D3B]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`-mb-px border-b-2 px-2.5 py-1.5 text-xs font-bold ${active === t.key ? 'border-brand-green text-brand-green' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           {t.label}
         </Link>

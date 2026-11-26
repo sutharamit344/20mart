@@ -45,7 +45,7 @@ export default async function OrdersPage(props: { searchParams: Promise<Record<s
             {data.items.map((o) => (
               <tr key={o.id} className="hover:bg-gray-50/60">
                 <Td>
-                  <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-[#E66E00]">
+                  <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-brand-orange-600">
                     {o.orderNumber}
                   </Link>
                   <p className="text-[10px] text-gray-400">

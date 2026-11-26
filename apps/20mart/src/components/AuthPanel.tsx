@@ -63,11 +63,11 @@ export function AuthPanel() {
 
         <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-orange-50/60 border border-orange-100 text-[11px] text-gray-700">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF7A00] shrink-0" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-orange shrink-0" />
             <span>Everyday essentials from ₹20</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Truck className="w-3.5 h-3.5 text-[#0B5D3B] shrink-0" />
+            <Truck className="w-3.5 h-3.5 text-brand-green shrink-0" />
             <span>Fast doorstep delivery</span>
           </div>
         </div>
@@ -83,14 +83,14 @@ export function AuthPanel() {
           type="button"
           onClick={startGoogle}
           disabled={redirecting || authStatus === 'authenticated'}
-          className="flex w-full h-12 items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 text-sm font-bold text-gray-800 shadow-xs transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/40 disabled:opacity-70 disabled:cursor-wait"
+          className="flex w-full h-12 items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 text-sm font-bold text-gray-800 shadow-xs transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-orange/40 disabled:opacity-70 disabled:cursor-wait"
         >
           {redirecting ? <Loader2 className="h-5 w-5 animate-spin text-gray-500" /> : <GoogleMark />}
           <span>{redirecting ? 'Redirecting to Google…' : 'Continue with Google'}</span>
         </button>
 
         <div className="flex items-start gap-2 rounded-xl bg-gray-50 p-3 text-[11px] text-gray-500">
-          <ShieldCheck className="w-4 h-4 shrink-0 text-[#0B5D3B]" />
+          <ShieldCheck className="w-4 h-4 shrink-0 text-brand-green" />
           <p>
             We only use your verified Google name, email and photo to create your account. We never see your Google
             password.
@@ -99,11 +99,11 @@ export function AuthPanel() {
 
         <p className="text-center text-[11px] text-gray-400">
           By continuing you agree to our{' '}
-          <a href="/terms" className="font-semibold text-gray-600 hover:text-[#FF7A00]">
+          <a href="/terms" className="font-semibold text-gray-600 hover:text-brand-orange">
             Terms
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="font-semibold text-gray-600 hover:text-[#FF7A00]">
+          <a href="/privacy" className="font-semibold text-gray-600 hover:text-brand-orange">
             Privacy Policy
           </a>
           .

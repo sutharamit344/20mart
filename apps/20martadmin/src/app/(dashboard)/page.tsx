@@ -28,7 +28,7 @@ export default async function DashboardPage() {
               </Link>
             )}
             {can('products.create') && (
-              <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 text-xs font-semibold text-white hover:bg-[#E66E00]">
+              <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-orange px-3 text-xs font-semibold text-white hover:bg-brand-orange-600">
                 <Plus className="w-3.5 h-3.5" /> Add product
               </Link>
             )}
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
       )}
 
       {os && os.recent.length > 0 && (
-        <Panel title="Recent orders" actions={<Link href="/orders" className="inline-flex items-center gap-1 text-xs font-semibold text-[#E66E00] hover:underline">View all <ArrowRight className="w-3 h-3" /></Link>}>
+        <Panel title="Recent orders" actions={<Link href="/orders" className="inline-flex items-center gap-1 text-xs font-semibold text-brand-orange-600 hover:underline">View all <ArrowRight className="w-3 h-3" /></Link>}>
           <ul className="divide-y divide-gray-100">
             {os.recent.map((o) => (
               <li key={o.id}>
@@ -153,7 +153,7 @@ export default async function DashboardPage() {
         title="Needs restocking"
         actions={
           can('inventory.view') ? (
-            <Link href="/inventory?stock=low" className="inline-flex items-center gap-1 text-xs font-semibold text-[#E66E00] hover:underline">
+            <Link href="/inventory?stock=low" className="inline-flex items-center gap-1 text-xs font-semibold text-brand-orange-600 hover:underline">
               View all <ArrowRight className="w-3 h-3" />
             </Link>
           ) : null

@@ -62,7 +62,7 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
                     )}
                   </div>
                   <div className="min-w-0 max-w-[16rem]">
-                    <p className="truncate font-semibold text-gray-900 group-hover:text-[#E66E00]">
+                    <p className="truncate font-semibold text-gray-900 group-hover:text-brand-orange-600">
                       {i.product.name}
                       {i.variant && <span className="font-normal text-gray-500"> · {i.variant.name}</span>}
                     </p>
@@ -146,7 +146,7 @@ function LevelCell({ row, field, canEdit }: { row: InventoryRow; field: 'lowStoc
       onChange={(e) => setValue(e.target.value.replace(/\D/g, ''))}
       onBlur={commit}
       onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-      className="h-7 w-16 rounded border border-gray-200 px-1.5 text-right text-xs focus:border-[#0B5D3B] focus:outline-none"
+      className="h-7 w-16 rounded border border-gray-200 px-1.5 text-right text-xs focus:border-brand-green focus:outline-none"
     />
   );
 }
@@ -217,7 +217,7 @@ function AdjustModal({ row, onClose }: { row: InventoryRow; onClose: () => void 
                 role="radio"
                 aria-checked={type === t}
                 onClick={() => setType(t)}
-                className={`rounded-lg border p-2 text-left transition-colors ${type === t ? 'border-[#0B5D3B] bg-emerald-50' : 'border-gray-200 hover:bg-gray-50'}`}
+                className={`rounded-lg border p-2 text-left transition-colors ${type === t ? 'border-brand-green bg-emerald-50' : 'border-gray-200 hover:bg-gray-50'}`}
               >
                 <span className="block font-semibold text-gray-900">{TYPE_LABELS[t].label}</span>
                 <span className="block text-[10px] text-gray-500">{TYPE_LABELS[t].hint}</span>

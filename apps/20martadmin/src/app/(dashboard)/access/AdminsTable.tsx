@@ -213,7 +213,7 @@ function CreateAdminModal({ roles, onClose, onDone }: { roles: RoleOpt[]; onClos
                 <label key={r.key} className="flex items-center gap-2 rounded-lg border border-gray-200 p-2">
                   <input
                     type="checkbox"
-                    className="accent-[#0B5D3B]"
+                    className="accent-brand-green"
                     checked={roleKeys.includes(r.key)}
                     onChange={(e) => setRoleKeys((ks) => (e.target.checked ? [...ks, r.key] : ks.filter((k) => k !== r.key)))}
                   />
@@ -278,7 +278,7 @@ function RolesModal({
               <label key={r.key} className={`flex items-start gap-2 rounded-lg border p-2 ${allowed ? 'border-gray-200' : 'border-gray-100 opacity-50'}`}>
                 <input
                   type="checkbox"
-                  className="mt-0.5 accent-[#0B5D3B]"
+                  className="mt-0.5 accent-brand-green"
                   disabled={!allowed}
                   checked={keys.includes(r.key)}
                   onChange={(e) => setKeys((ks) => (e.target.checked ? [...ks, r.key] : ks.filter((k) => k !== r.key)))}

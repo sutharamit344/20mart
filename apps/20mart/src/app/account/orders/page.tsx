@@ -11,7 +11,7 @@ import { AccountLayout } from '../../../components/AccountLayout';
 export const dynamic = 'force-dynamic';
 
 const tone = (s: string) =>
-  s === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : s === 'CANCELLED' || s === 'FAILED' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-[#E66E00]';
+  s === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : s === 'CANCELLED' || s === 'FAILED' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-brand-orange-600';
 
 export default async function MyOrdersPage(props: { searchParams: Promise<{ page?: string }> }) {
   const searchParams = await props.searchParams;
@@ -27,7 +27,7 @@ export default async function MyOrdersPage(props: { searchParams: Promise<{ page
         <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
           <ShoppingBag className="mx-auto mb-2 h-8 w-8 text-gray-300" />
           <p className="text-sm font-bold text-gray-900">No orders yet</p>
-          <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+          <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
             Start shopping
           </Link>
         </div>
@@ -68,9 +68,9 @@ export default async function MyOrdersPage(props: { searchParams: Promise<{ page
       )}
       {pages > 1 && (
         <div className="mt-3 flex items-center justify-between text-xs">
-          {page > 1 ? <Link href={`/account/orders?page=${page - 1}`} className="font-bold text-[#FF7A00]">← Newer</Link> : <span />}
+          {page > 1 ? <Link href={`/account/orders?page=${page - 1}`} className="font-bold text-brand-orange">← Newer</Link> : <span />}
           <span className="text-gray-500">Page {page} of {pages}</span>
-          {page < pages ? <Link href={`/account/orders?page=${page + 1}`} className="font-bold text-[#FF7A00]">Older →</Link> : <span />}
+          {page < pages ? <Link href={`/account/orders?page=${page + 1}`} className="font-bold text-brand-orange">Older →</Link> : <span />}
         </div>
       )}
     </AccountLayout>

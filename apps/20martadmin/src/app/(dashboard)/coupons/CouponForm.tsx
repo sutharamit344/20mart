@@ -211,7 +211,7 @@ export function CouponForm({ initial, categories, canEdit, used }: { initial: Co
             {categories.map((c) => {
               const on = v.categoryIds.includes(c.id);
               return (
-                <label key={c.id} className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${on ? 'border-[#0B5D3B] bg-[#0B5D3B]/5 text-[#0B5D3B]' : 'border-gray-200 text-gray-600'}`}>
+                <label key={c.id} className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${on ? 'border-brand-green bg-brand-green/5 text-brand-green' : 'border-gray-200 text-gray-600'}`}>
                   <input type="checkbox" className="sr-only" checked={on} onChange={(e) => set('categoryIds', e.target.checked ? [...v.categoryIds, c.id] : v.categoryIds.filter((x) => x !== c.id))} />
                   {c.name}
                 </label>

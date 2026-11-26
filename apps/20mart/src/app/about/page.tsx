@@ -31,8 +31,8 @@ export default function AboutPage() {
       />
 
       {/* Hero (Desktop Screen 16) */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#0B5D3B] text-white p-8 sm:p-12 shadow-sm text-center space-y-4">
-        <span className="inline-block px-3 py-1 rounded-full bg-amber-400 text-[#0B5D3B] text-xs font-black uppercase tracking-wider">
+      <div className="relative overflow-hidden rounded-3xl bg-brand-green text-white p-8 sm:p-12 shadow-sm text-center space-y-4">
+        <span className="inline-block px-3 py-1 rounded-full bg-amber-400 text-brand-green text-xs font-black uppercase tracking-wider">
           Our Mission & Promise
         </span>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black">About 20Mart</h1>
@@ -45,7 +45,7 @@ export default function AboutPage() {
       {/* Core Brand Pillars (Desktop Screen 16 badges) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="p-6 rounded-3xl border border-gray-100 bg-white shadow-xs space-y-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-[#FF7A00]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-brand-orange">
             <Sparkles className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-gray-900">Affordable for Everyone</h3>
@@ -55,7 +55,7 @@ export default function AboutPage() {
         </div>
 
         <div className="p-6 rounded-3xl border border-gray-100 bg-white shadow-xs space-y-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-[#0B5D3B]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-brand-green">
             <ShoppingBag className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-gray-900">Wide Range of Daily-Use</h3>

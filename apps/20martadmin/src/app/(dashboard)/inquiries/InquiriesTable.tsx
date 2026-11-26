@@ -100,7 +100,7 @@ function InquiryDetail({ inquiry, canManage, onDone }: { inquiry: Inquiry; canMa
       <div className="rounded-lg bg-gray-50 p-3 space-y-0.5">
         <p className="font-bold text-gray-900">{inquiry.name}</p>
         <p>
-          <a href={`mailto:${inquiry.email}`} className="text-[#0B5D3B] underline">
+          <a href={`mailto:${inquiry.email}`} className="text-brand-green underline">
             {inquiry.email}
           </a>
           {inquiry.phone && <span className="text-gray-600"> · +91 {inquiry.phone}</span>}

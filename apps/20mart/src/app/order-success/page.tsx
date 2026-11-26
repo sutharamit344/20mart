@@ -18,7 +18,7 @@ export default async function OrderSuccessPage(props: { searchParams: Promise<{ 
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-sm font-bold text-gray-900">We couldn&apos;t find that order.</p>
-        <Link href="/account/orders" className="mt-3 inline-flex text-xs font-bold text-[#FF7A00]">
+        <Link href="/account/orders" className="mt-3 inline-flex text-xs font-bold text-brand-orange">
           View my orders →
         </Link>
       </div>
@@ -47,7 +47,7 @@ export default async function OrderSuccessPage(props: { searchParams: Promise<{ 
         {order.deliveryEstimate && <p className="mt-1">{order.deliveryEstimate}</p>}
       </div>
       <div className="flex flex-col sm:flex-row gap-2 justify-center">
-        <Link href={`/account/orders/${order.orderNumber}`} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0B5D3B] px-5 text-sm font-bold text-white">
+        <Link href={`/account/orders/${order.orderNumber}`} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-brand-green px-5 text-sm font-bold text-white">
           Track order <ArrowRight className="h-4 w-4" />
         </Link>
         <Link href="/shop" className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-300 px-5 text-sm font-semibold text-gray-700">

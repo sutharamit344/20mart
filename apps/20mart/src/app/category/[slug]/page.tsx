@@ -74,7 +74,7 @@ export default async function CategoryDetailPage({
           >
             <div className="space-y-1 min-w-0">
               <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/80 text-xs font-bold text-gray-700">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF7A00]" />
+                <Sparkles className="w-3.5 h-3.5 text-brand-orange" />
                 <span>{category.productCount} products</span>
               </div>
               <p className="text-xs text-gray-600 max-w-md">
@@ -93,7 +93,7 @@ export default async function CategoryDetailPage({
             <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
               <Link
                 href={`/category/${category.slug}`}
-                className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${!sub ? 'border-[#FF7A00] bg-orange-50 text-[#FF7A00]' : 'border-gray-200 bg-white text-gray-600'}`}
+                className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${!sub ? 'border-brand-orange bg-orange-50 text-brand-orange' : 'border-gray-200 bg-white text-gray-600'}`}
               >
                 All
               </Link>
@@ -101,7 +101,7 @@ export default async function CategoryDetailPage({
                 <Link
                   key={c.id}
                   href={`/category/${category.slug}?sub=${c.slug}`}
-                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${sub?.id === c.id ? 'border-[#FF7A00] bg-orange-50 text-[#FF7A00]' : 'border-gray-200 bg-white text-gray-600'}`}
+                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${sub?.id === c.id ? 'border-brand-orange bg-orange-50 text-brand-orange' : 'border-gray-200 bg-white text-gray-600'}`}
                 >
                   {c.name}
                 </Link>

@@ -45,7 +45,7 @@ type Row = { label: string; hint?: string; get: (s: Summary) => React.ReactNode 
 const GROUPS: { title: string; tone: string; rows: Row[] }[] = [
   {
     title: 'Actual sales',
-    tone: 'text-[#0B5D3B]',
+    tone: 'text-brand-green',
     rows: [
       { label: 'Orders', hint: DEF.orders, get: (s) => num(s.actual.orders) },
       { label: 'Units sold', hint: DEF.units, get: (s) => num(s.actual.unitsSold) },
@@ -257,7 +257,7 @@ function AddProduct({ range, exclude, onAdd }: { range: string; exclude: string[
     <div className="relative max-w-md">
       <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
       <input
-        className="h-8 w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 text-xs placeholder:text-gray-400 focus:border-[#0B5D3B] focus:outline-none"
+        className="h-8 w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 text-xs placeholder:text-gray-400 focus:border-brand-green focus:outline-none"
         placeholder="Add a product: search name or SKU…"
         aria-label="Search a product to add to the comparison"
         value={q}

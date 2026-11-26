@@ -27,7 +27,7 @@ export default async function DeliveryPage(props: { searchParams: Promise<{ q?: 
       />
       <p className="text-xs text-gray-500">
         Map delivery areas to fulfilment locations on the{' '}
-        <Link href="/warehouses" className="font-semibold text-[#E66E00] hover:underline">
+        <Link href="/warehouses" className="font-semibold text-brand-orange-600 hover:underline">
           Warehouses
         </Link>{' '}
         page.

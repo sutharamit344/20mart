@@ -89,7 +89,7 @@ export const Logo: React.FC<LogoProps> = ({
             />
             <path d="M13 22C14.5 25 23.5 25 25 22" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
-          <span className="font-heading font-black text-xl text-[#FF7A00]">
+          <span className="font-heading font-black text-xl text-brand-orange">
             20<span className="text-[#0B5D38]">Mart</span>
           </span>
         </div>

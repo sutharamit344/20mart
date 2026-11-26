@@ -49,7 +49,7 @@ export default async function CustomersPage(props: { searchParams: Promise<Recor
             {data.items.map((c) => (
               <tr key={c.id} className="hover:bg-gray-50/60">
                 <Td>
-                  <Link href={`/customers/${c.id}`} className="font-semibold text-gray-900 hover:text-[#E66E00]">
+                  <Link href={`/customers/${c.id}`} className="font-semibold text-gray-900 hover:text-brand-orange-600">
                     {c.name ?? '—'}
                   </Link>
                   <p className="text-[10px] text-gray-400">

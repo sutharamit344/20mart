@@ -11,7 +11,7 @@ export default function DashboardError({ error, reset }: { error: Error & { dige
       <p className="text-sm font-bold text-gray-900">This page failed to load</p>
       <p className="mt-1 text-xs text-gray-500">The error has been logged. You can retry, or go back to the dashboard.</p>
       <div className="mt-4 flex justify-center gap-2">
-        <button type="button" onClick={reset} className="h-8 rounded-lg bg-[#0B5D3B] px-3 text-xs font-semibold text-white">
+        <button type="button" onClick={reset} className="h-8 rounded-lg bg-brand-green px-3 text-xs font-semibold text-white">
           Retry
         </button>
         <a href="/" className="inline-flex h-8 items-center rounded-lg border border-gray-300 px-3 text-xs font-semibold text-gray-700">

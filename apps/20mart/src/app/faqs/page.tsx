@@ -43,7 +43,7 @@ export default function FaqsPage() {
       />
 
       <div className="text-center space-y-2">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-[#FF7A00] mx-auto">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-brand-orange mx-auto">
           <HelpCircle className="w-6 h-6" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-gray-900">

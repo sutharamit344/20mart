@@ -13,13 +13,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full space-y-1">
         {label && (
-          <label htmlFor={id} className="block text-xs font-semibold text-gray-700">
+          <label htmlFor={id} className="block text-xs font-semibold text-ink-700">
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute left-3 flex items-center pointer-events-none text-ink-400">
               {leftIcon}
             </div>
           )}
@@ -27,21 +27,21 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={id}
             ref={ref}
             className={cn(
-              'w-full h-10 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/15 disabled:bg-gray-50 disabled:text-gray-500',
+              'w-full h-10 rounded-xl border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-400 transition-[border-color,box-shadow] hover:border-line-strong focus:border-brand-orange focus:outline-none focus:ring-4 focus:ring-brand-orange/10 disabled:bg-surface-muted disabled:text-ink-500',
               leftIcon && 'pl-9',
               rightIcon && 'pr-9',
-              error && 'border-red-500 focus:border-red-500 focus:ring-red-500/15',
+              error && 'border-danger hover:border-danger focus:border-danger focus:ring-danger/10',
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 flex items-center text-gray-400">
+            <div className="absolute right-3 flex items-center text-ink-400">
               {rightIcon}
             </div>
           )}
         </div>
-        {error && <p className="mt-1 text-xs text-red-600 font-medium">{error}</p>}
+        {error && <p role="alert" className="mt-1 text-xs text-danger font-medium">{error}</p>}
       </div>
     );
   }

@@ -38,7 +38,7 @@ export default async function CampaignDetailPage(props: { params: Promise<{ id: 
           <>
             <StatusBadge status={STATE_TONE[c.state]} label={c.state.charAt(0) + c.state.slice(1).toLowerCase()} />
             {c.state === 'LIVE' && (
-              <a href={`${storefront}/campaigns/${c.slug}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#0B5D3B] hover:underline">
+              <a href={`${storefront}/campaigns/${c.slug}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand-green hover:underline">
                 View on storefront ↗
               </a>
             )}

@@ -166,7 +166,7 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
               setCustom(false);
               set({ from: n === 30 ? null : addDays(maxDay, -(n - 1)), to: null });
             }}
-            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${!custom && active === n ? 'bg-[#0B5D3B] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${!custom && active === n ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             Last {n} days
           </button>
@@ -176,7 +176,7 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
           role="radio"
           aria-checked={custom || !active}
           onClick={() => setCustom(true)}
-          className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${custom || !active ? 'bg-[#0B5D3B] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+          className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${custom || !active ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
         >
           Custom
         </button>
@@ -269,7 +269,7 @@ export function CoverageNotice({ coverage }: { coverage: Coverage }) {
 /* ───────────────────────────── small layout pieces ───────────────────────────── */
 
 export function Metric({ label, value, hint, tone = 'neutral' }: { label: string; value: React.ReactNode; hint?: string; tone?: 'neutral' | 'green' | 'amber' | 'red' }) {
-  const toneCls = { neutral: 'text-gray-900', green: 'text-[#0B5D3B]', amber: 'text-amber-700', red: 'text-red-600' }[tone];
+  const toneCls = { neutral: 'text-gray-900', green: 'text-brand-green', amber: 'text-amber-700', red: 'text-red-600' }[tone];
   return (
     <div className="min-w-0 rounded-lg bg-gray-50 px-2.5 py-2">
       <p className="flex items-start gap-1 text-[10px] font-semibold leading-tight text-gray-500">
@@ -281,7 +281,7 @@ export function Metric({ label, value, hint, tone = 'neutral' }: { label: string
 }
 
 export function MetricGroup({ title, tone, note, children }: { title: string; tone: 'green' | 'amber' | 'neutral'; note?: string; children: React.ReactNode }) {
-  const border = { green: 'border-l-[#0B5D3B]', amber: 'border-l-amber-500', neutral: 'border-l-gray-300' }[tone];
+  const border = { green: 'border-l-brand-green', amber: 'border-l-amber-500', neutral: 'border-l-gray-300' }[tone];
   return (
     <section className={`rounded-xl border border-l-4 border-gray-200/80 bg-white p-2.5 shadow-2xs ${border}`} aria-label={title}>
       <h2 className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">{title}</h2>

@@ -60,7 +60,7 @@ export default function NotificationsPage() {
           {data ? `${data.unread} unread` : ''}
         </p>
         <div className="flex items-center gap-2">
-          <Link href="/account/settings" className="text-[11px] font-bold text-[#0B5D3B] hover:underline">
+          <Link href="/account/settings" className="text-[11px] font-bold text-brand-green hover:underline">
             Email preferences
           </Link>
           <button
@@ -91,7 +91,7 @@ export default function NotificationsPage() {
             const unread = !n.readAt;
             const inner = (
               <div className="flex gap-2.5 p-3">
-                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${unread ? 'bg-[#FF7A00]' : 'bg-transparent'}`} aria-hidden />
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${unread ? 'bg-brand-orange' : 'bg-transparent'}`} aria-hidden />
                 <div className="min-w-0 flex-1">
                   <p className={`text-xs ${unread ? 'font-black text-gray-900' : 'font-semibold text-gray-700'}`}>
                     {n.title}
@@ -120,13 +120,13 @@ export default function NotificationsPage() {
       )}
       {data && data.total > data.pageSize && (
         <div className="mt-3 flex items-center justify-between text-[11px]">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="font-bold text-[#0B5D3B] disabled:opacity-40">
+          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="font-bold text-brand-green disabled:opacity-40">
             ← Newer
           </button>
           <span className="text-gray-400">
             Page {data.page} of {Math.ceil(data.total / data.pageSize)}
           </span>
-          <button type="button" disabled={page * data.pageSize >= data.total} onClick={() => setPage((p) => p + 1)} className="font-bold text-[#0B5D3B] disabled:opacity-40">
+          <button type="button" disabled={page * data.pageSize >= data.total} onClick={() => setPage((p) => p + 1)} className="font-bold text-brand-green disabled:opacity-40">
             Older →
           </button>
         </div>

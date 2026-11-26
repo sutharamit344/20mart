@@ -26,7 +26,7 @@ function TermsContent() {
           onClick={() => setActiveTab('terms')}
           className={`px-6 py-3 text-sm font-bold border-b-2 transition-all -mb-px ${
             activeTab === 'terms'
-              ? 'border-[#FF7A00] text-[#FF7A00]'
+              ? 'border-brand-orange text-brand-orange'
               : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
@@ -37,7 +37,7 @@ function TermsContent() {
           onClick={() => setActiveTab('privacy')}
           className={`px-6 py-3 text-sm font-bold border-b-2 transition-all -mb-px ${
             activeTab === 'privacy'
-              ? 'border-[#FF7A00] text-[#FF7A00]'
+              ? 'border-brand-orange text-brand-orange'
               : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
@@ -113,7 +113,7 @@ function TermsContent() {
               <h2 className="text-sm font-bold text-gray-900">3. Contacting Us About Your Data</h2>
               <p>
                 For questions regarding your saved profile data or addresses, please submit an inquiry via our{' '}
-                <Link href="/contact" className="text-[#FF7A00] font-bold underline">
+                <Link href="/contact" className="text-brand-orange font-bold underline">
                   Contact Support Page
                 </Link>
                 .

@@ -137,7 +137,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                     setMobileSuggestionsOpen(false);
                     router.push(`/product/${prod.slug}`);
                   }}
-                  className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FFF6E9]/60 cursor-pointer transition-colors group"
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-brand-cream/60 cursor-pointer transition-colors group"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     {prod.imageUrl ? (
@@ -152,7 +152,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                       <div className="w-10 h-10 rounded-lg bg-gray-50 shrink-0 border border-gray-100" />
                     )}
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-900 group-hover:text-[#FF7A00] truncate transition-colors">
+                      <p className="text-xs font-bold text-gray-900 group-hover:text-brand-orange truncate transition-colors">
                         {prod.name}
                       </p>
                     </div>
@@ -174,7 +174,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
           <button
             type="button"
             onClick={() => onSelect(searchQuery)}
-            className="w-full mt-1 py-2 px-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF7A00] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            className="w-full mt-1 py-2 px-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-brand-orange font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <SearchIcon className="w-3.5 h-3.5" />
             <span>Search all for "{searchQuery}"</span>
@@ -185,7 +185,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
         <div className="p-3.5 space-y-3.5">
           <div>
             <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-              <TrendingUp className="w-3.5 h-3.5 text-[#FF7A00]" />
+              <TrendingUp className="w-3.5 h-3.5 text-brand-orange" />
               <span>Popular Searches</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -194,7 +194,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                   key={term}
                   type="button"
                   onClick={() => onSelect(term)}
-                  className="px-2.5 py-1 rounded-full bg-gray-50 hover:bg-[#FFF6E9] hover:text-[#FF7A00] text-gray-700 text-xs font-semibold border border-gray-200/80 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded-full bg-gray-50 hover:bg-brand-cream hover:text-brand-orange text-gray-700 text-xs font-semibold border border-gray-200/80 transition-colors cursor-pointer"
                 >
                   {term}
                 </button>
@@ -204,7 +204,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
 
           <div>
             <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-              <Tag className="w-3.5 h-3.5 text-[#0B5D3B]" />
+              <Tag className="w-3.5 h-3.5 text-brand-green" />
               <span>Categories</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
@@ -220,8 +220,8 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                   }}
                   className="flex items-center gap-2 p-2 rounded-xl bg-gray-50/80 hover:bg-emerald-50/60 text-left transition-colors cursor-pointer group"
                 >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF7A00]" />
-                  <span className="text-xs font-bold text-gray-800 group-hover:text-[#0B5D3B] truncate">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-orange" />
+                  <span className="text-xs font-bold text-gray-800 group-hover:text-brand-green truncate">
                     {cat.name}
                   </span>
                 </button>
@@ -237,7 +237,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
     <>
       <header className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-gray-100 transition-shadow">
         {/* Green Top Announcement Bar (Screen 01 Desktop Reference) */}
-        <div className="hidden md:block bg-[#0B5D3B] text-white py-1 text-[11px] leading-tight">
+        <div className="hidden md:block bg-brand-green text-white py-1 text-[11px] leading-tight">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <LocationButton tone="dark" className="max-w-xs" />
@@ -260,7 +260,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
         </div>
 
         {/* Mobile delivery location bar */}
-        <div className="md:hidden bg-[#0B5D3B] px-4 py-1.5 text-[11px] leading-tight">
+        <div className="md:hidden bg-brand-green px-4 py-1.5 text-[11px] leading-tight">
           <LocationButton tone="dark" className="w-full" />
         </div>
 
@@ -273,7 +273,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 <button
                   type="button"
                   onClick={() => setMobileDrawerOpen(true)}
-                  className="p-1.5 -ml-1 text-gray-700 hover:text-[#FF7A00] focus:outline-hidden cursor-pointer"
+                  className="p-1.5 -ml-1 text-gray-700 hover:text-brand-orange focus:outline-hidden cursor-pointer"
                   aria-label="Open menu"
                 >
                   <Menu className="w-5 h-5" />
@@ -301,8 +301,8 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                       className={cn(
                         'transition-colors py-1 relative',
                         isShopActive
-                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
-                          : 'text-gray-700 hover:text-[#FF7A00]'
+                          ? 'text-brand-orange font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-orange after:rounded-full'
+                          : 'text-gray-700 hover:text-brand-orange'
                       )}
                     >
                       Shop
@@ -312,8 +312,8 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                       className={cn(
                         'transition-colors py-1 whitespace-nowrap relative',
                         isDealsActive
-                          ? 'text-[#FF7A00] font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FF7A00] after:rounded-full'
-                          : 'text-gray-700 hover:text-[#FF7A00]'
+                          ? 'text-brand-orange font-black after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-orange after:rounded-full'
+                          : 'text-gray-700 hover:text-brand-orange'
                       )}
                     >
                       Daily Deals
@@ -337,11 +337,11 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                       setDesktopSuggestionsOpen(true);
                     }}
                     placeholder="Search for everyday products (e.g. peeler, storage, brush)..."
-                    className="flex-1 h-9 rounded-l-full border border-r-0 border-gray-300 bg-white py-1.5 pl-4 pr-3 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-[#FF7A00] focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/20"
+                    className="flex-1 h-9 rounded-l-full border border-r-0 border-gray-300 bg-white py-1.5 pl-4 pr-3 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-brand-orange focus:outline-none focus:ring-2 focus:ring-brand-orange/20"
                   />
                   <button
                     type="submit"
-                    className="h-9 px-4 rounded-r-full bg-[#FF7A00] flex items-center gap-1.5 text-white text-xs font-semibold hover:bg-[#E66E00] transition-colors cursor-pointer shrink-0"
+                    className="h-9 px-4 rounded-r-full bg-brand-orange flex items-center gap-1.5 text-white text-xs font-semibold hover:bg-brand-orange-600 transition-colors cursor-pointer shrink-0"
                   >
                     <SearchIcon className="w-3.5 h-3.5" />
                     <span>Search</span>
@@ -356,13 +356,13 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 {/* Wishlist Icon Button – visible in logo bar on both mobile & desktop */}
                 <Link
                   href="/wishlist"
-                  className="relative flex items-center justify-center h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-[#FF7A00]"
+                  className="relative flex items-center justify-center h-9 w-9 rounded-full hover:bg-gray-100 transition-colors text-gray-700 hover:text-brand-orange"
                   title="Wishlist"
                   aria-label="Wishlist"
                 >
                   <Heart className="w-5 h-5" />
                   {wishlist.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-bold text-white shadow-xs leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-brand-orange text-[10px] font-bold text-white shadow-xs leading-none">
                       {wishlist.length}
                     </span>
                   )}
@@ -371,13 +371,13 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 {/* Shopping Cart Icon Button – visible in logo bar on both mobile & desktop */}
                 <Link
                   href="/cart"
-                  className="relative flex items-center justify-center h-9 w-9 rounded-full bg-[#FFF6E9] text-[#FF7A00] hover:bg-[#FFEED4] transition-colors border border-orange-200/50 shadow-2xs"
+                  className="relative flex items-center justify-center h-9 w-9 rounded-full bg-brand-cream text-brand-orange hover:bg-brand-orange-100 transition-colors border border-orange-200/50 shadow-2xs"
                   title="Cart"
                   aria-label="Cart"
                 >
-                  <ShoppingBag className="w-5 h-5 text-[#FF7A00]" />
+                  <ShoppingBag className="w-5 h-5 text-brand-orange" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[10px] font-black text-white shadow-xs leading-none">
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-brand-orange text-[10px] font-black text-white shadow-xs leading-none">
                       {cartCount}
                     </span>
                   )}
@@ -399,7 +399,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                         className="h-9 w-9 shrink-0 rounded-full object-cover shadow-xs"
                       />
                     ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0B5D3B] text-white text-xs font-bold shadow-xs select-none">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-white text-xs font-bold shadow-xs select-none">
                         {(user.name || user.email || '?').charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -438,8 +438,8 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                   }}
                   placeholder="Search for everyday products..."
                   className={cn(
-                    'w-full h-9 rounded-full border border-gray-200 bg-gray-50/90 py-1.5 pl-9 text-xs text-gray-900 placeholder:text-gray-400 transition-all focus:bg-white focus:outline-none focus:border-[#FF7A00]',
-                    isSearchOpen ? 'pr-20 ring-2 ring-[#FF7A00]/20' : 'pr-3'
+                    'w-full h-9 rounded-full border border-gray-200 bg-gray-50/90 py-1.5 pl-9 text-xs text-gray-900 placeholder:text-gray-400 transition-all focus:bg-white focus:outline-none focus:border-brand-orange',
+                    isSearchOpen ? 'pr-20 ring-2 ring-brand-orange/20' : 'pr-3'
                   )}
                 />
 
@@ -457,7 +457,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                     )}
                     <button
                       type="submit"
-                      className="h-7 px-2.5 rounded-full bg-[#FF7A00] hover:bg-[#E66E00] text-white text-xs font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                      className="h-7 px-2.5 rounded-full bg-brand-orange hover:bg-brand-orange-600 text-white text-xs font-bold flex items-center gap-1 shadow-xs cursor-pointer"
                     >
                       <SearchIcon className="w-3 h-3" />
                       <span>Search</span>
@@ -507,7 +507,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               <span className="text-gray-400 block text-[10px]">Delivery location</span>
               <span className="font-bold text-gray-800 flex items-center justify-between mt-0.5">
                 <span className="truncate">{locationLabel ?? 'Select location'}</span>
-                <MapPin className="w-3.5 h-3.5 shrink-0 text-[#FF7A00]" />
+                <MapPin className="w-3.5 h-3.5 shrink-0 text-brand-orange" />
               </span>
             </button>
 
@@ -516,29 +516,29 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
               <Link
                 href="/"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
+                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-brand-orange"
               >
                 Home
               </Link>
               <Link
                 href="/shop"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
+                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-brand-orange"
               >
                 Shop (All Products)
               </Link>
               <Link
                 href="/deals"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00] flex items-center justify-between"
+                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-brand-orange flex items-center justify-between"
               >
                 <span>Daily Deals</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-[#FF7A00]">HOT</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-100 text-brand-orange">HOT</span>
               </Link>
               <Link
                 href="/category"
                 onClick={() => setMobileDrawerOpen(false)}
-                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-[#FF7A00]"
+                className="block px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-brand-orange"
               >
                 Categories
               </Link>
@@ -549,7 +549,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 <Link
                   href="/account"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 text-[#0B5D3B] text-xs font-bold"
+                  className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 text-brand-green text-xs font-bold"
                 >
                   <User className="w-4 h-4" />
                   <span className="truncate">My Account{user.name ? ` (${user.name})` : ''}</span>
@@ -558,7 +558,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
                 <Link
                   href="/auth"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="block text-center w-full py-2.5 rounded-xl bg-[#0B5D3B] text-white text-xs font-bold"
+                  className="block text-center w-full py-2.5 rounded-xl bg-brand-green text-white text-xs font-bold"
                 >
                   Sign in with Google
                 </Link>

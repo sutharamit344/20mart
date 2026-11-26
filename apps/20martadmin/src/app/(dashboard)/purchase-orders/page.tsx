@@ -25,7 +25,7 @@ export default async function PurchaseOrdersPage(props: { searchParams: Promise<
         description="Ordering goods does not change stock. Stock increases only when received goods are confirmed on the order."
         actions={
           ctx.permissions.has('purchasing.manage') ? (
-            <Link href="/purchase-orders/new" className="rounded-lg bg-[#FF7A00] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#E66E00]">
+            <Link href="/purchase-orders/new" className="rounded-lg bg-brand-orange px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-orange-600">
               New purchase order
             </Link>
           ) : null
@@ -55,7 +55,7 @@ export default async function PurchaseOrdersPage(props: { searchParams: Promise<
             {data.items.map((po) => (
               <tr key={po.id} className="hover:bg-gray-50/60">
                 <Td>
-                  <Link href={`/purchase-orders/${po.id}`} className="font-mono font-semibold text-[#E66E00] hover:underline">
+                  <Link href={`/purchase-orders/${po.id}`} className="font-mono font-semibold text-brand-orange-600 hover:underline">
                     {po.poNumber}
                   </Link>
                   <p className="text-[10px] text-gray-400">{date(po.createdAt)}</p>

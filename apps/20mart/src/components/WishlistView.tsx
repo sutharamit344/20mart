@@ -47,10 +47,10 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
   if (authStatus === 'guest') {
     return (
       <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
-        <Heart className="mx-auto mb-2 h-8 w-8 text-[#FF7A00]" />
+        <Heart className="mx-auto mb-2 h-8 w-8 text-brand-orange" />
         <p className="text-sm font-bold text-gray-900">Sign in to see your wishlist</p>
         <p className="mt-1 text-xs text-gray-500">Saved items are kept on your account across devices.</p>
-        <Link href="/auth?returnTo=/wishlist" className="mt-4 inline-flex h-9 items-center rounded-xl bg-[#0B5D3B] px-4 text-xs font-bold text-white">
+        <Link href="/auth?returnTo=/wishlist" className="mt-4 inline-flex h-9 items-center rounded-xl bg-brand-green px-4 text-xs font-bold text-white">
           Sign in with Google
         </Link>
       </div>
@@ -69,7 +69,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
         <Heart className="mx-auto mb-2 h-8 w-8 text-gray-300" />
         <p className="text-sm font-bold text-gray-900">Your wishlist is empty</p>
         <p className="mt-1 text-xs text-gray-500">Tap the heart on any product to save it for later.</p>
-        <Link href="/shop" className="mt-4 inline-flex h-9 items-center rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+        <Link href="/shop" className="mt-4 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
           Browse products
         </Link>
       </div>
@@ -87,7 +87,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
             </Link>
             <div className="flex min-w-0 flex-1 flex-col justify-between">
               <div className="min-w-0">
-                <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-gray-900 hover:text-[#0B5D3B]">
+                <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-gray-900 hover:text-brand-green">
                   {p.name}
                 </Link>
                 <div className="mt-0.5 flex items-baseline gap-1.5">
@@ -100,7 +100,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
               </div>
               <div className="mt-1.5 flex items-center gap-1.5">
                 {p.hasVariants ? (
-                  <Link href={`/product/${p.slug}`} className="inline-flex h-7 items-center rounded-lg bg-[#FF7A00] px-2.5 text-[11px] font-bold text-white">
+                  <Link href={`/product/${p.slug}`} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white">
                     Choose option
                   </Link>
                 ) : (
@@ -108,7 +108,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
                     type="button"
                     disabled={out || !!busy}
                     onClick={() => act(p.id, () => storeApi(`/api/wishlist/${p.id}/move-to-cart`, { body: {} }), 'Moved to cart')}
-                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-[#FF7A00] px-2.5 text-[11px] font-bold text-white disabled:bg-gray-200 disabled:text-gray-400"
+                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white disabled:bg-gray-200 disabled:text-gray-400"
                   >
                     <ShoppingCart className="h-3 w-3" /> Move to cart
                   </button>

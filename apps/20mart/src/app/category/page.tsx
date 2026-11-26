@@ -26,7 +26,7 @@ export default async function CategoryListingPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shop by Category</h1>
           <p className="text-xs text-gray-500 mt-0.5">Everyday home, kitchen, stationery and daily-use essentials</p>
         </div>
-        <Link href="/shop" className="text-xs font-bold text-[#FF7A00] hover:underline flex items-center gap-1">
+        <Link href="/shop" className="text-xs font-bold text-brand-orange hover:underline flex items-center gap-1">
           <span>View All Products</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
@@ -49,10 +49,10 @@ export default async function CategoryListingPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1.5 flex-1 min-w-0">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#FFF6E9] text-[10px] sm:text-[11px] font-bold text-[#FF7A00]">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-brand-cream text-[10px] sm:text-[11px] font-bold text-brand-orange">
                       {category.productCount} item{category.productCount === 1 ? '' : 's'}
                     </span>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#0B5D3B] transition-colors">{category.name}</h2>
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-brand-green transition-colors">{category.name}</h2>
                     {category.description && <p className="text-xs text-gray-500 line-clamp-2">{category.description}</p>}
                   </div>
                   <div
@@ -66,7 +66,7 @@ export default async function CategoryListingPage() {
                     )}
                   </div>
                 </div>
-                <div className="mt-3.5 flex items-center justify-between text-xs font-bold text-[#FF7A00] group-hover:translate-x-0.5 transition-transform">
+                <div className="mt-3.5 flex items-center justify-between text-xs font-bold text-brand-orange group-hover:translate-x-0.5 transition-transform">
                   <span>Browse</span>
                   <ArrowRight className="w-4 h-4" />
                 </div>

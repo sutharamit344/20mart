@@ -23,7 +23,7 @@ export default async function CouponsPage(props: { searchParams: Promise<Record<
         description="Discounts are calculated on the server at checkout. Issued ≠ redeemed: redemptions count only placed orders (cancelled orders give the use back)."
         actions={
           ctx.permissions.has('coupons.create') && (
-            <Link href="/coupons/new" className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#0B5D3B] px-3 text-xs font-bold text-white hover:bg-[#094D31]">
+            <Link href="/coupons/new" className="inline-flex h-8 items-center gap-1 rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover">
               <Plus className="h-3.5 w-3.5" /> New coupon
             </Link>
           )
@@ -62,7 +62,7 @@ export default async function CouponsPage(props: { searchParams: Promise<Record<
               return (
                 <tr key={c.id} className="hover:bg-gray-50/60">
                   <Td>
-                    <Link href={`/coupons/${c.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-[#E66E00]">
+                    <Link href={`/coupons/${c.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-brand-orange-600">
                       {c.code}
                     </Link>
                     <p className="max-w-[14rem] truncate text-[10px] text-gray-500">{c.title}</p>

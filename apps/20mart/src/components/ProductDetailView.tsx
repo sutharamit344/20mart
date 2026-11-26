@@ -118,7 +118,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
         <div className="md:col-span-7 flex flex-col justify-between space-y-4 min-w-0">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 text-xs text-gray-400">
-              <span className="font-semibold text-[#0B5D3B] uppercase tracking-wider truncate">
+              <span className="font-semibold text-brand-green uppercase tracking-wider truncate">
                 {product.brand ? product.brand.name : product.category.name}
               </span>
               <span className="shrink-0">SKU: {product.sku}</span>
@@ -152,7 +152,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
               {mrp > price && (
                 <>
                   <span className="text-sm text-gray-400 line-through">{formatPaise(mrp)}</span>
-                  <span className="rounded-md bg-[#FFF6E9] border border-orange-100 px-1.5 py-0.5 text-xs font-bold text-[#FF7A00]">Save {discount}%</span>
+                  <span className="rounded-md bg-brand-cream border border-orange-100 px-1.5 py-0.5 text-xs font-bold text-brand-orange">Save {discount}%</span>
                 </>
               )}
               <span className="text-[11px] text-gray-400">Inclusive of all taxes</span>
@@ -173,7 +173,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                         setQuantity(1);
                       }}
                       className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        v.id === variantId ? 'border-[#FF7A00] bg-orange-50 text-[#E66E00]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        v.id === variantId ? 'border-brand-orange bg-orange-50 text-brand-orange-600' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                       } ${v.stockState === 'OUT' ? 'opacity-50 line-through' : ''}`}
                     >
                       {v.name} · {formatPaise(v.sellingPricePaise)}
@@ -221,7 +221,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
               {inCart ? (
                 <Link
                   href="/cart"
-                  className="flex-1 min-w-0 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 bg-[#0B5D3B] hover:bg-[#094D31] text-white active:scale-[0.98] transition-all py-2.5"
+                  className="flex-1 min-w-0 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 bg-brand-green hover:bg-brand-green-hover text-white active:scale-[0.98] transition-all py-2.5"
                 >
                   <ShoppingCart className="w-4 h-4" />
                   Go to Cart <span className="font-semibold opacity-80">({inCartQty} in cart)</span>
@@ -231,7 +231,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
                 type="button"
                 onClick={add}
                 disabled={outOfStock}
-                className="flex-1 min-w-0 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-orange-950/20 bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white hover:scale-[1.01] active:scale-[0.98] transition-all py-2.5 cursor-pointer disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="flex-1 min-w-0 flex items-center justify-center gap-2 font-black rounded-xl text-xs sm:text-sm shadow-md shadow-orange-950/20 bg-gradient-to-r from-brand-orange to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white hover:scale-[1.01] active:scale-[0.98] transition-all py-2.5 cursor-pointer disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {outOfStock ? 'Out of stock' : 'Add to Cart'}
               </button>
@@ -252,7 +252,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
 
             <div className="grid grid-cols-3 gap-2 pt-1">
               <div className="flex items-center gap-1.5 p-2 rounded-xl bg-emerald-50/70 border border-emerald-100">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#0B5D3B] shrink-0" />
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-green shrink-0" />
                 <span className="text-[10px] font-bold text-emerald-950">Quality checked</span>
               </div>
               <div className="flex items-center gap-1.5 p-2 rounded-xl bg-amber-50/70 border border-amber-100">
@@ -286,7 +286,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
             {inCart ? (
               <Link
                 href="/cart"
-                className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-[#0B5D3B] text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-brand-green text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5"
               >
                 <ShoppingCart className="w-4 h-4" />
                 <span>Go to Cart</span>
@@ -296,7 +296,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
               type="button"
               onClick={add}
               disabled={outOfStock}
-              className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white font-black text-xs sm:text-sm shadow-md shadow-orange-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
+              className="flex-1 max-w-[200px] h-10 px-4 rounded-xl bg-gradient-to-r from-brand-orange to-[#FF5500] text-white font-black text-xs sm:text-sm shadow-md shadow-orange-950/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
             >
               {outOfStock ? (
                 'Out of stock'

@@ -52,7 +52,7 @@ export function DeliverySettingsForm({ initial, onlineConfigured }: { initial: S
 
   const toggle = (k: 'deliveryEnabled' | 'codEnabled' | 'onlinePaymentEnabled', label: string, hint: string, disabled = false) => (
     <label className={`flex items-start gap-2.5 rounded-lg border border-gray-200 p-2.5 ${disabled ? 'opacity-60' : ''}`}>
-      <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[#0B5D3B]" disabled={disabled} checked={s[k]} onChange={(e) => setS({ ...s, [k]: e.target.checked })} />
+      <input type="checkbox" className="mt-0.5 h-4 w-4 accent-brand-green" disabled={disabled} checked={s[k]} onChange={(e) => setS({ ...s, [k]: e.target.checked })} />
       <span>
         <span className="block text-xs font-semibold text-gray-900">{label}</span>
         <span className="text-[11px] text-gray-500">{hint}</span>

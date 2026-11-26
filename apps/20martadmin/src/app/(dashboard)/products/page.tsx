@@ -29,7 +29,7 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
                   <Upload className="w-3.5 h-3.5" /> Bulk import
                 </Link>
               )}
-              <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 text-xs font-semibold text-white hover:bg-[#E66E00]">
+              <Link href="/products/new" className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-orange px-3 text-xs font-semibold text-white hover:bg-brand-orange-600">
                 <Plus className="w-3.5 h-3.5" /> Add product
               </Link>
             </div>
@@ -85,9 +85,9 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
                       )}
                     </div>
                     <div className="min-w-0 max-w-[16rem]">
-                      <p className="truncate font-semibold text-gray-900 group-hover:text-[#E66E00]">
+                      <p className="truncate font-semibold text-gray-900 group-hover:text-brand-orange-600">
                         {p.name}
-                        {p.isFeatured && <Star className="ml-1 inline w-3 h-3 fill-[#FF7A00] text-[#FF7A00]" aria-label="Featured" />}
+                        {p.isFeatured && <Star className="ml-1 inline w-3 h-3 fill-brand-orange text-brand-orange" aria-label="Featured" />}
                       </p>
                       <p className="truncate font-mono text-[10px] text-gray-400">
                         {p.sku}

@@ -66,7 +66,7 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/category/${cat.slug}`}
-                  className="group flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white hover:bg-orange-50/20 border border-gray-200/90 hover:border-[#FF7A00]/50 shadow-2xs hover:shadow-xs shrink-0 cursor-pointer select-none transition-all duration-150"
+                  className="group flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-white hover:bg-orange-50/20 border border-gray-200/90 hover:border-brand-orange/50 shadow-2xs hover:shadow-xs shrink-0 cursor-pointer select-none transition-all duration-150"
                 >
                   <div
                     style={{ backgroundColor: theme.bg }}
@@ -77,7 +77,7 @@ export default async function HomePage() {
                       style={{ color: theme.iconColor }}
                     />
                   </div>
-                  <span className="text-[13px] sm:text-sm font-medium text-gray-700 group-hover:text-[#FF7A00] transition-colors whitespace-nowrap">
+                  <span className="text-[13px] sm:text-sm font-medium text-gray-700 group-hover:text-brand-orange transition-colors whitespace-nowrap">
                     {cat.name}
                   </span>
                 </Link>
@@ -122,7 +122,7 @@ export default async function HomePage() {
               <div className="flex items-center gap-3 pt-1 flex-wrap">
                 <Link
                   href="/shop"
-                  className="group flex items-center gap-2 rounded-full font-bold px-6 py-2.5 sm:py-3 text-xs sm:text-sm bg-gradient-to-r from-[#FF7A00] to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                  className="group flex items-center gap-2 rounded-full font-bold px-6 py-2.5 sm:py-3 text-xs sm:text-sm bg-gradient-to-r from-brand-orange to-[#FF5500] hover:from-[#FF8A00] hover:to-[#FF6600] text-white shadow-lg shadow-orange-950/30 border border-white/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
                 >
                   <span>Explore Products</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -139,7 +139,7 @@ export default async function HomePage() {
                   <Truck className="w-3.5 h-3.5" />
                   Free Delivery &gt; ₹199
                 </span>
-                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF5500] px-3 py-1 text-[11px] font-black text-white shadow-md">
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-orange to-[#FF5500] px-3 py-1 text-[11px] font-black text-white shadow-md">
                   Starts @ ₹20!
                 </span>
               </div>
@@ -166,7 +166,7 @@ export default async function HomePage() {
                           <Image src={resolveImageSrc(product.image?.url)} alt={product.image?.alt ?? product.name} fill sizes="140px" priority={index === 0} className="object-contain p-1.5" />
                         </span>
                         <span className="mt-1.5 block truncate text-[11px] font-bold">{product.name}</span>
-                        <span className="text-[11px] font-black text-[#0B5D3B]">{formatPaise(product.sellingPricePaise)}</span>
+                        <span className="text-[11px] font-black text-brand-green">{formatPaise(product.sellingPricePaise)}</span>
                       </Link>
                     ))}
                   </div>
@@ -187,7 +187,7 @@ export default async function HomePage() {
                           <Image src={resolveImageSrc(product.image?.url)} alt={product.image?.alt ?? product.name} fill sizes="(min-width: 1024px) 160px, 150px" priority={index === 0} className="object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
                         </span>
                         <span className="mt-2 block w-full truncate text-xs font-bold group-hover:text-[#C25D00]">{product.name}</span>
-                        <span className="mt-0.5 text-sm font-black text-[#0B5D3B]">{formatPaise(product.sellingPricePaise)}</span>
+                        <span className="mt-0.5 text-sm font-black text-brand-green">{formatPaise(product.sellingPricePaise)}</span>
                       </Link>
                     ))}
                   </div>
@@ -198,7 +198,7 @@ export default async function HomePage() {
                   <Truck className="w-3.5 h-3.5" />
                   <span>Free Delivery &gt; ₹199</span>
                 </div>
-                <div className={`${heroProducts.length ? 'absolute bottom-1 -left-8 lg:-left-12' : 'relative'} z-10 w-fit rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF5500] px-4 py-1.5 text-sm font-black text-white shadow-xl shadow-orange-950/35 border-2 border-white -rotate-3`}>
+                <div className={`${heroProducts.length ? 'absolute bottom-1 -left-8 lg:-left-12' : 'relative'} z-10 w-fit rounded-full bg-gradient-to-r from-brand-orange to-[#FF5500] px-4 py-1.5 text-sm font-black text-white shadow-xl shadow-orange-950/35 border-2 border-white -rotate-3`}>
                   Starts @ ₹20!
                 </div>
               </div>
@@ -220,10 +220,10 @@ export default async function HomePage() {
               <Link
                 key={pp.amountPaise}
                 href={`/shop?pricePoint=${pp.amountPaise}`}
-                className="group flex flex-col items-center justify-center rounded-2xl border border-orange-100 bg-gradient-to-br from-[#FFF6E9] to-white py-3 sm:py-4 shadow-2xs transition-all hover:border-[#FF7A00]/50 hover:shadow-xs"
+                className="group flex flex-col items-center justify-center rounded-2xl border border-orange-100 bg-gradient-to-br from-brand-cream to-white py-3 sm:py-4 shadow-2xs transition-all hover:border-brand-orange/50 hover:shadow-xs"
               >
                 <span className="text-[10px] sm:text-xs font-semibold text-gray-500">Everything at</span>
-                <span className="text-lg sm:text-2xl font-black text-[#FF7A00] group-hover:scale-105 transition-transform">{pp.label}</span>
+                <span className="text-lg sm:text-2xl font-black text-brand-orange group-hover:scale-105 transition-transform">{pp.label}</span>
               </Link>
             ))}
           </div>
@@ -234,7 +234,7 @@ export default async function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[#FFF6E9] text-[#FF7A00]">
+            <div className="p-1.5 rounded-lg bg-brand-cream text-brand-orange">
               <Sparkles className="w-4 h-4 fill-current" />
             </div>
             <div>
@@ -244,7 +244,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/shop"
-            className="text-xs sm:text-sm font-bold text-[#FF7A00] hover:underline"
+            className="text-xs sm:text-sm font-bold text-brand-orange hover:underline"
           >
             See More →
           </Link>
@@ -258,7 +258,7 @@ export default async function HomePage() {
           />
         ) : (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white py-10 text-center">
-            <PackageSearch className="mb-2 h-8 w-8 text-[#FF7A00]" />
+            <PackageSearch className="mb-2 h-8 w-8 text-brand-orange" />
             <p className="text-sm font-bold text-gray-900">{error ? 'Products are temporarily unavailable' : 'New products are on their way'}</p>
             <p className="mt-1 text-xs text-gray-500">{error ? 'Please refresh in a moment.' : 'Check back soon — we are stocking the shelves.'}</p>
           </div>
@@ -270,7 +270,7 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base sm:text-lg font-bold text-gray-900">New arrivals</h2>
-            <Link href="/shop?sort=newest" className="text-xs sm:text-sm font-bold text-[#FF7A00] hover:underline">
+            <Link href="/shop?sort=newest" className="text-xs sm:text-sm font-bold text-brand-orange hover:underline">
               See all →
             </Link>
           </div>
@@ -281,22 +281,22 @@ export default async function HomePage() {
       {/* 5. Steal Deals Under ₹50 (only when real below-MRP products exist) */}
       {deals.length > 0 && (
       <section className="max-w-7xl mx-auto px-0 sm:px-6">
-        <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] px-3.5 py-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border-y sm:border border-white/20">
+        <div className="relative overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-r from-brand-orange via-[#FF850A] to-[#FF9E1B] px-3.5 py-5 sm:p-7 text-white shadow-lg shadow-orange-950/15 border-y sm:border border-white/20">
           {/* Subtle ambient light */}
           <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/15 blur-2xl pointer-events-none" />
           <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-amber-300/20 blur-xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-5">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white text-[#FF7A00] text-xs font-black shadow-xs">
-                <Flame className="w-3.5 h-3.5 fill-current text-[#FF7A00]" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white text-brand-orange text-xs font-black shadow-xs">
+                <Flame className="w-3.5 h-3.5 fill-current text-brand-orange" />
                 <span>Today&apos;s Steal Deals</span>
               </div>
               <h2 className="text-lg sm:text-2xl font-black tracking-tight">Under ₹50 Everyday Essentials</h2>
             </div>
             <Link
               href="/deals"
-              className="px-4 py-2 rounded-full bg-white text-[#FF7A00] text-xs sm:text-sm font-black hover:bg-orange-50 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              className="px-4 py-2 rounded-full bg-white text-brand-orange text-xs sm:text-sm font-black hover:bg-orange-50 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
               View All Daily Deals →
             </Link>

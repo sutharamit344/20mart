@@ -13,7 +13,7 @@ export function RetryEmail({ id }: { id: string }) {
     <button
       type="button"
       disabled={busy}
-      className="ml-1 font-bold text-[#0B5D3B] hover:underline disabled:opacity-50"
+      className="ml-1 font-bold text-brand-green hover:underline disabled:opacity-50"
       onClick={async () => {
         setBusy(true);
         try {

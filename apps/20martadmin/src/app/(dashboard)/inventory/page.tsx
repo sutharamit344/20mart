@@ -24,7 +24,7 @@ export default async function InventoryPage(props: { searchParams: Promise<Recor
         description="Stock per warehouse. Sellable = on hand − reserved − safety stock. Every change is recorded with who, when and why."
         actions={
           <>
-            <Link href="/inventory/movements" className="text-xs font-semibold text-[#E66E00] hover:underline">
+            <Link href="/inventory/movements" className="text-xs font-semibold text-brand-orange-600 hover:underline">
               Movement history →
             </Link>
             {ctx.permissions.has('inventory.adjust') && <AddStockButton warehouses={warehouses} defaultWarehouseId={query.warehouseId} />}

@@ -58,7 +58,7 @@ function InterestForm({ pincode }: { pincode: string }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/40"
+          className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
         />
         <button type="submit" disabled={state === 'busy'} className="rounded-xl bg-gray-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-60">
           {state === 'busy' ? '…' : 'Notify me'}
@@ -121,7 +121,7 @@ export const LocationPicker: React.FC = () => {
       >
         <div className="flex items-center justify-between">
           <h2 id="loc-title" className="flex items-center gap-2 text-base font-black text-gray-900">
-            <MapPin className="w-4 h-4 text-[#FF7A00]" /> Choose delivery location
+            <MapPin className="w-4 h-4 text-brand-orange" /> Choose delivery location
           </h2>
           <button type="button" onClick={closePicker} aria-label="Close" className="p-1 rounded-lg text-gray-400 hover:text-gray-700">
             <X className="w-5 h-5" />
@@ -133,7 +133,7 @@ export const LocationPicker: React.FC = () => {
             type="button"
             onClick={gps}
             disabled={busy !== null}
-            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-[#FF7A00] px-4 py-2.5 text-sm font-bold text-[#FF7A00] hover:bg-orange-50 disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-brand-orange px-4 py-2.5 text-sm font-bold text-brand-orange hover:bg-orange-50 disabled:opacity-60"
           >
             {busy === 'gps' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
             Use my current location
@@ -154,9 +154,9 @@ export const LocationPicker: React.FC = () => {
               value={value}
               onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="e.g. 380015"
-              className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/40"
+              className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
             />
-            <button type="submit" disabled={busy !== null} className="rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#FF5500] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">
+            <button type="submit" disabled={busy !== null} className="rounded-xl bg-gradient-to-r from-brand-orange to-[#FF5500] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">
               {busy === 'pin' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Check'}
             </button>
           </div>
@@ -166,7 +166,7 @@ export const LocationPicker: React.FC = () => {
         {result && !error && <ServiceabilityNote s={result} />}
         {result && !result.serviceable && result.code !== 'INVALID' && result.code !== 'DISABLED' && <InterestForm pincode={result.pincode} />}
         {result?.serviceable && (
-          <button type="button" onClick={closePicker} className="w-full rounded-xl bg-[#0B5D3B] px-4 py-2.5 text-sm font-bold text-white">
+          <button type="button" onClick={closePicker} className="w-full rounded-xl bg-brand-green px-4 py-2.5 text-sm font-bold text-white">
             Continue shopping
           </button>
         )}
@@ -181,7 +181,7 @@ export const LocationButton: React.FC<{ tone?: 'dark' | 'light'; className?: str
   const off = serviceability && !serviceability.serviceable;
   return (
     <button type="button" onClick={openPicker} className={`flex items-center gap-1.5 min-w-0 cursor-pointer ${className}`} aria-label="Change delivery location">
-      <MapPin className={`w-3.5 h-3.5 shrink-0 ${tone === 'dark' ? 'text-amber-300' : 'text-[#FF7A00]'}`} />
+      <MapPin className={`w-3.5 h-3.5 shrink-0 ${tone === 'dark' ? 'text-amber-300' : 'text-brand-orange'}`} />
       <span className={`truncate ${tone === 'dark' ? 'text-emerald-50' : 'text-gray-600'}`}>{label ? 'Delivering to' : 'Deliver to'}</span>
       <span className={`truncate font-bold ${tone === 'dark' ? 'text-amber-300' : 'text-gray-900'} hover:underline`}>
         {!ready ? '…' : label ?? 'Select location'}

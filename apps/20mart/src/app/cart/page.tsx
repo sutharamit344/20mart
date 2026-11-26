@@ -28,7 +28,7 @@ function CartLocation() {
     <div className="rounded-2xl border border-gray-100 bg-white p-3 space-y-2">
       <div className="flex items-center justify-between gap-2 text-xs">
         <span className="flex items-center gap-1.5 min-w-0 text-gray-600">
-          <MapPin className="h-4 w-4 shrink-0 text-[#FF7A00]" />
+          <MapPin className="h-4 w-4 shrink-0 text-brand-orange" />
           {pincode ? (
             <span className="truncate">
               Delivering to <b className="text-gray-900">{label}</b>
@@ -74,12 +74,12 @@ export default function CartPage() {
   if (!cart.lines.length) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-[#FF7A00]">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-brand-orange">
           <ShoppingBag className="h-8 w-8" />
         </div>
         <h1 className="text-lg font-black text-gray-900">Your cart is empty</h1>
         <p className="mt-1 text-xs text-gray-500">Everyday essentials from ₹20 are waiting for you.</p>
-        <Link href="/shop" className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#FF7A00] px-5 text-sm font-bold text-white hover:bg-[#E66E00]">
+        <Link href="/shop" className="mt-5 inline-flex h-10 items-center gap-1.5 rounded-xl bg-brand-orange px-5 text-sm font-bold text-white hover:bg-brand-orange-600">
           Start shopping <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
@@ -135,7 +135,7 @@ export default function CartPage() {
                 )}
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-emerald-100" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-                <div className="h-full rounded-full bg-[#0B5D3B] transition-all" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-brand-green transition-all" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
@@ -150,7 +150,7 @@ export default function CartPage() {
               <CartRow key={l.id} line={l} busy={cartBusy} onQty={(q) => setLineQuantity(l.id, q)} onRemove={() => removeLine(l.id)} />
             ))}
           </ul>
-          <Link href="/shop" className="inline-flex items-center gap-1 text-xs font-bold text-[#FF7A00] hover:underline">
+          <Link href="/shop" className="inline-flex items-center gap-1 text-xs font-bold text-brand-orange hover:underline">
             ← Continue shopping
           </Link>
         </div>
@@ -183,7 +183,7 @@ export default function CartPage() {
           </div>
           <CheckoutButton enabled={canCheckout} guest={authStatus !== 'authenticated'} />
           <p className="flex items-center gap-1.5 text-[10px] text-gray-400">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#0B5D3B]" /> Final prices and delivery charges are confirmed at checkout.
+            <ShieldCheck className="h-3.5 w-3.5 text-brand-green" /> Final prices and delivery charges are confirmed at checkout.
           </p>
         </aside>
       </div>
@@ -215,7 +215,7 @@ function CheckoutButton({ enabled, guest }: { enabled: boolean; guest: boolean }
     );
   }
   return (
-    <Link href={href} className={`${cls} bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-white shadow-md hover:from-[#FF8A00] hover:to-[#FF6600]`}>
+    <Link href={href} className={`${cls} bg-gradient-to-r from-brand-orange to-[#FF5500] text-white shadow-md hover:from-[#FF8A00] hover:to-[#FF6600]`}>
       {guest ? 'Sign in to checkout' : 'Proceed to checkout'} <ArrowRight className="h-4 w-4" />
     </Link>
   );
@@ -233,7 +233,7 @@ function CartRow({ line, busy, onQty, onRemove }: { line: CartLine; busy: boolea
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {line.brandName && <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{line.brandName}</p>}
-            <Link href={`/product/${line.slug}`} className="line-clamp-2 text-xs sm:text-sm font-bold text-gray-900 hover:text-[#0B5D3B]">
+            <Link href={`/product/${line.slug}`} className="line-clamp-2 text-xs sm:text-sm font-bold text-gray-900 hover:text-brand-green">
               {line.name}
             </Link>
             {line.variantName && <p className="text-[11px] text-gray-500">{line.variantName}</p>}

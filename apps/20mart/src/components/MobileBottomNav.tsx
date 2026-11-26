@@ -45,13 +45,13 @@ export const MobileBottomNav: React.FC = () => {
               href={item.href}
               className={cn(
                 'relative flex flex-col items-center justify-center py-0.5 px-2.5 min-w-[52px] transition-all select-none',
-                isActive ? 'text-[#FF7A00]' : 'text-gray-400 hover:text-gray-600'
+                isActive ? 'text-brand-orange' : 'text-gray-400 hover:text-gray-600'
               )}
             >
               <div className="relative">
                 <Icon className={cn('h-5 w-5', isActive && 'stroke-[2.5]')} />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#FF7A00] text-[9px] font-bold text-white leading-none">
+                  <span className="absolute -top-1 -right-2 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-brand-orange text-[9px] font-bold text-white leading-none">
                     {item.badge}
                   </span>
                 )}
@@ -59,7 +59,7 @@ export const MobileBottomNav: React.FC = () => {
               <span
                 className={cn(
                   'text-[10px] mt-0.5 tracking-tight leading-none',
-                  isActive ? 'font-bold text-[#FF7A00]' : 'font-medium text-gray-500'
+                  isActive ? 'font-bold text-brand-orange' : 'font-medium text-gray-500'
                 )}
               >
                 {item.label}

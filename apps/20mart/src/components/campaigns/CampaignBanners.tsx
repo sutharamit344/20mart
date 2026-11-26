@@ -40,14 +40,14 @@ export function CampaignBanners({ campaigns }: { campaigns: HomeCampaign[] }) {
               className={`group relative flex min-h-[112px] items-center overflow-hidden rounded-2xl border p-4 shadow-xs transition hover:shadow-md ${fyc ? 'border-amber-200 bg-gradient-to-br from-[#FFF4D6] to-[#FFE7B0]' : 'border-emerald-100 bg-gradient-to-br from-emerald-50 to-white'}`}
             >
               <div className="relative z-10 max-w-[70%] space-y-1">
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${fyc ? 'bg-gray-900 text-amber-300' : 'bg-[#0B5D3B] text-white'}`}>
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${fyc ? 'bg-gray-900 text-amber-300' : 'bg-brand-green text-white'}`}>
                   {fyc ? <ShoppingBasket className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
                   {fyc ? 'Fill your cart' : 'Offer'}
                 </span>
                 <p className="text-base sm:text-lg font-black leading-tight text-gray-900">{c.bannerTitle || c.name}</p>
                 {c.bannerSubtitle && <p className="text-[11px] sm:text-xs text-gray-700 line-clamp-2">{c.bannerSubtitle}</p>}
                 {c.coupon?.code && (
-                  <p className="text-[11px] font-bold text-[#0B5D3B]">
+                  <p className="text-[11px] font-bold text-brand-green">
                     Use code <span className="font-mono">{c.coupon.code}</span>
                   </p>
                 )}

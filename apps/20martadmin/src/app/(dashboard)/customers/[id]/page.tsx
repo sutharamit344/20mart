@@ -65,7 +65,7 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
               {c.addresses.map((a) => (
                 <li key={a.id} className="rounded-lg bg-gray-50 p-2">
                   <p className="font-semibold text-gray-900">
-                    {a.name} · +91 {a.phone} {a.isDefault && <span className="text-[10px] text-[#0B5D3B]">(default)</span>}
+                    {a.name} · +91 {a.phone} {a.isDefault && <span className="text-[10px] text-brand-green">(default)</span>}
                   </p>
                   <p className="text-gray-600">
                     {[a.addressLine1, a.addressLine2, a.landmark, a.city, a.state].filter(Boolean).join(', ')} — {a.pincode}
@@ -92,7 +92,7 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
               {c.orders.map((o) => (
                 <tr key={o.id}>
                   <Td>
-                    <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold hover:text-[#E66E00]">
+                    <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold hover:text-brand-orange-600">
                       {o.orderNumber}
                     </Link>
                     {o.couponCode && <p className="text-[10px] text-gray-400">Coupon {o.couponCode}</p>}
@@ -156,7 +156,7 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
                 <tr key={x.campaign.id}>
                   <Td>
                     {ctx.permissions.has('campaigns.view') ? (
-                      <Link href={`/campaigns/${x.campaign.id}`} className="font-semibold hover:text-[#E66E00]">
+                      <Link href={`/campaigns/${x.campaign.id}`} className="font-semibold hover:text-brand-orange-600">
                         {x.campaign.name}
                       </Link>
                     ) : (

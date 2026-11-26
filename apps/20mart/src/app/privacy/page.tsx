@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
       />
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#0B5D3B] text-xs font-bold border border-emerald-200/50">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-brand-green text-xs font-bold border border-emerald-200/50">
           <Shield className="w-3.5 h-3.5" />
           <span>Security & Data Protection</span>
         </div>
@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
       <div className="rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-xs text-xs sm:text-sm text-gray-600 space-y-6 leading-relaxed">
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#0B5D3B]" />
+            <Lock className="w-4 h-4 text-brand-green" />
             <span>1. Information We Collect</span>
           </h2>
           <p>
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#0B5D3B]" />
+            <Eye className="w-4 h-4 text-brand-green" />
             <span>2. How We Use Your Data</span>
           </h2>
           <ul className="list-disc pl-5 space-y-1">
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#0B5D3B]" />
+            <FileText className="w-4 h-4 text-brand-green" />
             <span>3. Data Protection & Sharing</span>
           </h2>
           <p>
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
 
         <section id="analytics" className="space-y-2 scroll-mt-24">
           <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-[#0B5D3B]" />
+            <BarChart3 className="w-4 h-4 text-brand-green" />
             <span>4. Cookies & Shopping Analytics</span>
           </h2>
           <p>
@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             Optional analytics records are deleted after 180 days. You can change your choice at any time with{' '}
-            <PrivacyChoicesLink className="font-bold text-[#0B5D3B] underline" />; choosing &ldquo;Essential only&rdquo; deletes the browsing records collected in this browser.
+            <PrivacyChoicesLink className="font-bold text-brand-green underline" />; choosing &ldquo;Essential only&rdquo; deletes the browsing records collected in this browser.
           </p>
         </section>
 
@@ -91,7 +91,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-sm sm:text-base font-bold text-gray-900">5. Contact Our Data Protection Team</h2>
           <p>
             For inquiries regarding privacy, data deletion, or updating your information, please visit our{' '}
-            <Link href="/contact" className="text-[#0B5D3B] font-bold underline">
+            <Link href="/contact" className="text-brand-green font-bold underline">
               Contact Page
             </Link>
             .

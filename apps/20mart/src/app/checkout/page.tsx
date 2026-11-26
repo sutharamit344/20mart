@@ -103,7 +103,7 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-sm font-bold text-gray-900">{loadError}</p>
-        <button type="button" onClick={() => load()} className="mt-3 text-xs font-bold text-[#FF7A00]">
+        <button type="button" onClick={() => load()} className="mt-3 text-xs font-bold text-brand-orange">
           Try again
         </button>
       </div>
@@ -120,7 +120,7 @@ export default function CheckoutPage() {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <p className="text-sm font-bold text-gray-900">Your cart is empty</p>
-        <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+        <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
           Browse products
         </Link>
       </div>
@@ -149,7 +149,7 @@ export default function CheckoutPage() {
                 }}
               />
             ) : summary.addresses.length === 0 ? (
-              <button type="button" onClick={() => setEditing('new')} className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-6 text-sm font-bold text-[#FF7A00]">
+              <button type="button" onClick={() => setEditing('new')} className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-6 text-sm font-bold text-brand-orange">
                 <Plus className="h-4 w-4" /> Add a delivery address
               </button>
             ) : (
@@ -163,12 +163,12 @@ export default function CheckoutPage() {
                         tabIndex={0}
                         onClick={() => load(a.id)}
                         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && load(a.id)}
-                        className={`relative h-full cursor-pointer rounded-xl border p-3 text-xs transition-colors ${a.id === addressId ? 'border-[#FF7A00] bg-orange-50/50 ring-1 ring-[#FF7A00]/30' : 'border-gray-200 hover:border-gray-300'}`}
+                        className={`relative h-full cursor-pointer rounded-xl border p-3 text-xs transition-colors ${a.id === addressId ? 'border-brand-orange bg-orange-50/50 ring-1 ring-brand-orange/30' : 'border-gray-200 hover:border-gray-300'}`}
                       >
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-gray-900">{a.name}</span>
                           <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gray-500">{a.type}</span>
-                          {a.isDefault && <span className="text-[9px] font-bold uppercase text-[#0B5D3B]">Default</span>}
+                          {a.isDefault && <span className="text-[9px] font-bold uppercase text-brand-green">Default</span>}
                         </div>
                         <p className="mt-1 text-gray-600 leading-relaxed">
                           {a.addressLine1}
@@ -191,7 +191,7 @@ export default function CheckoutPage() {
                     </li>
                   ))}
                 </ul>
-                <button type="button" onClick={() => setEditing('new')} className="inline-flex items-center gap-1 text-xs font-bold text-[#FF7A00]">
+                <button type="button" onClick={() => setEditing('new')} className="inline-flex items-center gap-1 text-xs font-bold text-brand-orange">
                   <Plus className="h-3.5 w-3.5" /> Add new address
                 </button>
                 {selected && delivery.serviceability && (
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
             {cart.hasIssues && (
-              <Link href="/cart" className="mt-1 inline-flex text-xs font-bold text-[#FF7A00]">
+              <Link href="/cart" className="mt-1 inline-flex text-xs font-bold text-brand-orange">
                 Fix items in cart →
               </Link>
             )}
@@ -243,9 +243,9 @@ export default function CheckoutPage() {
                     role="radio"
                     aria-checked={method === m}
                     onClick={() => setMethod(m)}
-                    className={`flex items-center gap-2.5 rounded-xl border p-3 text-left text-xs transition-colors ${method === m ? 'border-[#FF7A00] bg-orange-50/50 ring-1 ring-[#FF7A00]/30' : 'border-gray-200 hover:border-gray-300'}`}
+                    className={`flex items-center gap-2.5 rounded-xl border p-3 text-left text-xs transition-colors ${method === m ? 'border-brand-orange bg-orange-50/50 ring-1 ring-brand-orange/30' : 'border-gray-200 hover:border-gray-300'}`}
                   >
-                    {m === 'ONLINE' ? <CreditCard className="h-5 w-5 text-[#0B5D3B]" /> : <Banknote className="h-5 w-5 text-[#0B5D3B]" />}
+                    {m === 'ONLINE' ? <CreditCard className="h-5 w-5 text-brand-green" /> : <Banknote className="h-5 w-5 text-brand-green" />}
                     <span>
                       <span className="block font-bold text-gray-900">{m === 'ONLINE' ? 'Pay online' : 'Cash on delivery'}</span>
                       <span className="text-[11px] text-gray-500">{m === 'ONLINE' ? 'UPI, cards, net banking via Razorpay' : 'Pay when your order arrives'}</span>
@@ -296,7 +296,7 @@ export default function CheckoutPage() {
           )}
           <PlaceButton disabled={!summary.canPlaceOrder || !method || !addressId || !!editing} placing={placing} method={method} total={summary.totalPaise} onClick={placeOrder} />
           <p className="flex items-center gap-1.5 text-[10px] text-gray-400">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#0B5D3B]" /> Payments are verified with the provider before your order is confirmed.
+            <ShieldCheck className="h-3.5 w-3.5 text-brand-green" /> Payments are verified with the provider before your order is confirmed.
           </p>
         </aside>
       </div>
@@ -320,8 +320,8 @@ function Section({ step, title, icon, children }: { step: number; title: string;
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-4 shadow-xs">
       <h2 className="mb-2.5 flex items-center gap-2 text-sm font-bold text-gray-900">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0B5D3B] text-[11px] font-black text-white">{step}</span>
-        <span className="text-[#0B5D3B]">{icon}</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-green text-[11px] font-black text-white">{step}</span>
+        <span className="text-brand-green">{icon}</span>
         {title}
       </h2>
       {children}
@@ -335,7 +335,7 @@ function PlaceButton({ disabled, placing, method, total, onClick }: { disabled: 
       type="button"
       disabled={disabled || placing}
       onClick={onClick}
-      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF7A00] to-[#FF5500] text-sm font-black text-white shadow-md transition-all hover:from-[#FF8A00] hover:to-[#FF6600] disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-orange to-[#FF5500] text-sm font-black text-white shadow-md transition-all hover:from-[#FF8A00] hover:to-[#FF6600] disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
     >
       {placing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
       {placing ? 'Placing order…' : method === 'ONLINE' ? `Pay ${formatPaise(total)}` : 'Place order'}

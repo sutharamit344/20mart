@@ -78,7 +78,7 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
                 className="h-12 w-12 shrink-0 rounded-2xl object-cover shadow-xs"
               />
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B5D3B] text-white font-bold text-lg shadow-xs">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-green text-white font-bold text-lg shadow-xs">
                 {initials}
               </div>
             )}
@@ -102,12 +102,12 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
                   href={item.href}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold transition-all ${
                     isActive
-                      ? 'bg-[#FFF6E9] text-[#FF7A00] font-bold'
+                      ? 'bg-brand-cream text-brand-orange font-bold'
                       : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#FF7A00]' : 'text-gray-400'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-brand-orange' : 'text-gray-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -115,14 +115,14 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
                       <span
                         className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                           isActive
-                            ? 'bg-[#FF7A00] text-white'
+                            ? 'bg-brand-orange text-white'
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
                         {item.badge}
                       </span>
                     )}
-                    <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-[#FF7A00]' : 'text-gray-300'}`} />
+                    <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-brand-orange' : 'text-gray-300'}`} />
                   </div>
                 </Link>
               );

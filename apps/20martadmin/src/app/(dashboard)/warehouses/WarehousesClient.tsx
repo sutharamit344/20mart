@@ -225,7 +225,7 @@ function MappingForm({ warehouseId, zones, existing, onDone }: { warehouseId: st
       </div>
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-1 text-[11px] font-semibold">
-          <input type="checkbox" className="accent-[#0B5D3B]" checked={m.isActive} onChange={(e) => setM({ ...m, isActive: e.target.checked })} /> Active
+          <input type="checkbox" className="accent-brand-green" checked={m.isActive} onChange={(e) => setM({ ...m, isActive: e.target.checked })} /> Active
         </label>
         <Button type="submit" size="sm" disabled={saving}>
           Save
@@ -288,7 +288,7 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
                 key={a.to}
                 type="button"
                 onClick={() => setStatus(a.to, a.danger)}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold ring-1 ${a.danger ? 'text-red-600 ring-red-200 hover:bg-red-50' : 'text-[#0B5D3B] ring-emerald-200 hover:bg-emerald-50'}`}
+                className={`rounded-md px-2 py-1 text-[11px] font-semibold ring-1 ${a.danger ? 'text-red-600 ring-red-200 hover:bg-red-50' : 'text-brand-green ring-emerald-200 hover:bg-emerald-50'}`}
               >
                 {a.label}
               </button>
@@ -349,10 +349,10 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
             </div>
           </div>
           <div className="flex gap-3 text-[11px] font-semibold">
-            <Link className="text-[#E66E00] hover:underline" href={`/inventory?warehouseId=${w.id}`}>
+            <Link className="text-brand-orange-600 hover:underline" href={`/inventory?warehouseId=${w.id}`}>
               View stock →
             </Link>
-            <Link className="text-[#E66E00] hover:underline" href={`/orders?warehouseId=${w.id}`}>
+            <Link className="text-brand-orange-600 hover:underline" href={`/orders?warehouseId=${w.id}`}>
               Orders →
             </Link>
           </div>
@@ -363,7 +363,7 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
         <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
           <p className="text-xs font-bold text-gray-800">Delivery areas served</p>
           {perms.mapZones && mapping === null && unmapped.length > 0 && (
-            <button type="button" onClick={() => setMapping('new')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#E66E00]">
+            <button type="button" onClick={() => setMapping('new')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-orange-600">
               <Plus className="w-3 h-3" /> Add area
             </button>
           )}

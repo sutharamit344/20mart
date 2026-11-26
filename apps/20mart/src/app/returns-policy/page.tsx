@@ -22,7 +22,7 @@ export default function ReturnsPolicyPage() {
       />
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#0B5D3B] text-xs font-bold border border-emerald-200/50">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-brand-green text-xs font-bold border border-emerald-200/50">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Everyday Direct Value</span>
         </div>
@@ -56,7 +56,7 @@ export default function ReturnsPolicyPage() {
           <h2 className="text-sm sm:text-base font-bold text-gray-900">3. Contact Support</h2>
           <p>
             For assistance with transit damage or order issues, please submit a ticket through our{' '}
-            <Link href="/contact" className="text-[#FF7A00] font-bold underline">
+            <Link href="/contact" className="text-brand-orange font-bold underline">
               Contact Support Form
             </Link>
             . Our team reviews all inquiries promptly.

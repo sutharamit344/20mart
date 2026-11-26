@@ -152,7 +152,7 @@ export function AddStockButton({ warehouses, defaultWarehouseId }: { warehouses:
                   <span>
                     <b>{sku.label}</b> <span className="font-mono text-[10px] text-gray-400">{sku.sku}</span>
                   </span>
-                  <button type="button" className="text-[11px] font-semibold text-[#E66E00]" onClick={() => setSku(null)}>
+                  <button type="button" className="text-[11px] font-semibold text-brand-orange-600" onClick={() => setSku(null)}>
                     Change
                   </button>
                 </div>

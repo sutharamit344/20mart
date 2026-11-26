@@ -310,10 +310,10 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <Panel title="1. Files" actions={<button type="button" onClick={downloadTemplate} className="inline-flex items-center gap-1 text-xs font-semibold text-[#E66E00] hover:underline cursor-pointer"><Download className="w-3.5 h-3.5" /> Template</button>}>
+      <Panel title="1. Files" actions={<button type="button" onClick={downloadTemplate} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-orange-600 hover:underline cursor-pointer"><Download className="w-3.5 h-3.5" /> Template</button>}>
         <div className="grid gap-3 p-4 sm:grid-cols-2">
           <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 p-3 hover:bg-gray-50">
-            <FileSpreadsheet className="w-5 h-5 text-[#0B5D3B] shrink-0" />
+            <FileSpreadsheet className="w-5 h-5 text-brand-green shrink-0" />
             <span className="min-w-0 text-xs">
               <span className="block font-semibold text-gray-900">{sheetName ?? 'Choose spreadsheet (.xlsx or .csv)'}</span>
               <span className="text-gray-500">{sheetName ? `${plan.length} product rows (first sheet)` : 'One product per row, headers in the first row'}</span>
@@ -321,7 +321,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
             <input type="file" accept=".xlsx,.csv" className="sr-only" disabled={running} onChange={(e) => void onSheet(e.target.files?.[0])} />
           </label>
           <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 p-3 hover:bg-gray-50">
-            <FolderOpen className="w-5 h-5 text-[#E66E00] shrink-0" />
+            <FolderOpen className="w-5 h-5 text-brand-orange-600 shrink-0" />
             <span className="min-w-0 text-xs">
               <span className="block font-semibold text-gray-900">{images.length ? `${images.length} image files selected` : 'Choose images folder'}</span>
               <span className="text-gray-500">Matched to each row&apos;s Image Path (JPEG, PNG, WebP, AVIF · max 5 MB)</span>
@@ -424,7 +424,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                     type="button"
                     disabled={!canStart}
                     onClick={() => void run()}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 text-xs font-semibold text-white hover:bg-[#E66E00] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-orange px-3 text-xs font-semibold text-white hover:bg-brand-orange-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5" /> {finished ? 'Continue import' : 'Start import'}
                   </button>
@@ -437,7 +437,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
             {invalid.length > 0 ? (
               <span className="font-semibold text-red-600">{invalid.length} row(s) need fixing before import</span>
             ) : (
-              <span className="text-[#0B5D3B] font-semibold">All rows valid</span>
+              <span className="text-brand-green font-semibold">All rows valid</span>
             )}
             {anyStock && !warehouse && <span className="font-semibold text-red-600">Select a stock warehouse</span>}
             {finished > 0 && (
@@ -484,7 +484,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                           <Loader2 className="w-3.5 h-3.5 animate-spin" /> Importing…
                         </span>
                       ) : s?.state === 'done' ? (
-                        <span className="inline-flex items-center gap-1 text-[#0B5D3B]">
+                        <span className="inline-flex items-center gap-1 text-brand-green">
                           <CheckCircle2 className="w-3.5 h-3.5" /> {s.note ?? (publish ? 'Imported and published' : 'Imported as draft')}
                         </span>
                       ) : s?.state === 'skipped' ? (

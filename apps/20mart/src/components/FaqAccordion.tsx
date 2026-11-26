@@ -23,12 +23,12 @@ export const FaqAccordion: React.FC<{ items: FaqItem[] }> = ({ items }) => {
             <button
               type="button"
               onClick={() => setOpenIdx(isOpen ? null : idx)}
-              className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-xs sm:text-sm font-bold text-gray-900 hover:text-[#0B5D3B] transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between p-4 sm:p-5 text-left text-xs sm:text-sm font-bold text-gray-900 hover:text-brand-green transition-colors cursor-pointer"
             >
               <span>{faq.q}</span>
               <ChevronDown
                 className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-                  isOpen ? 'rotate-180 text-[#FF7A00]' : ''
+                  isOpen ? 'rotate-180 text-brand-orange' : ''
                 }`}
               />
             </button>

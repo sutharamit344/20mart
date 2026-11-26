@@ -35,7 +35,7 @@ export function SortSelect() {
         id="sort"
         value={params.get('sort') ?? 'featured'}
         onChange={(e) => update({ sort: e.target.value === 'featured' ? null : e.target.value })}
-        className="rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-800 focus:outline-none focus:border-[#FF7A00]"
+        className="rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-800 focus:outline-none focus:border-brand-orange"
       >
         <option value="featured">Featured</option>
         <option value="newest">Newest</option>
@@ -98,7 +98,7 @@ function FilterPanel({ categories, brands, pricePoints, showCategories }: Filter
       <hr className="border-gray-100" />
       <label className="flex items-center justify-between gap-2 text-xs font-semibold text-gray-700">
         <span>In stock only</span>
-        <input type="checkbox" className="h-4 w-4 accent-[#FF7A00]" checked={inStock} onChange={(e) => update({ inStock: e.target.checked ? '1' : null })} />
+        <input type="checkbox" className="h-4 w-4 accent-brand-orange" checked={inStock} onChange={(e) => update({ inStock: e.target.checked ? '1' : null })} />
       </label>
       {pricePoints.length > 0 && (
         <>
@@ -114,7 +114,7 @@ function FilterPanel({ categories, brands, pricePoints, showCategories }: Filter
                     type="button"
                     aria-pressed={on}
                     onClick={() => update({ pricePoint: on ? null : String(pp.amountPaise), price: null })}
-                    className={`h-7 rounded-full border px-2.5 text-[11px] font-bold ${on ? 'border-[#FF7A00] bg-orange-50 text-[#E66E00]' : 'border-gray-200 text-gray-600'}`}
+                    className={`h-7 rounded-full border px-2.5 text-[11px] font-bold ${on ? 'border-brand-orange bg-orange-50 text-brand-orange-600' : 'border-gray-200 text-gray-600'}`}
                   >
                     {pp.label}
                   </button>
@@ -160,7 +160,7 @@ export function FilterSidebar(props: FilterProps) {
   return (
     <aside className="hidden md:block w-48 lg:w-52 shrink-0 rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs sticky top-20">
       <div className="flex items-center gap-2 pb-2 border-b border-gray-100 mb-3">
-        <SlidersHorizontal className="w-4 h-4 text-[#FF7A00]" />
+        <SlidersHorizontal className="w-4 h-4 text-brand-orange" />
         <h3 className="text-xs font-bold text-gray-900">Filters</h3>
       </div>
       <FilterPanel {...props} />
@@ -180,14 +180,14 @@ export function MobileFilterButton(props: FilterProps & { total: number }) {
         onClick={() => setOpen(true)}
         className="flex md:hidden items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-700 shadow-xs"
       >
-        <Filter className="w-3.5 h-3.5 text-[#FF7A00]" />
+        <Filter className="w-3.5 h-3.5 text-brand-orange" />
         <span>Filter</span>
-        {active && <span className="w-2 h-2 rounded-full bg-[#FF7A00]" />}
+        {active && <span className="w-2 h-2 rounded-full bg-brand-orange" />}
       </button>
       <Drawer isOpen={open} onClose={() => setOpen(false)} title="Filter products" position="bottom">
         <div className="space-y-4">
           <FilterPanel categories={props.categories} brands={props.brands} pricePoints={props.pricePoints} showCategories={props.showCategories} />
-          <button type="button" onClick={() => setOpen(false)} className="w-full h-10 rounded-xl bg-[#FF7A00] text-sm font-bold text-white">
+          <button type="button" onClick={() => setOpen(false)} className="w-full h-10 rounded-xl bg-brand-orange text-sm font-bold text-white">
             Show {props.total} result{props.total === 1 ? '' : 's'}
           </button>
         </div>

@@ -57,11 +57,11 @@ export const ProductImage: React.FC<ProductImageProps> = ({
       )}
     >
       {showPlaceholder ? (
-        <div className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-[#FFF6E9]/60 p-3 text-center border border-orange-100/50">
+        <div className="flex h-full w-full flex-col items-center justify-center rounded-lg bg-brand-cream/60 p-3 text-center border border-orange-100/50">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-xs mb-1.5">
-            <ShoppingBag className="h-5 w-5 text-[#FF7A00]" />
+            <ShoppingBag className="h-5 w-5 text-brand-orange" />
           </div>
-          <span className="text-[11px] font-bold text-[#0B5D3B] line-clamp-1 max-w-[90%]">
+          <span className="text-[11px] font-bold text-brand-green line-clamp-1 max-w-[90%]">
             20Mart
           </span>
           <span className="text-[9px] text-gray-400 font-medium">Daily Value</span>

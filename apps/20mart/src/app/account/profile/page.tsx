@@ -74,7 +74,7 @@ export default function EditProfilePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
               placeholder="10-digit mobile number"
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white pl-11 pr-3 text-xs sm:text-sm text-gray-900 font-semibold focus:border-[#FF7A00] focus:outline-none"
+              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white pl-11 pr-3 text-xs sm:text-sm text-gray-900 font-semibold focus:border-brand-orange focus:outline-none"
             />
           </div>
           {errors.phone?.[0] && <p className="mt-1 text-[11px] font-medium text-red-600">{errors.phone[0]}</p>}
@@ -93,7 +93,7 @@ export default function EditProfilePage() {
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-[#FF7A00]"
+              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-brand-orange"
             >
               <option value="Ahmedabad">Ahmedabad</option>
               <option value="Gandhinagar">Gandhinagar</option>
@@ -108,7 +108,7 @@ export default function EditProfilePage() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-[#FF7A00]"
+              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-brand-orange"
             >
               <option value="English">English</option>
               <option value="Gujarati">ગુજરાતી (Gujarati)</option>

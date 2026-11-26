@@ -44,7 +44,7 @@ export default function EmailPreferencesPage() {
     <AccountLayout title="Email preferences" subtitle="Choose which emails we send you." activeKey="settings">
       <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs">
         <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-          <Mail className="h-4 w-4 text-[#FF7A00]" />
+          <Mail className="h-4 w-4 text-brand-orange" />
           <h2 className="text-sm font-bold text-gray-900">Email</h2>
         </div>
         {error && <p role="alert" className="mt-3 text-xs font-semibold text-red-600">{error}</p>}
@@ -69,7 +69,7 @@ export default function EmailPreferencesPage() {
                     checked={prefs[r.key]}
                     disabled={saving !== null}
                     onChange={(e) => toggle(r.key, e.target.checked)}
-                    className="h-4 w-4 cursor-pointer rounded-sm text-[#0B5D3B] focus:ring-[#0B5D3B]"
+                    className="h-4 w-4 cursor-pointer rounded-sm text-brand-green focus:ring-brand-green"
                   />
                 </span>
               </li>

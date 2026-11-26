@@ -19,9 +19,9 @@ export default async function DealsPage(props: { searchParams: Promise<Record<st
       subtitle={(total) => `${total} deal${total === 1 ? '' : 's'} below MRP`}
       breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Daily Deals' }]}
       banner={
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#FF7A00] via-[#FF850A] to-[#FF9E1B] p-4 sm:p-5 text-white shadow-xs mb-3.5 sm:mb-4">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/95 text-[#FF7A00] text-[11px] font-black shadow-xs">
-            <Flame className="w-3.5 h-3.5 fill-current text-[#FF7A00]" />
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-orange via-[#FF850A] to-[#FF9E1B] p-4 sm:p-5 text-white shadow-xs mb-3.5 sm:mb-4">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/95 text-brand-orange text-[11px] font-black shadow-xs">
+            <Flame className="w-3.5 h-3.5 fill-current text-brand-orange" />
             <span>Daily Deals</span>
           </div>
           <p className="mt-1.5 text-sm sm:text-base font-black">Everyday essentials priced below MRP</p>

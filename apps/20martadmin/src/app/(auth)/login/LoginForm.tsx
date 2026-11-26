@@ -39,7 +39,7 @@ export function LoginForm({ next }: { next: string }) {
   };
 
   const field =
-    'w-full h-10 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#0B5D3B] focus:ring-2 focus:ring-[#0B5D3B]/10 focus:outline-none';
+    'w-full h-10 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-green focus:ring-2 focus:ring-brand-green/10 focus:outline-none';
 
   return (
     <form onSubmit={submit} className="space-y-3" noValidate>

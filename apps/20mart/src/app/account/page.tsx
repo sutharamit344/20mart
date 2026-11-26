@@ -34,7 +34,7 @@ export default async function AccountDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {tiles.map((t) => (
           <Link key={t.label} href={t.href} className="rounded-2xl border border-gray-100 bg-white p-3 shadow-xs hover:border-orange-200">
-            <t.icon className="h-4 w-4 text-[#FF7A00]" />
+            <t.icon className="h-4 w-4 text-brand-orange" />
             <p className="mt-1.5 text-lg font-black text-gray-900">{t.value}</p>
             <p className="text-[11px] text-gray-500">{t.label}</p>
           </Link>
@@ -50,12 +50,12 @@ export default async function AccountDashboard() {
                 {latest.createdAt.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' })} · {formatPaise(latest.totalPaise)}
               </p>
             </div>
-            <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-[#E66E00]">{orderStatusLabel(latest.status)}</span>
+            <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-brand-orange-600">{orderStatusLabel(latest.status)}</span>
           </Link>
         ) : (
           <p className="mt-2 text-xs text-gray-500">
             No orders yet.{' '}
-            <Link href="/shop" className="font-bold text-[#FF7A00]">
+            <Link href="/shop" className="font-bold text-brand-orange">
               Start shopping →
             </Link>
           </p>

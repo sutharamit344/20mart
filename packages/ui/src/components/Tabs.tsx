@@ -32,7 +32,7 @@ export const Tabs: React.FC<TabsProps> = ({
               className={cn(
                 'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all whitespace-nowrap',
                 isActive
-                  ? 'bg-[#0B5D3B] text-white shadow-sm'
+                  ? 'bg-brand-green text-white shadow-sm'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
               )}
             >
@@ -67,7 +67,7 @@ export const Tabs: React.FC<TabsProps> = ({
             className={cn(
               'inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap -mb-px',
               isActive
-                ? 'border-[#FF7A00] text-[#FF7A00]'
+                ? 'border-brand-orange text-brand-orange'
                 : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
             )}
           >
@@ -77,7 +77,7 @@ export const Tabs: React.FC<TabsProps> = ({
               <span
                 className={cn(
                   'px-2 py-0.5 rounded-full text-xs font-bold',
-                  isActive ? 'bg-orange-100 text-[#FF7A00]' : 'bg-gray-100 text-gray-600'
+                  isActive ? 'bg-orange-100 text-brand-orange' : 'bg-gray-100 text-gray-600'
                 )}
               >
                 {tab.count}
@@ -111,7 +111,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
             {isLast || !item.href ? (
               <span className="font-semibold text-gray-800 truncate">{item.label}</span>
             ) : (
-              <a href={item.href} className="hover:text-[#FF7A00] hover:underline transition-colors">
+              <a href={item.href} className="hover:text-brand-orange hover:underline transition-colors">
                 {item.label}
               </a>
             )}
@@ -172,7 +172,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => onPageChange(page)}
             className={cn(
               'flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-2 text-xs font-bold transition-all',
-              currentPage === page ? 'bg-[#FF7A00] text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              currentPage === page ? 'bg-brand-orange text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
             )}
           >
             {page}

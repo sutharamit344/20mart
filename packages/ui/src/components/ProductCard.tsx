@@ -48,7 +48,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
       {/* Image */}
       <div className="relative mb-1.5 w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">
         {product.discountPercent > 0 && !outOfStock && (
-          <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-[#FFF6E9] border border-orange-200/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-[#FF7A00] shadow-2xs">
+          <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-brand-cream border border-orange-200/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-brand-orange shadow-2xs">
             -{product.discountPercent}%
           </div>
         )}
@@ -100,7 +100,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           </p>
           <h3
             className={cn(
-              'font-semibold text-gray-800 line-clamp-2 group-hover:text-[#0B5D3B] transition-colors leading-snug',
+              'font-semibold text-gray-800 line-clamp-2 group-hover:text-brand-green transition-colors leading-snug',
               compact ? 'text-[11px] sm:text-xs mt-0.5 h-7 sm:h-8' : 'text-xs sm:text-[13px] mt-0.5 h-8 sm:h-9'
             )}
             title={product.name}
@@ -134,7 +134,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           ) : quantity > 0 ? (
             <div
               className={cn(
-                'flex items-center justify-between font-bold text-white bg-gradient-to-r from-[#FF7A00] to-[#FF6200] rounded-lg sm:rounded-xl shadow-xs shrink-0 select-none overflow-hidden border border-orange-500/20',
+                'flex items-center justify-between font-bold text-white bg-gradient-to-r from-brand-orange to-[#FF6200] rounded-lg sm:rounded-xl shadow-xs shrink-0 select-none overflow-hidden border border-orange-500/20',
                 compact ? 'h-6.5 min-w-[68px]' : 'h-7 sm:h-7.5 min-w-[74px] sm:min-w-[80px]'
               )}
               onClick={(e) => e.stopPropagation()}
@@ -174,7 +174,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
                 onAddToCart?.(product);
               }}
               className={cn(
-                'flex items-center justify-center font-bold text-white transition-all bg-[#FF7A00] hover:bg-[#E66E00] active:scale-95 shadow-xs hover:shadow-sm rounded-lg sm:rounded-xl shrink-0 cursor-pointer select-none leading-none',
+                'flex items-center justify-center font-bold text-white transition-all bg-brand-orange hover:bg-brand-orange-600 active:scale-95 shadow-xs hover:shadow-sm rounded-lg sm:rounded-xl shrink-0 cursor-pointer select-none leading-none',
                 compact ? 'h-6.5 px-2 text-[10px] sm:text-[11px] gap-0.5 min-w-[56px]' : 'h-7 sm:h-7.5 px-2.5 sm:px-3 text-xs gap-1 min-w-[64px] sm:min-w-[70px]'
               )}
             >

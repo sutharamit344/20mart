@@ -70,7 +70,7 @@ export function FilterBar({
             onChange={(e) => setQ(e.target.value)}
             placeholder={placeholder}
             aria-label={placeholder}
-            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#0B5D3B] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-green focus:outline-none"
           />
         </div>
       )}
@@ -81,7 +81,7 @@ export function FilterBar({
             aria-label={s.label}
             value={params.get(s.name) ?? ''}
             onChange={(e) => push({ [s.name]: e.target.value })}
-            className="h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-[#0B5D3B] focus:outline-none sm:w-auto min-w-0"
+            className="h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-brand-green focus:outline-none sm:w-auto min-w-0"
           >
             <option value="">{s.label}</option>
             {s.options.map((o) => (

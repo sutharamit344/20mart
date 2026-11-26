@@ -7,7 +7,7 @@ import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { StoreApiError, storeApi } from '../lib/store';
 
 const field =
-  'w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#FF7A00] focus:ring-2 focus:ring-[#FF7A00]/15 focus:outline-none';
+  'w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/15 focus:outline-none';
 const label = 'block text-[11px] font-bold text-gray-700 mb-1';
 
 interface Serviceability {
@@ -182,13 +182,13 @@ export function AddressForm({
             type="button"
             onClick={() => set('type', t)}
             aria-pressed={form.type === t}
-            className={`h-8 rounded-full border px-3 text-xs font-semibold ${form.type === t ? 'border-[#FF7A00] bg-orange-50 text-[#E66E00]' : 'border-gray-200 text-gray-600'}`}
+            className={`h-8 rounded-full border px-3 text-xs font-semibold ${form.type === t ? 'border-brand-orange bg-orange-50 text-brand-orange-600' : 'border-gray-200 text-gray-600'}`}
           >
             {t}
           </button>
         ))}
         <label className="ml-auto flex items-center gap-2 text-xs font-semibold text-gray-700">
-          <input type="checkbox" className="h-4 w-4 accent-[#FF7A00]" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} />
+          <input type="checkbox" className="h-4 w-4 accent-brand-orange" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} />
           Make default
         </label>
       </div>

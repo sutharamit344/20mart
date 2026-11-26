@@ -22,7 +22,7 @@ export default function ShippingPolicyPage() {
       />
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#0B5D3B] text-xs font-bold border border-emerald-200/50">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-brand-green text-xs font-bold border border-emerald-200/50">
           <Truck className="w-3.5 h-3.5" />
           <span>Everyday Home Delivery</span>
         </div>
@@ -71,14 +71,14 @@ export default function ShippingPolicyPage() {
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900">3. Live Tracking & Dispatch</h2>
           <p>
-            As soon as your package is dispatched from our fulfillment center, you will receive an SMS and WhatsApp message with your tracking link. You can also view step-by-step order milestones directly from your <Link href="/account/orders" className="text-[#0B5D3B] font-bold underline">My Orders</Link> dashboard.
+            As soon as your package is dispatched from our fulfillment center, you will receive an SMS and WhatsApp message with your tracking link. You can also view step-by-step order milestones directly from your <Link href="/account/orders" className="text-brand-green font-bold underline">My Orders</Link> dashboard.
           </p>
         </section>
 
         <section className="space-y-2">
           <h2 className="text-sm sm:text-base font-bold text-gray-900">4. Damaged Packages</h2>
           <p>
-            In the rare event that an item is damaged or missing upon arrival, report it to our rider or raise a replacement request via <Link href="/contact" className="text-[#FF7A00] font-bold underline">Customer Support</Link> within 48 hours for immediate resolution.
+            In the rare event that an item is damaged or missing upon arrival, report it to our rider or raise a replacement request via <Link href="/contact" className="text-brand-orange font-bold underline">Customer Support</Link> within 48 hours for immediate resolution.
           </p>
         </section>
       </div>

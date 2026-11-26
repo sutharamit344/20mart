@@ -77,10 +77,10 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
   if (authStatus === 'guest') {
     return (
       <div className="rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-xs">
-        <ShoppingBasket className="mx-auto h-7 w-7 text-[#FF7A00]" />
+        <ShoppingBasket className="mx-auto h-7 w-7 text-brand-orange" />
         <p className="mt-2 text-sm font-bold text-gray-900">Sign in to fill your cart</p>
         <p className="mt-0.5 text-xs text-gray-500">Your list is saved to your account so you can come back to it.</p>
-        <Link href={`/auth?returnTo=/campaigns/${slug}`} className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white hover:bg-[#E66E00]">
+        <Link href={`/auth?returnTo=/campaigns/${slug}`} className="mt-3 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white hover:bg-brand-orange-600">
           Sign in with Google
         </Link>
         <ProductList products={products} readOnly />
@@ -108,7 +108,7 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
           </p>
         ) : (
           s.editable && (
-            <button type="button" onClick={join} disabled={joining} className="inline-flex h-9 w-full items-center justify-center rounded-xl bg-[#0B5D3B] text-xs font-bold text-white hover:bg-[#094D31] disabled:opacity-50">
+            <button type="button" onClick={join} disabled={joining} className="inline-flex h-9 w-full items-center justify-center rounded-xl bg-brand-green text-xs font-bold text-white hover:bg-brand-green-hover disabled:opacity-50">
               {joining ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Join the campaign'}
             </button>
           )
@@ -129,7 +129,7 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
         </dl>
         <p className="text-[10px] text-gray-400">Prices may change at launch. Nothing is charged or reserved.</p>
         {!s.editable && <p className="rounded-lg bg-gray-50 p-2 text-[11px] text-gray-600">This campaign has ended — your list is kept for reference.</p>}
-        <Link href="/account/coupons" className="block text-[11px] font-bold text-[#0B5D3B] hover:underline">
+        <Link href="/account/coupons" className="block text-[11px] font-bold text-brand-green hover:underline">
           View my coupons
         </Link>
       </aside>
@@ -188,7 +188,7 @@ function ProductList({
                       </button>
                     </div>
                   ) : (
-                    <button type="button" disabled={isBusy} onClick={() => onQty(p.id, 1)} className="inline-flex h-7 items-center rounded-lg bg-[#FF7A00] px-2.5 text-[11px] font-bold text-white hover:bg-[#E66E00] disabled:opacity-50">
+                    <button type="button" disabled={isBusy} onClick={() => onQty(p.id, 1)} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white hover:bg-brand-orange-600 disabled:opacity-50">
                       {isBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Add to list'}
                     </button>
                   )}

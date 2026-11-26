@@ -21,37 +21,38 @@ export const Toast: React.FC<ToastProps> = ({
   className,
 }) => {
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
-    error: <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />,
-    warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
-    info: <Info className="w-5 h-5 text-blue-500 shrink-0" />,
+    success: <CheckCircle2 className="w-5 h-5 text-success shrink-0" />,
+    error: <AlertCircle className="w-5 h-5 text-danger shrink-0" />,
+    warning: <AlertTriangle className="w-5 h-5 text-warning shrink-0" />,
+    info: <Info className="w-5 h-5 text-info shrink-0" />,
   };
 
   const borders = {
-    success: 'border-emerald-200 bg-white',
-    error: 'border-red-200 bg-white',
-    warning: 'border-amber-200 bg-white',
-    info: 'border-blue-200 bg-white',
+    success: 'border-success-line bg-surface',
+    error: 'border-danger-line bg-surface',
+    warning: 'border-warning-line bg-surface',
+    info: 'border-info-line bg-surface',
   };
 
   return (
     <div
       className={cn(
-        'flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm w-full transition-all',
+        'flex items-start gap-3 p-3.5 rounded-xl border shadow-pop max-w-sm w-full animate-pop-in',
         borders[type],
         className
       )}
     >
       {icons[type]}
       <div className="flex-1 text-sm">
-        {title && <h5 className="font-bold text-gray-900">{title}</h5>}
-        <p className="text-gray-600 text-xs mt-0.5">{message}</p>
+        {title && <h5 className="font-bold text-ink">{title}</h5>}
+        <p className="text-ink-600 text-xs mt-0.5">{message}</p>
       </div>
       {onClose && (
         <button
           type="button"
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 -mr-1 -mt-1 p-1 rounded"
+          aria-label="Dismiss"
+          className="text-ink-400 hover:text-ink-700 -mr-1 -mt-1 p-1 rounded"
         >
           <X className="w-4 h-4" />
         </button>
@@ -79,11 +80,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div className={cn('flex flex-col items-center justify-center p-8 text-center', className)}>
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-[#FF7A00] mb-4">
-        {icon || <ShoppingBag className="w-8 h-8" />}
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-orange-50 text-brand-orange mb-3">
+        {icon || <ShoppingBag className="w-7 h-7" />}
       </div>
-      <h4 className="text-base font-bold text-gray-900 mb-1">{title}</h4>
-      <p className="text-xs text-gray-500 max-w-xs mb-5">{description}</p>
+      <h4 className="text-base font-bold text-ink mb-1">{title}</h4>
+      <p className="text-sm text-ink-500 max-w-xs mb-5">{description}</p>
       {actionText && onAction && (
         <Button onClick={onAction} size="sm">
           {actionText}
@@ -94,7 +95,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 };
 
 export const Skeleton: React.FC<{ className?: string }> = ({ className }) => {
-  return <div className={cn('animate-pulse rounded-xl bg-gray-200/80', className)} />;
+  return <div aria-hidden className={cn('animate-pulse rounded-xl bg-line-subtle', className)} />;
 };
 
 export interface ConfirmDialogProps {
@@ -122,10 +123,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95">
-        <h4 className="text-base font-bold text-gray-900">{title}</h4>
-        <p className="text-xs text-gray-500 mt-2 mb-6">{message}</p>
+      <div className="fixed inset-0 bg-ink/40 animate-fade-in" onClick={onCancel} />
+      <div role="alertdialog" aria-modal="true" aria-label={title} className="relative w-full max-w-sm rounded-2xl bg-surface p-5 shadow-pop z-10 animate-pop-in">
+        <h4 className="text-base font-bold text-ink">{title}</h4>
+        <p className="text-sm text-ink-500 mt-1.5 mb-5">{message}</p>
         <div className="flex items-center justify-end gap-2.5">
           <Button variant="outline" size="sm" onClick={onCancel}>
             {cancelText}

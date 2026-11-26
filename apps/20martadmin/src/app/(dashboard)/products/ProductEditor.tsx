@@ -307,7 +307,7 @@ export function ProductEditor({
                 </select>
               </div>
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                <input type="checkbox" className="h-4 w-4 accent-[#FF7A00]" checked={form.isFeatured} onChange={(e) => set('isFeatured', e.target.checked)} />
+                <input type="checkbox" className="h-4 w-4 accent-brand-orange" checked={form.isFeatured} onChange={(e) => set('isFeatured', e.target.checked)} />
                 Featured on homepage
               </label>
             </Panel>
@@ -324,7 +324,7 @@ export function ProductEditor({
               title="Stock"
               actions={
                 perms.inventory ? (
-                  <Link href={`/inventory?q=${encodeURIComponent(product.sku)}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#E66E00] hover:underline">
+                  <Link href={`/inventory?q=${encodeURIComponent(product.sku)}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-orange-600 hover:underline">
                     <Boxes className="w-3 h-3" /> Manage
                   </Link>
                 ) : null
@@ -475,12 +475,12 @@ function ImageManager({ product, canEdit, canDelete }: { product: EditorProduct;
       ) : (
         <ul className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5 ${busy ? 'opacity-60' : ''}`}>
           {images.map((img, idx) => (
-            <li key={img.id} className={`rounded-lg border bg-white p-1.5 ${img.isPrimary ? 'border-[#FF7A00] ring-1 ring-[#FF7A00]/30' : 'border-gray-200'}`}>
+            <li key={img.id} className={`rounded-lg border bg-white p-1.5 ${img.isPrimary ? 'border-brand-orange ring-1 ring-brand-orange/30' : 'border-gray-200'}`}>
               <div className="relative aspect-square overflow-hidden rounded-md bg-gray-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={resolveImageSrc(img.url)} alt={img.altText ?? ''} className="h-full w-full object-contain" loading="lazy" />
                 {img.isPrimary && (
-                  <span className="absolute left-1 top-1 rounded bg-[#FF7A00] px-1.5 py-0.5 text-[9px] font-bold text-white">Primary</span>
+                  <span className="absolute left-1 top-1 rounded bg-brand-orange px-1.5 py-0.5 text-[9px] font-bold text-white">Primary</span>
                 )}
               </div>
               <input
@@ -490,7 +490,7 @@ function ImageManager({ product, canEdit, canDelete }: { product: EditorProduct;
                 maxLength={150}
                 placeholder="Alt text"
                 onBlur={(e) => e.target.value !== (img.altText ?? '') && saveAlt(img.id, e.target.value)}
-                className="mt-1.5 h-7 w-full rounded border border-gray-200 px-1.5 text-[11px] focus:border-[#0B5D3B] focus:outline-none"
+                className="mt-1.5 h-7 w-full rounded border border-gray-200 px-1.5 text-[11px] focus:border-brand-green focus:outline-none"
               />
               {canEdit && (
                 <div className="mt-1 flex items-center justify-between">

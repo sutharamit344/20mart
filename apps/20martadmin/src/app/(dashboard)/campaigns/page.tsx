@@ -23,7 +23,7 @@ export default async function CampaignsPage(props: { searchParams: Promise<Recor
         description="Customers only see live campaigns (active and within dates). Fill Your Cart demand is tracked separately from sales."
         actions={
           ctx.permissions.has('campaigns.create') && (
-            <Link href="/campaigns/new" className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#0B5D3B] px-3 text-xs font-bold text-white hover:bg-[#094D31]">
+            <Link href="/campaigns/new" className="inline-flex h-8 items-center gap-1 rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover">
               <Plus className="h-3.5 w-3.5" /> New campaign
             </Link>
           )
@@ -49,7 +49,7 @@ export default async function CampaignsPage(props: { searchParams: Promise<Recor
             {data.items.map((c) => (
               <tr key={c.id} className="hover:bg-gray-50/60">
                 <Td>
-                  <Link href={`/campaigns/${c.id}`} className="font-bold text-gray-900 hover:text-[#E66E00]">
+                  <Link href={`/campaigns/${c.id}`} className="font-bold text-gray-900 hover:text-brand-orange-600">
                     {c.name}
                   </Link>
                   <p className="font-mono text-[10px] text-gray-400">/campaigns/{c.slug}</p>

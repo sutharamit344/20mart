@@ -67,11 +67,11 @@ export default function AddressBookPage() {
           )}
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {items.map((a) => (
-              <li key={a.id} className={`rounded-2xl border bg-white p-3 text-xs shadow-xs ${a.isDefault ? 'border-[#FF7A00]/50' : 'border-gray-100'} ${busy === a.id ? 'opacity-60' : ''}`}>
+              <li key={a.id} className={`rounded-2xl border bg-white p-3 text-xs shadow-xs ${a.isDefault ? 'border-brand-orange/50' : 'border-gray-100'} ${busy === a.id ? 'opacity-60' : ''}`}>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-gray-900">{a.name}</span>
                   <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gray-500">{a.type}</span>
-                  {a.isDefault && <span className="text-[9px] font-bold uppercase text-[#0B5D3B]">Default</span>}
+                  {a.isDefault && <span className="text-[9px] font-bold uppercase text-brand-green">Default</span>}
                 </div>
                 <p className="mt-1 leading-relaxed text-gray-600">
                   {a.addressLine1}
@@ -95,7 +95,7 @@ export default function AddressBookPage() {
               </li>
             ))}
           </ul>
-          <button type="button" onClick={() => setEditing('new')} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#FF7A00] px-4 text-xs font-bold text-white">
+          <button type="button" onClick={() => setEditing('new')} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
             <Plus className="h-3.5 w-3.5" /> Add new address
           </button>
         </div>

@@ -76,7 +76,7 @@ export default async function CouponDetailPage(props: { params: Promise<{ id: st
           {c.campaigns.length > 0 && (
             <Panel title="Used by campaigns" bodyClassName="p-3 text-xs space-y-1">
               {c.campaigns.map((x) => (
-                <Link key={x.id} href={`/campaigns/${x.id}`} className="block font-semibold text-[#0B5D3B] hover:underline">
+                <Link key={x.id} href={`/campaigns/${x.id}`} className="block font-semibold text-brand-green hover:underline">
                   {x.name}
                 </Link>
               ))}
@@ -96,7 +96,7 @@ export default async function CouponDetailPage(props: { params: Promise<{ id: st
                   <tr key={r.id}>
                     <Td>
                       {canSeeOrders ? (
-                        <Link href={`/orders/${r.order.id}`} className="font-mono text-[11px] font-bold hover:text-[#E66E00]">
+                        <Link href={`/orders/${r.order.id}`} className="font-mono text-[11px] font-bold hover:text-brand-orange-600">
                           {r.order.orderNumber}
                         </Link>
                       ) : (

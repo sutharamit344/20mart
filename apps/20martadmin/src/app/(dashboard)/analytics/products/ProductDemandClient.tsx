@@ -103,7 +103,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
               </button>
             )}
             {selected.size >= 2 ? (
-              <Link href={compareHref} className="inline-flex h-7 items-center gap-1 rounded-lg bg-[#0B5D3B] px-2.5 text-[11px] font-bold text-white hover:bg-[#094d31]">
+              <Link href={compareHref} className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-green px-2.5 text-[11px] font-bold text-white hover:bg-brand-green-hover">
                 <GitCompare className="h-3.5 w-3.5" /> Compare {selected.size}
               </Link>
             ) : (
@@ -125,7 +125,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
               placeholder="Search name or SKU…"
               aria-label="Search products by name or SKU"
               maxLength={100}
-              className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:border-[#0B5D3B] focus:bg-white focus:outline-none"
+              className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:border-brand-green focus:bg-white focus:outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -221,10 +221,10 @@ function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: str
   return (
     <tr className={`hover:bg-gray-50/60 ${checked ? 'bg-emerald-50/40' : ''}`}>
       <td className="px-3 py-2">
-        <input type="checkbox" checked={checked} disabled={disabled} onChange={onToggle} aria-label={`Select ${s.name} for comparison`} className="h-3.5 w-3.5 accent-[#0B5D3B]" />
+        <input type="checkbox" checked={checked} disabled={disabled} onChange={onToggle} aria-label={`Select ${s.name} for comparison`} className="h-3.5 w-3.5 accent-brand-green" />
       </td>
       <td className="max-w-[200px] px-3 py-2 xl:max-w-[280px]">
-        <Link href={`${BASE}/${s.productId}${range ? `?${range}` : ''}`} className="block truncate font-bold text-gray-900 hover:text-[#0B5D3B] hover:underline">
+        <Link href={`${BASE}/${s.productId}${range ? `?${range}` : ''}`} className="block truncate font-bold text-gray-900 hover:text-brand-green hover:underline">
           {s.name}
         </Link>
         <p className="flex items-center gap-1.5 truncate text-[10px] text-gray-400">
@@ -236,14 +236,14 @@ function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: str
         {/* Phones: key figures inline (the full columns appear from 640px). */}
         <p className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] tabular-nums text-gray-500 sm:hidden">
           <span>{num(s.actual.unitsSold)} units</span>
-          <span className="font-bold text-[#0B5D3B]">{inr(s.actual.revenuePaise)}</span>
+          <span className="font-bold text-brand-green">{inr(s.actual.revenuePaise)}</span>
           <span className="text-amber-700">est. lost {inr(s.estimated.lostRevenuePaise)}</span>
           <span className={a.availabilityPct !== null && a.availabilityPct < 90 ? 'font-bold text-red-600' : ''}>avail. {pct(a.availabilityPct)}</span>
         </p>
       </td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.orders)}</td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.unitsSold)}</td>
-      <td className="hidden px-2 py-2 text-right sm:table-cell font-bold tabular-nums text-[#0B5D3B]">{inr(s.actual.revenuePaise)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell font-bold tabular-nums text-brand-green">{inr(s.actual.revenuePaise)}</td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">{inr(s.estimated.lostRevenuePaise)}</td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">
         {num(s.estimated.outOfStockAttempts)}
@@ -287,7 +287,7 @@ function Select({ label, name, options }: { label: string; name: string; options
       aria-label={label}
       value={params.get(name) ?? ''}
       onChange={(e) => set({ [name]: e.target.value || null })}
-      className="h-9 min-w-0 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-[#0B5D3B] focus:outline-none sm:w-auto"
+      className="h-9 min-w-0 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-brand-green focus:outline-none sm:w-auto"
     >
       <option value="">{label}: all</option>
       {options.map((o) => (

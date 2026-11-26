@@ -35,11 +35,11 @@ export default async function CampaignPage(props: { params: Promise<{ slug: stri
           <p className="text-[11px] text-gray-500">{c.endsAt ? `Ends ${date(c.endsAt)}` : `Started ${date(c.startsAt)}`}</p>
           {c.coupon && (
             <p className="inline-flex flex-wrap items-center gap-1.5 rounded-lg bg-white/80 px-2.5 py-1.5 text-xs font-semibold text-gray-800">
-              <Tag className="h-3.5 w-3.5 text-[#0B5D3B]" />
+              <Tag className="h-3.5 w-3.5 text-brand-green" />
               {c.coupon.title}
               {c.coupon.code && (
                 <>
-                  — use code <span className="font-mono font-black text-[#0B5D3B]">{c.coupon.code}</span>
+                  — use code <span className="font-mono font-black text-brand-green">{c.coupon.code}</span>
                 </>
               )}
               {c.coupon.minOrderValuePaise > 0 && <span className="text-gray-500">(orders of {formatPaise(c.coupon.minOrderValuePaise)}+)</span>}
@@ -56,7 +56,7 @@ export default async function CampaignPage(props: { params: Promise<{ slug: stri
       {fyc ? (
         <>
           <p className="flex items-start gap-2 rounded-xl border border-gray-100 bg-white p-3 text-[11px] text-gray-600">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0B5D3B]" />
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-green" />
             Fill your cart with what you&apos;d like to buy. This is a wish list for launch — nothing is charged, ordered or reserved, and it is separate from your shopping cart.
           </p>
           <FillYourCart slug={c.slug} products={c.products} maxQty={c.maxQtyPerItem} />

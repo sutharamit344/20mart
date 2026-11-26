@@ -90,7 +90,7 @@ export default function ContactPage() {
 
       {/* Header Banner - Compact & Minimal */}
       <div className="text-center space-y-1.5 max-w-xl mx-auto pb-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 text-[#0B5D3B] text-[11px] font-bold border border-emerald-100">
+        <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 text-brand-green text-[11px] font-bold border border-emerald-100">
           <MessageSquare className="w-3.5 h-3.5" />
           <span>Customer Care & Helpdesk</span>
         </div>
@@ -162,7 +162,7 @@ export default function ContactPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Amit Kumar"
-                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-[#FF7A00] focus:outline-none"
+                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-brand-orange focus:outline-none"
                   />
                 </div>
 
@@ -174,7 +174,7 @@ export default function ContactPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="amit@example.com"
-                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-[#FF7A00] focus:outline-none"
+                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-brand-orange focus:outline-none"
                   />
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function ContactPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98250 00000"
-                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-[#FF7A00] focus:outline-none"
+                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-brand-orange focus:outline-none"
                   />
                 </div>
 
@@ -198,7 +198,7 @@ export default function ContactPage() {
                   <select
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-[#FF7A00] focus:outline-none bg-white font-medium"
+                    className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-brand-orange focus:outline-none bg-white font-medium"
                   >
                     <option value="Order & Delivery Inquiry">Order & Delivery Inquiry</option>
                     <option value="Product Quality / Replacement Request">
@@ -221,7 +221,7 @@ export default function ContactPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please describe your question or order details..."
-                  className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-[#FF7A00] focus:outline-none"
+                  className="w-full rounded-xl border border-gray-200 p-2.5 text-xs focus:border-brand-orange focus:outline-none"
                 />
               </div>
 
@@ -254,7 +254,7 @@ export default function ContactPage() {
 
             {/* 24/7 Digital Help Desk */}
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-orange-50 text-[#FF7A00] shrink-0">
+              <div className="p-2 rounded-xl bg-orange-50 text-brand-orange shrink-0">
                 <MessageSquare className="w-4 h-4" />
               </div>
               <div className="text-xs">
@@ -286,7 +286,7 @@ export default function ContactPage() {
 
             {/* Quality Assurance */}
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-50 text-[#0B5D3B] shrink-0">
+              <div className="p-2 rounded-xl bg-emerald-50 text-brand-green shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="text-xs">
@@ -304,7 +304,7 @@ export default function ContactPage() {
           {/* Service Areas Card */}
           <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-xs space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
-              <Truck className="w-3.5 h-3.5 text-[#0B5D3B]" />
+              <Truck className="w-3.5 h-3.5 text-brand-green" />
               <span>Doorstep Delivery Areas</span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">

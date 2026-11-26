@@ -309,7 +309,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {toastMessage && (
         <div role="status" aria-live="polite" className="fixed bottom-20 sm:bottom-6 right-4 left-4 sm:left-auto sm:right-6 z-50 animate-in slide-in-from-bottom duration-200">
           <div className="flex items-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl sm:max-w-sm">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-[#FF7A00]" />
+            <span className="h-2 w-2 shrink-0 rounded-full bg-brand-orange" />
             <span>{toastMessage}</span>
           </div>
         </div>

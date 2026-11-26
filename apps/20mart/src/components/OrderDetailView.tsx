@@ -106,7 +106,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
           <p className="text-[11px] text-gray-500">Placed {fmtDate(order.createdAt)}</p>
         </div>
         <div className="text-right">
-          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${terminal ? 'bg-red-50 text-red-700' : order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-[#E66E00]'}`}>
+          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${terminal ? 'bg-red-50 text-red-700' : order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-brand-orange-600'}`}>
             {order.statusLabel}
           </span>
           <p className="mt-1 text-[11px] text-gray-500">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</p>
@@ -119,7 +119,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
             Payment pending. Items are held for you
             {order.reservationExpiresAt ? ` until ${new Date(order.reservationExpiresAt).toLocaleTimeString('en-IN', { timeStyle: 'short', timeZone: 'Asia/Kolkata' })}` : ''}.
           </span>
-          <button type="button" onClick={pay} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#FF7A00] px-3 font-bold text-white disabled:opacity-60">
+          <button type="button" onClick={pay} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-orange px-3 font-bold text-white disabled:opacity-60">
             {busy === 'pay' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Pay {formatPaise(order.totalPaise)}
           </button>
         </div>
@@ -149,7 +149,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               const at = reached.get(s.status);
               return (
                 <li key={s.status} className="relative">
-                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-[#0B5D3B] bg-[#0B5D3B] text-white' : 'border-gray-200 bg-white'}`}>
+                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-brand-green bg-brand-green text-white' : 'border-gray-200 bg-white'}`}>
                     {done && <Check className="h-3 w-3" />}
                   </span>
                   <p className={`text-xs font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{s.label}</p>
@@ -177,7 +177,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               </div>
               <div className="min-w-0 flex-1">
                 {it.product?.slug ? (
-                  <Link href={`/product/${it.product.slug}`} className="block truncate text-xs font-bold text-gray-900 hover:text-[#0B5D3B]">
+                  <Link href={`/product/${it.product.slug}`} className="block truncate text-xs font-bold text-gray-900 hover:text-brand-green">
                     {it.productName}
                   </Link>
                 ) : (

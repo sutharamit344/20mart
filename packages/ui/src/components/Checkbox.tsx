@@ -25,7 +25,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             className="peer sr-only"
             {...props}
           />
-          <div className="w-4 h-4 rounded border border-gray-300 bg-white transition-all peer-checked:border-[#FF7A00] peer-checked:bg-[#FF7A00] peer-focus:ring-2 peer-focus:ring-[#FF7A00]/20 flex items-center justify-center">
+          <div className="w-4 h-4 rounded border border-gray-300 bg-white transition-all peer-checked:border-brand-orange peer-checked:bg-brand-orange peer-focus:ring-2 peer-focus:ring-brand-orange/20 flex items-center justify-center">
             <Check className="w-3 h-3 text-white stroke-[3] opacity-0 peer-checked:opacity-100 transition-opacity" />
           </div>
         </div>
@@ -58,7 +58,7 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
             className="peer sr-only"
             {...props}
           />
-          <div className="w-4 h-4 rounded-full border border-gray-300 bg-white transition-all peer-checked:border-[#FF7A00] peer-checked:bg-[#FF7A00] peer-focus:ring-2 peer-focus:ring-[#FF7A00]/20 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full border border-gray-300 bg-white transition-all peer-checked:border-brand-orange peer-checked:bg-brand-orange peer-focus:ring-2 peer-focus:ring-brand-orange/20 flex items-center justify-center">
             <div className="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity" />
           </div>
         </div>
@@ -87,8 +87,8 @@ export const Switch: React.FC<SwitchProps> = ({ checked, onChange, label, disabl
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
         className={cn(
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30',
-          checked ? 'bg-[#0B5D3B]' : 'bg-gray-200'
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-orange/30',
+          checked ? 'bg-brand-green' : 'bg-gray-200'
         )}
       >
         <span

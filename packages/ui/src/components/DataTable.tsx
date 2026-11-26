@@ -33,7 +33,7 @@ export function DataTable<T>({
     return (
       <div className="flex h-48 items-center justify-center rounded-2xl border border-gray-100 bg-white">
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#0B5D3B] border-t-transparent" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-green border-t-transparent" />
           <span>Loading data...</span>
         </div>
       </div>

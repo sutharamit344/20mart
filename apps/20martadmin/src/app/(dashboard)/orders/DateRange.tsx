@@ -14,7 +14,7 @@ export function DateRange() {
     sp.delete('page');
     router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
   };
-  const cls = 'h-9 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-700 focus:border-[#0B5D3B] focus:outline-none';
+  const cls = 'h-9 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-700 focus:border-brand-green focus:outline-none';
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
       <label className="sr-only" htmlFor="from">From date</label>

@@ -18,9 +18,9 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
   if (authStatus !== 'authenticated') {
     return (
       <p className="flex items-center gap-1.5 rounded-lg bg-gray-50 p-2 text-[11px] text-gray-500">
-        <Tag className="h-3.5 w-3.5 text-[#0B5D3B]" />
+        <Tag className="h-3.5 w-3.5 text-brand-green" />
         <span>
-          <Link href="/auth?returnTo=/cart" className="font-bold text-[#0B5D3B] underline">
+          <Link href="/auth?returnTo=/cart" className="font-bold text-brand-green underline">
             Sign in
           </Link>{' '}
           to use a coupon.
@@ -88,9 +88,9 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
           placeholder="e.g. WELCOME50"
           aria-invalid={!!error}
           aria-describedby={error ? 'coupon-error' : undefined}
-          className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2.5 font-mono text-xs uppercase outline-none focus:border-[#0B5D3B] focus:ring-2 focus:ring-[#0B5D3B]/15"
+          className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2.5 font-mono text-xs uppercase outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/15"
         />
-        <button type="submit" disabled={cartBusy || !code.trim()} className="inline-flex h-9 items-center rounded-lg bg-[#0B5D3B] px-3 text-xs font-bold text-white hover:bg-[#094D31] disabled:opacity-50">
+        <button type="submit" disabled={cartBusy || !code.trim()} className="inline-flex h-9 items-center rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover disabled:opacity-50">
           {cartBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
         </button>
       </div>
@@ -99,7 +99,7 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
           {error}
         </p>
       )}
-      <Link href="/account/coupons" className="inline-block text-[10px] font-semibold text-[#0B5D3B] hover:underline">
+      <Link href="/account/coupons" className="inline-block text-[10px] font-semibold text-brand-green hover:underline">
         View my coupons
       </Link>
     </form>

@@ -138,7 +138,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         aria-hidden="true"
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-60 bg-[#074028] text-white flex flex-col justify-between shrink-0 h-screen overflow-y-auto select-none transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-60 bg-brand-green-900 text-white flex flex-col justify-between shrink-0 h-screen overflow-y-auto select-none transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
           open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
         aria-label="Admin navigation"
@@ -149,7 +149,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               <Logo size="sm" inverted={true} />
             </Link>
             <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded-md bg-[#FF7A00] text-[9px] font-black uppercase tracking-wider text-white">
+              <span className="px-2 py-0.5 rounded-md bg-brand-orange text-[9px] font-black uppercase tracking-wider text-white">
                 Admin
               </span>
               <button
@@ -179,7 +179,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                       aria-current={isActive ? 'page' : undefined}
                       className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                         isActive
-                          ? 'bg-[#FF7A00] text-white shadow-xs'
+                          ? 'bg-brand-orange text-white shadow-xs'
                           : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
                       }`}
                     >
@@ -226,7 +226,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-emerald-200 transition-colors"
           >
             <span>Storefront</span>
-            <ExternalLink className="w-3 h-3 text-[#FF7A00]" />
+            <ExternalLink className="w-3 h-3 text-brand-orange" />
           </a>
         </div>
       </aside>

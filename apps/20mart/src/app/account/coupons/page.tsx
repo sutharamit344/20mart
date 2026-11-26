@@ -47,7 +47,7 @@ export default async function MyCouponsPage() {
                   </div>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${s.cls}`}>{s.label}</span>
                 </div>
-                <p className="mt-2 inline-block rounded-lg border border-dashed border-[#0B5D3B]/40 bg-[#0B5D3B]/5 px-2.5 py-1 font-mono text-sm font-bold tracking-wider text-[#0B5D3B]">{c.code}</p>
+                <p className="mt-2 inline-block rounded-lg border border-dashed border-brand-green/40 bg-brand-green/5 px-2.5 py-1 font-mono text-sm font-bold tracking-wider text-brand-green">{c.code}</p>
                 <ul className="mt-2 space-y-0.5 text-[11px] text-gray-500">
                   {c.minOrderValuePaise > 0 && <li>On orders of {formatPaise(c.minOrderValuePaise)} or more</li>}
                   {c.maxDiscountPaise != null && <li>Maximum discount {formatPaise(c.maxDiscountPaise)}</li>}
@@ -57,7 +57,7 @@ export default async function MyCouponsPage() {
                   {c.description && <li>{c.description}</li>}
                 </ul>
                 {usable && (
-                  <Link href="/cart" className="mt-2.5 inline-flex h-8 items-center rounded-lg bg-[#0B5D3B] px-3 text-[11px] font-bold text-white hover:bg-[#094D31]">
+                  <Link href="/cart" className="mt-2.5 inline-flex h-8 items-center rounded-lg bg-brand-green px-3 text-[11px] font-bold text-white hover:bg-brand-green-hover">
                     Use in cart
                   </Link>
                 )}

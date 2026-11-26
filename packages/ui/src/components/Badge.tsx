@@ -14,16 +14,16 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const variants = {
-    discount: 'bg-[#FFF6E9] text-[#FF7A00] border border-orange-100 font-bold',
-    success: 'bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold',
-    warning: 'bg-amber-50 text-amber-800 border border-amber-100 font-semibold',
-    info: 'bg-blue-50 text-blue-700 border border-blue-100 font-semibold',
-    neutral: 'bg-gray-100 text-gray-700 border border-gray-200 font-medium',
-    brand: 'bg-[#0B5D3B] text-white font-bold',
+    discount: 'bg-brand-orange-50 text-brand-orange-700 border border-brand-orange-200/70 font-bold',
+    success: 'bg-success-soft text-success border border-success-line font-semibold',
+    warning: 'bg-warning-soft text-warning border border-warning-line font-semibold',
+    info: 'bg-info-soft text-info border border-info-line font-semibold',
+    neutral: 'bg-surface-muted text-ink-700 border border-line font-medium',
+    brand: 'bg-brand-green text-white font-bold',
   };
 
   const sizes = {
-    sm: 'text-[10px] sm:text-[11px] px-2 py-0.5 rounded-md',
+    sm: 'text-2xs px-2 py-0.5 rounded-md',
     md: 'text-xs px-2.5 py-1 rounded-lg',
   };
 

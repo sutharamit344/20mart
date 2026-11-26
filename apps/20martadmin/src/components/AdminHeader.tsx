@@ -42,7 +42,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ user, onMenuClick, can
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search products by name or SKU…"
             aria-label="Search products"
-            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50/80 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#0B5D3B] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50/80 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-green focus:outline-none"
           />
         </form>
       ) : (
@@ -50,7 +50,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ user, onMenuClick, can
       )}
 
       <div className="ml-auto flex items-center gap-2 pl-2 sm:border-l border-gray-200 min-w-0">
-        <div className="h-7 w-7 shrink-0 rounded-full bg-[#0B5D3B] text-white flex items-center justify-center text-[11px] font-bold">
+        <div className="h-7 w-7 shrink-0 rounded-full bg-brand-green text-white flex items-center justify-center text-[11px] font-bold">
           {user.name
             .split(' ')
             .filter(Boolean)

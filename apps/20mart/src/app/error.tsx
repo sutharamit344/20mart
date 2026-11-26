@@ -16,7 +16,7 @@ export default function StorefrontError({ error, reset }: { error: Error & { dig
         <button
           type="button"
           onClick={reset}
-          className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#FF7A00] px-4 text-sm font-bold text-white hover:bg-[#E66E00]"
+          className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-brand-orange px-4 text-sm font-bold text-white hover:bg-brand-orange-600"
         >
           <RefreshCw className="w-4 h-4" /> Try again
         </button>

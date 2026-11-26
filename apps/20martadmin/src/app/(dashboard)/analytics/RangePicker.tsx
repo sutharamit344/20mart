@@ -36,7 +36,7 @@ export function RangePicker({ range, from, to }: { range: string; from: string; 
             role="radio"
             aria-checked={range === p.value}
             onClick={() => (p.value === 'custom' ? go({ range: 'custom', from: f, to: t }) : go({ range: p.value, from: '', to: '' }))}
-            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${range === p.value ? 'bg-[#0B5D3B] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${range === p.value ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             {p.label}
           </button>
