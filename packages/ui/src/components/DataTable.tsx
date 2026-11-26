@@ -31,8 +31,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-2xl border border-gray-100 bg-white">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex h-48 items-center justify-center rounded-2xl border border-line-subtle bg-surface">
+        <div className="flex items-center gap-2 text-sm text-ink-500">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-green border-t-transparent" />
           <span>Loading data...</span>
         </div>
@@ -41,9 +41,9 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn('overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm', className)}>
-      <table className="w-full text-left text-sm text-gray-600">
-        <thead className="border-b border-gray-100 bg-gray-50/60 text-xs uppercase font-semibold text-gray-500">
+    <div className={cn('overflow-x-auto rounded-2xl border border-line-subtle bg-surface shadow-sm', className)}>
+      <table className="w-full text-left text-sm text-ink-600">
+        <thead className="border-b border-line-subtle bg-surface-page/60 text-xs uppercase font-semibold text-ink-500">
           <tr>
             {columns.map((col, idx) => (
               <th key={idx} scope="col" className={cn('px-4 py-3.5 whitespace-nowrap', col.className)}>
@@ -52,10 +52,10 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-line-subtle">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-gray-400">
+              <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-ink-400">
                 {emptyMessage}
               </td>
             </tr>
@@ -65,7 +65,7 @@ export function DataTable<T>({
                 key={keyExtractor(row)}
                 onClick={() => onRowClick?.(row)}
                 className={cn(
-                  'transition-colors hover:bg-gray-50/70',
+                  'transition-colors hover:bg-surface-muted/70',
                   onRowClick && 'cursor-pointer'
                 )}
               >
@@ -106,13 +106,13 @@ export const FormField: React.FC<FormFieldProps> = ({
 }) => {
   return (
     <div className={cn('w-full space-y-1', className)}>
-      <label className="block text-xs font-semibold text-gray-700">
+      <label className="block text-xs font-semibold text-ink-700">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-danger">*</span>}
       </label>
       {children}
-      {hint && !error && <p className="text-[11px] text-gray-400">{hint}</p>}
-      {error && <p className="text-xs font-medium text-red-600">{error}</p>}
+      {hint && !error && <p className="text-2xs text-ink-400">{hint}</p>}
+      {error && <p className="text-xs font-medium text-danger">{error}</p>}
     </div>
   );
 };
@@ -124,12 +124,12 @@ export interface StatusIndicatorProps {
 
 export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status, label }) => {
   const configs = {
-    active: { bg: 'bg-emerald-500', text: 'text-emerald-700', pill: 'bg-emerald-50', defaultLabel: 'Active' },
-    inactive: { bg: 'bg-gray-400', text: 'text-gray-700', pill: 'bg-gray-100', defaultLabel: 'Inactive' },
-    processing: { bg: 'bg-amber-500', text: 'text-amber-700', pill: 'bg-amber-50', defaultLabel: 'Processing' },
-    delivered: { bg: 'bg-emerald-500', text: 'text-emerald-700', pill: 'bg-emerald-50', defaultLabel: 'Delivered' },
-    cancelled: { bg: 'bg-red-500', text: 'text-red-700', pill: 'bg-red-50', defaultLabel: 'Cancelled' },
-    pending: { bg: 'bg-blue-500', text: 'text-blue-700', pill: 'bg-blue-50', defaultLabel: 'Pending' },
+    active: { bg: 'bg-success', text: 'text-success', pill: 'bg-success-soft', defaultLabel: 'Active' },
+    inactive: { bg: 'bg-ink-400', text: 'text-ink-700', pill: 'bg-surface-muted', defaultLabel: 'Inactive' },
+    processing: { bg: 'bg-warning', text: 'text-warning', pill: 'bg-warning-soft', defaultLabel: 'Processing' },
+    delivered: { bg: 'bg-success', text: 'text-success', pill: 'bg-success-soft', defaultLabel: 'Delivered' },
+    cancelled: { bg: 'bg-danger', text: 'text-danger', pill: 'bg-danger-soft', defaultLabel: 'Cancelled' },
+    pending: { bg: 'bg-info', text: 'text-info', pill: 'bg-info-soft', defaultLabel: 'Pending' },
   };
 
   const conf = configs[status] || configs.pending;

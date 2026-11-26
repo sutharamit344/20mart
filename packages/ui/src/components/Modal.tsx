@@ -56,17 +56,17 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Content Container */}
       <div
         className={cn(
-          'relative w-full rounded-2xl bg-white p-4 sm:p-5 shadow-2xl transition-all z-10 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150',
+          'relative w-full rounded-2xl bg-surface p-4 sm:p-5 shadow-2xl transition-all z-10 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150',
           maxW[maxWidth],
           className
         )}
       >
-        <div className="flex items-center justify-between pb-2.5 border-b border-gray-100 mb-3">
-          {title && <h3 className="text-base font-bold text-gray-900">{title}</h3>}
+        <div className="flex items-center justify-between pb-2.5 border-b border-line-subtle mb-3">
+          {title && <h3 className="text-base font-bold text-ink">{title}</h3>}
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ml-auto"
+            className="rounded-full p-1.5 text-ink-400 hover:text-ink-600 hover:bg-surface-muted transition-colors ml-auto"
           >
             <X className="w-5 h-5" />
           </button>

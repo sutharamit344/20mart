@@ -180,7 +180,7 @@ export const LocationButton: React.FC<{ tone?: 'dark' | 'light'; className?: str
   const { ready, label, serviceability, openPicker } = useLocation();
   const off = serviceability && !serviceability.serviceable;
   return (
-    <button type="button" onClick={openPicker} className={`flex items-center gap-1.5 min-w-0 cursor-pointer ${className}`} aria-label="Change delivery location">
+    <button type="button" onClick={openPicker} className={`flex min-h-8 items-center gap-1.5 min-w-0 cursor-pointer ${className}`} aria-label="Change delivery location">
       <MapPin className={`w-3.5 h-3.5 shrink-0 ${tone === 'dark' ? 'text-brand-orange-300' : 'text-brand-orange'}`} />
       <span className={`shrink-0 ${tone === 'dark' ? 'text-white/75' : 'text-ink-600'}`}>{label ? 'Delivering to' : 'Deliver to'}</span>
       <span className={`truncate font-semibold ${tone === 'dark' ? 'text-white' : 'text-ink'} hover:underline`}>

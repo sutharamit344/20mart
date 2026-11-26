@@ -30,8 +30,8 @@ export const Logo: React.FC<LogoProps> = ({
 
   // Balanced sizes for sleek header & UI integration
   const sizeMap = {
-    xs: { h: 'h-6 sm:h-7', iconW: 'w-6 h-6 sm:w-7 sm:h-7', subText: 'text-[9px]' },
-    sm: { h: 'h-7 sm:h-8', iconW: 'w-7 h-7 sm:w-8 sm:h-8', subText: 'text-[10px]' },
+    xs: { h: 'h-6 sm:h-7', iconW: 'w-6 h-6 sm:w-7 sm:h-7', subText: 'text-2xs' },
+    sm: { h: 'h-7 sm:h-8', iconW: 'w-7 h-7 sm:w-8 sm:h-8', subText: 'text-2xs' },
     md: { h: 'h-8 sm:h-9', iconW: 'w-8 h-8 sm:w-9 sm:h-9', subText: 'text-xs' },
     lg: { h: 'h-10 sm:h-12', iconW: 'w-10 h-10 sm:w-12 sm:h-12', subText: 'text-sm' },
     xl: { h: 'h-14 sm:h-16', iconW: 'w-14 h-14 sm:w-16 sm:h-16', subText: 'text-base' },
@@ -46,7 +46,7 @@ export const Logo: React.FC<LogoProps> = ({
         <img
           src="/icons/20mart-app-icon.png"
           alt="20Mart App Icon"
-          className={`${cur.iconW} rounded-xl object-contain shadow-xs`}
+          className={`${cur.iconW} rounded-xl object-contain `}
           loading="eager"
         />
       </div>
@@ -57,7 +57,7 @@ export const Logo: React.FC<LogoProps> = ({
   return (
     <div
       className={`inline-flex items-center select-none ${
-        inverted ? 'bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-xl shadow-xs' : ''
+        inverted ? 'bg-surface/95 backdrop-blur-xs px-2.5 py-1 rounded-xl ' : ''
       } ${className}`}
     >
       {!imgError ? (
@@ -89,8 +89,8 @@ export const Logo: React.FC<LogoProps> = ({
             />
             <path d="M13 22C14.5 25 23.5 25 25 22" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
-          <span className="font-heading font-black text-xl text-brand-orange">
-            20<span className="text-[#0B5D38]">Mart</span>
+          <span className="font-heading font-bold text-xl text-brand-orange">
+            20<span className="text-brand-green">Mart</span>
           </span>
         </div>
       )}

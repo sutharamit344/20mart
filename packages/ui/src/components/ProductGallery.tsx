@@ -161,7 +161,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <span className="text-xs sm:text-sm font-bold text-gray-200 truncate max-w-xs sm:max-w-md">
                 {productName}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-ink-400">
                 ({selectedIdx + 1} / {images.length})
               </span>
             </div>
@@ -171,7 +171,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <button
                 type="button"
                 onClick={() => setLightboxScale((prev) => Math.min(3, prev + 0.5))}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-surface/10 hover:bg-surface/20 text-white transition-colors cursor-pointer"
                 title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
@@ -179,7 +179,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <button
                 type="button"
                 onClick={() => setLightboxScale((prev) => Math.max(1, prev - 0.5))}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-surface/10 hover:bg-surface/20 text-white transition-colors cursor-pointer"
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4 h-4" />
@@ -187,7 +187,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <button
                 type="button"
                 onClick={() => setLightboxScale(1)}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-surface/10 hover:bg-surface/20 text-white transition-colors cursor-pointer"
                 title="Reset Zoom"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -198,7 +198,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   setIsLightboxOpen(false);
                   setLightboxScale(1);
                 }}
-                className="p-2 rounded-xl bg-white/10 hover:bg-red-500/80 text-white transition-colors cursor-pointer ml-2"
+                className="p-2 rounded-xl bg-surface/10 hover:bg-red-500/80 text-white transition-colors cursor-pointer ml-2"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -213,7 +213,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 <button
                   type="button"
                   onClick={handlePrev}
-                  className="absolute left-4 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-md transition-all cursor-pointer"
+                  className="absolute left-4 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-surface/15 hover:bg-surface/25 text-white backdrop-blur-md transition-all cursor-pointer"
                   title="Previous image"
                 >
                   <ChevronLeft className="w-6 h-6" />
@@ -221,7 +221,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="absolute right-4 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/15 hover:bg-white/25 text-white backdrop-blur-md transition-all cursor-pointer"
+                  className="absolute right-4 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-surface/15 hover:bg-surface/25 text-white backdrop-blur-md transition-all cursor-pointer"
                   title="Next image"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -253,7 +253,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                     setLightboxScale(1);
                   }}
                   className={cn(
-                    'h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-white cursor-pointer',
+                    'h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-surface cursor-pointer',
                     selectedIdx === idx
                       ? 'border-brand-orange ring-2 ring-brand-orange/50 scale-105'
                       : 'border-transparent opacity-50 hover:opacity-90'

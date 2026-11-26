@@ -33,7 +33,7 @@ export const Tabs: React.FC<TabsProps> = ({
                 'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all whitespace-nowrap',
                 isActive
                   ? 'bg-brand-green text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                  : 'bg-surface-muted text-ink-600 hover:bg-line hover:text-ink'
               )}
             >
               {tab.icon}
@@ -41,8 +41,8 @@ export const Tabs: React.FC<TabsProps> = ({
               {typeof tab.count === 'number' && (
                 <span
                   className={cn(
-                    'px-1.5 py-0.5 rounded-full text-[10px] font-bold',
-                    isActive ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
+                    'px-1.5 py-0.5 rounded-full text-2xs font-bold',
+                    isActive ? 'bg-surface/20 text-white' : 'bg-line text-ink-700'
                   )}
                 >
                   {tab.count}
@@ -56,7 +56,7 @@ export const Tabs: React.FC<TabsProps> = ({
   }
 
   return (
-    <div className={cn('flex border-b border-gray-200 overflow-x-auto', className)}>
+    <div className={cn('flex border-b border-line overflow-x-auto', className)}>
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
         return (
@@ -68,7 +68,7 @@ export const Tabs: React.FC<TabsProps> = ({
               'inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap -mb-px',
               isActive
                 ? 'border-brand-orange text-brand-orange'
-                : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'
+                : 'border-transparent text-ink-500 hover:text-ink-800 hover:border-line-strong'
             )}
           >
             {tab.icon}
@@ -77,7 +77,7 @@ export const Tabs: React.FC<TabsProps> = ({
               <span
                 className={cn(
                   'px-2 py-0.5 rounded-full text-xs font-bold',
-                  isActive ? 'bg-orange-100 text-brand-orange' : 'bg-gray-100 text-gray-600'
+                  isActive ? 'bg-brand-orange-100 text-brand-orange' : 'bg-surface-muted text-ink-600'
                 )}
               >
                 {tab.count}
@@ -114,7 +114,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
                   {item.label}
                 </span>
               ) : (
-                <a href={item.href} className="rounded transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
+                <a href={item.href} className="inline-flex min-h-6 items-center rounded transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
                   {item.label}
                 </a>
               )}

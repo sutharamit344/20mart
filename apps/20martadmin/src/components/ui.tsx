@@ -116,10 +116,10 @@ const badgeTones: Record<string, string> = {
   DRAFT: 'bg-surface-muted text-ink-600 ring-ink-500/15',
   INACTIVE: 'bg-surface-muted text-ink-600 ring-ink-500/15',
   SUSPENDED: 'bg-danger-soft text-danger ring-danger/15',
-  ARCHIVED: 'bg-slate-100 text-slate-500 ring-slate-500/15',
+  ARCHIVED: 'bg-surface-muted text-ink-500 ring-ink-500/15',
   LOW: 'bg-warning-soft text-warning ring-warning/15',
   OUT: 'bg-danger-soft text-danger ring-danger/15',
-  FEATURED: 'bg-brand-orange-50 text-brand-orange-600 ring-orange-500/20',
+  FEATURED: 'bg-brand-orange-50 text-brand-orange-600 ring-brand-orange/20',
 };
 const badgeLabels: Record<string, string> = {
   IN_STOCK: 'In stock',

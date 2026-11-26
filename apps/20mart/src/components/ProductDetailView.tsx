@@ -292,6 +292,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
 
       {/* Sticky mobile purchase bar (sits on top of the bottom navigation) */}
       <div
+        data-mobile-action-bar
         className={`fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 block transition-[transform,opacity] duration-200 md:hidden ${
           isStickyVisible ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
         }`}

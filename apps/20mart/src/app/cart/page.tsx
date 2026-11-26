@@ -230,7 +230,7 @@ export default function CartPage() {
       </div>
 
       {/* Mobile sticky checkout bar (above the bottom navigation) */}
-      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-surface/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:hidden">
+      <div data-mobile-action-bar className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-surface/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-3">
           <div className="leading-tight">
             <p className="text-2xs text-ink-500">{cart.discountPaise > 0 ? 'After coupon' : 'Subtotal'}</p>

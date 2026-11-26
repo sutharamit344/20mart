@@ -30,7 +30,7 @@ export const AdminProvider: React.FC<{ adminName: string; children: React.ReactN
       {children}
       {toast && (
         <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom duration-200">
-          <div className="flex items-center gap-2.5 rounded-xl bg-gray-900 px-4 py-3 text-xs font-bold text-white shadow-xl border border-gray-700">
+          <div className="flex items-center gap-2.5 rounded-xl bg-ink px-4 py-3 text-xs font-bold text-white shadow-xl border border-gray-700">
             <span className="h-2 w-2 rounded-full bg-brand-orange" />
             <span>{toast}</span>
           </div>

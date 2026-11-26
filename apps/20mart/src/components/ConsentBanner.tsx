@@ -49,7 +49,7 @@ export function ConsentBanner() {
   };
 
   return (
-    <div role="dialog" aria-modal="false" aria-labelledby="consent-title" className="fixed inset-x-3 bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.5rem)] z-50 animate-pop-in md:inset-x-auto md:bottom-4 md:right-4 md:w-[380px]">
+    <div role="dialog" aria-modal="false" aria-labelledby="consent-title" className="fixed inset-x-3 bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.5rem)] [body:has([data-mobile-action-bar])_&]:bottom-[calc(7rem+env(safe-area-inset-bottom)+0.5rem)] z-50 animate-pop-in md:inset-x-auto md:bottom-4 md:right-4 md:w-[380px]">
       <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-2xl border border-line bg-surface p-4 shadow-pop">
         <div className="flex items-start gap-3">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-cream text-brand-orange">
