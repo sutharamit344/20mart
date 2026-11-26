@@ -1,8 +1,8 @@
-import React from 'react';
-import Link from 'next/link';
-import { ArrowRight, Truck, Tag } from 'lucide-react';
-import type { StorefrontProduct } from '@20mart/shared';
-import { HeroShowcase } from './HeroShowcase';
+import React from "react";
+import Link from "next/link";
+import { ArrowRight, Truck, Tag } from "lucide-react";
+import type { StorefrontProduct } from "@20mart/shared";
+import { HeroShowcase } from "./HeroShowcase";
 
 /**
  * Home hero: solid brand green, one primary CTA, factual delivery/price notes (the same ones shown in the
@@ -10,16 +10,26 @@ import { HeroShowcase } from './HeroShowcase';
  */
 export function HomeHero({ products }: { products: StorefrontProduct[] }) {
   return (
-    <section className="mx-auto max-w-7xl sm:px-6" aria-labelledby="home-hero-title">
+    <section
+      className="mx-auto max-w-7xl sm:px-6"
+      aria-labelledby="home-hero-title"
+    >
       <div className="h-auto overflow-hidden bg-brand-green text-white sm:rounded-2xl">
         <div className="grid grid-cols-1 items-center md:grid-cols-12">
           <div className="space-y-3 px-4 py-5 sm:px-6 sm:py-6 md:col-span-6 md:py-6 lg:col-span-5 lg:py-7 lg:pl-8">
-            <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-brand-orange-300">Everyday essentials</p>
-            <h1 id="home-hero-title" className="font-heading text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2rem]">
-              Your everyday <span className="text-brand-orange-300">value market</span>
+            <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-brand-orange-300">
+              Everyday essentials
+            </p>
+            <h1
+              id="home-hero-title"
+              className="font-heading text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-[3rem]"
+            >
+              Your everyday{" "}
+              <span className="text-brand-orange-300">value market</span>
             </h1>
             <p className="max-w-md text-xs sm:text-sm leading-relaxed text-white/80">
-              Useful products, affordable prices, everyday convenience. Household, kitchen and cleaning essentials delivered to your door.
+              Useful products, affordable prices, everyday convenience.
+              Household, kitchen and cleaning essentials delivered to your door.
             </p>
             <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
               <Link
