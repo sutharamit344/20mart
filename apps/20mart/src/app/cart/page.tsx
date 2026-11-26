@@ -271,16 +271,16 @@ function CartRow({ line, busy, onQty, onRemove }: { line: CartLine; busy: boolea
   const stepBtn =
     'flex h-full w-9 items-center justify-center text-ink-600 hover:bg-surface-muted disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-orange/50';
   return (
-    <li className={`flex gap-3 p-3 sm:p-4 ${line.state !== 'ok' ? 'bg-warning-soft/50' : ''}`}>
+    <li className={`flex items-center gap-3 p-3 sm:p-4 ${line.state !== 'ok' ? 'bg-warning-soft/50' : ''}`}>
       <Link
         href={`/product/${line.slug}`}
-        className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-sunken sm:h-24 sm:w-24 ${blocked ? 'opacity-50 grayscale' : ''}`}
+        className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-sunken sm:h-20 sm:w-20 ${blocked ? 'opacity-50 grayscale' : ''}`}
         tabIndex={-1}
         aria-hidden
       >
-        {line.imageUrl ? <Image src={resolveImageSrc(line.imageUrl)} alt="" fill sizes="96px" className="object-contain p-1.5 mix-blend-multiply" /> : null}
+        {line.imageUrl ? <Image src={resolveImageSrc(line.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1.5 mix-blend-multiply" /> : null}
       </Link>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {line.brandName && <p className="text-2xs font-medium text-ink-500">{line.brandName}</p>}
@@ -297,12 +297,12 @@ function CartRow({ line, busy, onQty, onRemove }: { line: CartLine; busy: boolea
             onClick={onRemove}
             disabled={busy}
             aria-label={`Remove ${line.name}`}
-            className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-danger-soft hover:text-danger disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+            className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-danger-soft hover:text-danger disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="leading-tight">
             <span className="block text-sm font-bold tabular-nums text-ink">{formatPaise(line.unitPricePaise)}</span>
             {line.mrpPaise > line.unitPricePaise && (
