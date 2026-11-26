@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { resolveImageSrc } from '@20mart/ui';
+import { Modal, resolveImageSrc } from '@20mart/ui';
 import { useRouter } from 'next/navigation';
 import { FULFILMENT_STEPS, formatPaise, PAYMENT_STATUS_LABEL, type OrderStatusCode, type PaymentStatusCode } from '@20mart/shared';
-import { Check, ChevronDown, ChevronUp, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
+import { Check, ChevronRight, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
 import { storeApi, useStore } from '../lib/store';
 import { payWithRazorpay, type CheckoutPaymentParams } from '../lib/razorpay';
 
@@ -59,7 +59,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
   const [busy, setBusy] = useState<'pay' | 'cancel' | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [reason, setReason] = useState('');
-  const [showFullStatus, setShowFullStatus] = useState(false);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
 
   const terminal = order.status === 'CANCELLED' || order.status === 'FAILED';
   const reached = new Map(order.history.map((h) => [h.status, h.at]));
@@ -145,28 +145,8 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
       )}
 
       {/* Timeline */}
-      <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 ">
-        <div className="mb-2.5 flex items-center justify-between gap-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500">Order status</h3>
-          {!terminal && (
-            <button
-              type="button"
-              onClick={() => setShowFullStatus((v) => !v)}
-              aria-expanded={showFullStatus}
-              className="inline-flex cursor-pointer items-center gap-1 rounded-md text-xs font-semibold text-brand-green hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
-            >
-              {showFullStatus ? (
-                <>
-                  Hide full status <ChevronUp className="h-3.5 w-3.5" />
-                </>
-              ) : (
-                <>
-                  View all status <ChevronDown className="h-3.5 w-3.5" />
-                </>
-              )}
-            </button>
-          )}
-        </div>
+      <section className="rounded-2xl border border-line-subtle bg-surface p-3.5">
+        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-ink-500">Order status</h3>
         {terminal ? (
           <div className="flex items-start gap-2 rounded-xl bg-danger-soft p-3 text-xs text-danger">
             <XCircle className="h-4 w-4 shrink-0" />
@@ -180,37 +160,62 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               )}
             </div>
           </div>
-        ) : showFullStatus ? (
-          <ol className="relative space-y-3 pl-6">
-            <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-surface-muted" aria-hidden="true" />
-            {FULFILMENT_STEPS.map((s, i) => {
-              const done = reached.has(s.status) || i <= currentIdx;
-              const at = reached.get(s.status);
-              return (
-                <li key={s.status} className="relative">
-                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-brand-green bg-brand-green text-white' : 'border-line bg-surface'}`}>
-                    {done && <Check className="h-3 w-3" />}
-                  </span>
-                  <p className={`text-xs font-bold ${done ? 'text-ink' : 'text-ink-400'}`}>{s.label}</p>
-                  {at && <p className="text-2xs text-ink-500">{fmtDate(at)}</p>}
-                </li>
-              );
-            })}
-          </ol>
         ) : (
-          <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-brand-green bg-brand-green text-white">
-              <Check className="h-3 w-3" />
-            </span>
-            <div>
-              <p className="text-xs font-bold text-ink">{activeStep?.label ?? order.statusLabel}</p>
-              <p className="text-2xs text-ink-500">{fmtDate(activeAt)}</p>
+          <button
+            type="button"
+            onClick={() => setShowTrackingModal(true)}
+            className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-line-subtle bg-surface-page/60 p-3 text-left transition-colors hover:border-brand-green/40 hover:bg-brand-green/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
+          >
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-brand-green bg-brand-green text-white">
+                <Check className="h-3 w-3" />
+              </span>
+              <div>
+                <p className="text-xs font-bold text-ink">{activeStep?.label ?? order.statusLabel}</p>
+                <p className="text-2xs text-ink-500">{fmtDate(activeAt)}</p>
+              </div>
             </div>
-          </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-ink-400" aria-hidden />
+          </button>
         )}
         {!terminal && order.status !== 'DELIVERED' && order.deliveryEstimate && (
           <p className="mt-3 rounded-lg bg-success-soft p-2 text-2xs font-semibold text-success">{order.deliveryEstimate}</p>
         )}
+
+        <Modal
+          isOpen={showTrackingModal}
+          onClose={() => setShowTrackingModal(false)}
+          title={`Order #${order.orderNumber} tracking`}
+          maxWidth="md"
+        >
+          <div className="space-y-4">
+            <ol className="relative space-y-3 pl-6">
+              <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-surface-muted" aria-hidden="true" />
+              {FULFILMENT_STEPS.map((s, i) => {
+                const done = reached.has(s.status) || i <= currentIdx;
+                const at = reached.get(s.status);
+                return (
+                  <li key={s.status} className="relative">
+                    <span
+                      className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                        done ? 'border-brand-green bg-brand-green text-white' : 'border-line bg-surface'
+                      }`}
+                    >
+                      {done && <Check className="h-3 w-3" />}
+                    </span>
+                    <p className={`text-xs font-bold ${done ? 'text-ink' : 'text-ink-400'}`}>{s.label}</p>
+                    {at && <p className="text-2xs text-ink-500">{fmtDate(at)}</p>}
+                  </li>
+                );
+              })}
+            </ol>
+            {order.status !== 'DELIVERED' && order.deliveryEstimate && (
+              <p className="rounded-lg bg-success-soft p-2.5 text-2xs font-semibold text-success">
+                {order.deliveryEstimate}
+              </p>
+            )}
+          </div>
+        </Modal>
       </section>
 
       {/* Items */}
