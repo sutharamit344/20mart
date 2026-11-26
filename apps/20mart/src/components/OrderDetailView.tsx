@@ -102,13 +102,13 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line-subtle bg-surface p-3.5 sm:p-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-line-subtle bg-surface p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div className="min-w-0">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Order</p>
-          <h2 className="text-base font-bold text-ink sm:text-lg">#{order.orderNumber}</h2>
+          <h2 className="truncate text-base font-bold text-ink sm:text-lg">#{order.orderNumber}</h2>
           <p className="text-2xs text-ink-500">Placed {fmtDate(order.createdAt)}</p>
         </div>
-        <div className="flex items-center gap-4 sm:text-right">
+        <div className="flex items-center justify-between gap-4 border-t border-line-subtle pt-2.5 sm:justify-end sm:border-t-0 sm:pt-0 sm:text-right">
           <div>
             <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Payment</p>
             <div className="mt-0.5 flex items-center gap-1.5 sm:justify-end">
@@ -125,7 +125,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               </span>
             </div>
           </div>
-          <div className="border-l border-line-subtle pl-4">
+          <div className="text-right sm:border-l sm:border-line-subtle sm:pl-4">
             <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Total</p>
             <p className="mt-0.5 text-base font-bold tabular-nums text-ink">{formatPaise(order.totalPaise)}</p>
           </div>
