@@ -443,7 +443,7 @@ export const Header: React.FC<{ categories: HeaderCategory[] }> = ({ categories 
 
       {/* Mobile slide-over drawer */}
       {mobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+        <div className="fixed inset-0 z-[60] flex md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="fixed inset-0 bg-ink/40 animate-fade-in" onClick={() => setMobileDrawerOpen(false)} />
 
           <div className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-surface shadow-pop animate-fade-in">

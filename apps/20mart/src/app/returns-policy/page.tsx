@@ -22,26 +22,26 @@ export default function ReturnsPolicyPage() {
       />
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-brand-green text-xs font-bold border border-emerald-200/50">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-soft text-brand-green text-xs font-bold border border-success-line/50">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Everyday Direct Value</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+        <h1 className="text-xl font-semibold text-ink sm:text-2xl">
           No Returns Policy
         </h1>
-        <p className="text-xs text-gray-400">All sales are final to ensure unbeatable direct-to-consumer prices starting at ₹20</p>
+        <p className="text-xs text-ink-400">All sales are final to ensure unbeatable direct-to-consumer prices starting at ₹20</p>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-xs text-xs sm:text-sm text-gray-600 space-y-6 leading-relaxed">
+      <div className="rounded-2xl border border-line-subtle bg-surface p-5 sm:p-8 text-sm text-ink-600 space-y-6 leading-relaxed">
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">1. All Sales Are Final (No Returns)</h2>
+          <h2 className="text-sm sm:text-base font-bold text-ink">1. All Sales Are Final (No Returns)</h2>
           <p>
             At 20Mart, we procure household and kitchen essentials directly from quality manufacturers to deliver everyday neighborhood prices starting at just ₹20. Because reverse logistics on small-ticket items would drive prices up, <strong>we do not accept product returns or exchanges once an order is delivered</strong>.
           </p>
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">2. Damaged or Defective Items in Transit</h2>
+          <h2 className="text-sm sm:text-base font-bold text-ink">2. Damaged or Defective Items in Transit</h2>
           <p>
             Your satisfaction matters. If an item arrives physically damaged, broken, or defective during delivery, please notify us within <strong>48 hours of delivery</strong>:
           </p>
@@ -53,7 +53,7 @@ export default function ReturnsPolicyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">3. Contact Support</h2>
+          <h2 className="text-sm sm:text-base font-bold text-ink">3. Contact Support</h2>
           <p>
             For assistance with transit damage or order issues, please submit a ticket through our{' '}
             <Link href="/contact" className="text-brand-orange font-bold underline">

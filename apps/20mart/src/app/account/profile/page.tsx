@@ -64,9 +64,9 @@ export default function EditProfilePage() {
         />
 
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1">Mobile Number</label>
+          <label className="block text-xs font-bold text-ink-700 mb-1">Mobile Number</label>
           <div className="relative flex items-center">
-            <span className="absolute left-3 text-xs sm:text-sm font-semibold text-gray-500">+91</span>
+            <span className="absolute left-3 text-xs sm:text-sm font-semibold text-ink-500">+91</span>
             <input
               type="tel"
               inputMode="numeric"
@@ -74,26 +74,26 @@ export default function EditProfilePage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
               placeholder="10-digit mobile number"
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white pl-11 pr-3 text-xs sm:text-sm text-gray-900 font-semibold focus:border-brand-orange focus:outline-none"
+              className="w-full h-9.5 rounded-xl border border-line bg-surface pl-11 pr-3 text-xs sm:text-sm text-ink font-semibold focus:border-brand-orange focus:outline-none"
             />
           </div>
-          {errors.phone?.[0] && <p className="mt-1 text-[11px] font-medium text-red-600">{errors.phone[0]}</p>}
+          {errors.phone?.[0] && <p className="mt-1 text-2xs font-medium text-danger">{errors.phone[0]}</p>}
         </div>
 
         <div>
           <Input label="Email Address" type="email" value={email} readOnly disabled />
-          <p className="mt-1 flex items-center gap-1 text-[11px] text-emerald-700">
+          <p className="mt-1 flex items-center gap-1 text-2xs text-success">
             <CheckCircle2 className="w-3 h-3" /> Verified by Google — managed in your Google account
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Primary City</label>
+            <label className="block text-xs font-bold text-ink-700 mb-1">Primary City</label>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-brand-orange"
+              className="w-full h-9.5 rounded-xl border border-line bg-surface px-3 text-xs text-ink-800 focus:outline-none focus:border-brand-orange"
             >
               <option value="Ahmedabad">Ahmedabad</option>
               <option value="Gandhinagar">Gandhinagar</option>
@@ -104,11 +104,11 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Preferred Language</label>
+            <label className="block text-xs font-bold text-ink-700 mb-1">Preferred Language</label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full h-9.5 rounded-xl border border-gray-200 bg-white px-3 text-xs text-gray-800 focus:outline-none focus:border-brand-orange"
+              className="w-full h-9.5 rounded-xl border border-line bg-surface px-3 text-xs text-ink-800 focus:outline-none focus:border-brand-orange"
             >
               <option value="English">English</option>
               <option value="Gujarati">ગુજરાતી (Gujarati)</option>
@@ -123,7 +123,7 @@ export default function EditProfilePage() {
             size="md"
             variant="primary"
             isLoading={isSaving}
-            className="font-bold px-6 shadow-xs"
+            className="font-bold px-6 "
           >
             Save Profile Changes
           </Button>

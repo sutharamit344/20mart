@@ -9,8 +9,8 @@ export default function WishlistPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 space-y-3">
       <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Wishlist' }]} />
       <div>
-        <h1 className="text-lg sm:text-xl font-black text-gray-900">My Wishlist</h1>
-        <p className="text-xs text-gray-500">Prices and availability are always up to date.</p>
+        <h1 className="text-lg sm:text-xl font-bold text-ink">My Wishlist</h1>
+        <p className="text-xs text-ink-500">Prices and availability are always up to date.</p>
       </div>
       <WishlistView />
     </div>

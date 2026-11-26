@@ -52,16 +52,16 @@ export function AuthPanel() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-14 flex items-center justify-center">
-      <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-md space-y-5">
+      <div className="w-full max-w-md rounded-2xl border border-line-subtle bg-surface p-6 sm:p-8 shadow-card space-y-5">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-2">
             <Logo size="lg" showTagline={true} />
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-gray-900">Welcome to 20Mart</h1>
-          <p className="text-xs text-gray-500">Sign in or create your account in one tap with Google.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-ink">Welcome to 20Mart</h1>
+          <p className="text-xs text-ink-500">Sign in or create your account in one tap with Google.</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-orange-50/60 border border-orange-100 text-[11px] text-gray-700">
+        <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-brand-orange-50/60 border border-brand-orange-100 text-2xs text-ink-700">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-brand-orange shrink-0" />
             <span>Everyday essentials from ₹20</span>
@@ -73,7 +73,7 @@ export function AuthPanel() {
         </div>
 
         {error && (
-          <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50 p-3 text-xs text-red-700">
+          <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger-line bg-danger-soft p-3 text-xs text-danger">
             <AlertCircle className="w-4 h-4 shrink-0 mt-px" />
             <span>{error}</span>
           </div>
@@ -83,13 +83,13 @@ export function AuthPanel() {
           type="button"
           onClick={startGoogle}
           disabled={redirecting || authStatus === 'authenticated'}
-          className="flex w-full h-12 items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 text-sm font-bold text-gray-800 shadow-xs transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-orange/40 disabled:opacity-70 disabled:cursor-wait"
+          className="flex w-full h-12 items-center justify-center gap-3 rounded-xl border border-line-strong bg-surface px-4 text-sm font-bold text-ink-800 transition-all hover:bg-surface-muted hover:border-ink-400 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-orange/40 disabled:opacity-70 disabled:cursor-wait"
         >
-          {redirecting ? <Loader2 className="h-5 w-5 animate-spin text-gray-500" /> : <GoogleMark />}
+          {redirecting ? <Loader2 className="h-5 w-5 animate-spin text-ink-500" /> : <GoogleMark />}
           <span>{redirecting ? 'Redirecting to Google…' : 'Continue with Google'}</span>
         </button>
 
-        <div className="flex items-start gap-2 rounded-xl bg-gray-50 p-3 text-[11px] text-gray-500">
+        <div className="flex items-start gap-2 rounded-xl bg-surface-page p-3 text-2xs text-ink-500">
           <ShieldCheck className="w-4 h-4 shrink-0 text-brand-green" />
           <p>
             We only use your verified Google name, email and photo to create your account. We never see your Google
@@ -97,13 +97,13 @@ export function AuthPanel() {
           </p>
         </div>
 
-        <p className="text-center text-[11px] text-gray-400">
+        <p className="text-center text-2xs text-ink-400">
           By continuing you agree to our{' '}
-          <a href="/terms" className="font-semibold text-gray-600 hover:text-brand-orange">
+          <a href="/terms" className="font-semibold text-ink-600 hover:text-brand-orange">
             Terms
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="font-semibold text-gray-600 hover:text-brand-orange">
+          <a href="/privacy" className="font-semibold text-ink-600 hover:text-brand-orange">
             Privacy Policy
           </a>
           .

@@ -33,27 +33,27 @@ export default async function AccountDashboard() {
     <AccountLayout title={`Hi${customer.name ? `, ${customer.name.split(' ')[0]}` : ''}`} subtitle="Manage your orders, addresses and profile.">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {tiles.map((t) => (
-          <Link key={t.label} href={t.href} className="rounded-2xl border border-gray-100 bg-white p-3 shadow-xs hover:border-orange-200">
+          <Link key={t.label} href={t.href} className="rounded-2xl border border-line-subtle bg-surface p-3 hover:border-brand-orange-200">
             <t.icon className="h-4 w-4 text-brand-orange" />
-            <p className="mt-1.5 text-lg font-black text-gray-900">{t.value}</p>
-            <p className="text-[11px] text-gray-500">{t.label}</p>
+            <p className="mt-1.5 text-lg font-bold text-ink">{t.value}</p>
+            <p className="text-2xs text-ink-500">{t.label}</p>
           </Link>
         ))}
       </div>
-      <div className="mt-3 rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">Latest order</h2>
+      <div className="mt-3 rounded-2xl border border-line-subtle bg-surface p-3.5 ">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-ink-500">Latest order</h2>
         {latest ? (
           <Link href={`/account/orders/${latest.orderNumber}`} className="mt-2 flex items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-black text-gray-900">#{latest.orderNumber}</p>
-              <p className="text-[11px] text-gray-500">
+              <p className="text-sm font-bold text-ink">#{latest.orderNumber}</p>
+              <p className="text-2xs text-ink-500">
                 {latest.createdAt.toLocaleDateString('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' })} · {formatPaise(latest.totalPaise)}
               </p>
             </div>
-            <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-brand-orange-600">{orderStatusLabel(latest.status)}</span>
+            <span className="rounded-full bg-brand-orange-50 px-2.5 py-1 text-2xs font-bold text-brand-orange-600">{orderStatusLabel(latest.status)}</span>
           </Link>
         ) : (
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-ink-500">
             No orders yet.{' '}
             <Link href="/shop" className="font-bold text-brand-orange">
               Start shopping →

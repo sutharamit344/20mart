@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-gray-400">Loading sign in…</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs text-ink-400">Loading sign in…</div>}>
       <AuthPanel />
     </Suspense>
   );

@@ -95,48 +95,47 @@ export const Drawer: React.FC<DrawerProps> = ({
   className,
 }) => {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = 'unset';
+      document.removeEventListener('keydown', onKey);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="fixed inset-0 bg-ink/40 animate-fade-in" onClick={onClose} />
       <div
         className={cn(
-          'fixed z-50 bg-white shadow-2xl transition-all duration-300 flex flex-col',
+          'fixed z-50 flex flex-col bg-surface shadow-pop animate-pop-in',
           position === 'bottom'
-            ? 'inset-x-0 bottom-0 rounded-t-3xl max-h-[85vh] animate-in slide-in-from-bottom'
-            : 'inset-y-0 right-0 w-full max-w-md animate-in slide-in-from-right',
+            ? 'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-2xl pb-[env(safe-area-inset-bottom)]'
+            : 'inset-y-0 right-0 w-full max-w-md',
           className
         )}
       >
-        {/* Handle for bottom drawer */}
         {position === 'bottom' && (
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-12 h-1.5 rounded-full bg-gray-200" />
+          <div className="flex justify-center pt-2" aria-hidden="true">
+            <div className="h-1 w-10 rounded-full bg-line-strong" />
           </div>
         )}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
-          <h3 className="text-base font-bold text-gray-900">{title || ''}</h3>
+        <div className="flex items-center justify-between border-b border-line-subtle px-4 py-2.5 sm:px-5">
+          <h3 className="text-base font-semibold text-ink">{title || ''}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            aria-label="Close"
+            className="-mr-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-ink-400 hover:bg-surface-muted hover:text-ink-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto flex-1">{children}</div>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5">{children}</div>
       </div>
     </div>
   );

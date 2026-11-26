@@ -5,7 +5,7 @@ import { PackageSearch } from 'lucide-react';
 import { captureException, type PublicProductQuery } from '@20mart/server';
 import { getBrands, getCategories, getPricePoints, getProducts } from '../../lib/catalog';
 import { ProductGrid } from '../StoreProductCard';
-import { CatalogPagination, FilterSidebar, MobileFilterButton, SortSelect } from './CatalogControls';
+import { ActiveFilters, CatalogPagination, FilterSidebar, MobileFilterButton, SortSelect } from './CatalogControls';
 import { PRICE_BUCKETS } from './price-buckets';
 import { TrackView } from '../TrackView';
 
@@ -79,34 +79,37 @@ export async function CatalogListing({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10">
+    <div className="mx-auto max-w-7xl px-4 pb-10 pt-3 sm:px-6 sm:pt-4">
       {trackSearch && query.q && result && (
         <TrackView name="PRODUCT_SEARCHED" searchTerm={query.q} resultCount={total} once={query.q.trim().toLowerCase()} />
       )}
-      <Breadcrumb items={breadcrumb} className="mb-2 sm:mb-2.5" />
+      <Breadcrumb items={breadcrumb} className="mb-3" />
       {banner}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 pb-2.5 border-b border-gray-100 mb-3.5 sm:mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-lg sm:text-xl font-black text-gray-900 break-words">{title}</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h1 className="break-words text-lg font-semibold text-ink sm:text-xl">{title}</h1>
+          <p className="mt-0.5 text-xs text-ink-500">
             {subtitle ? subtitle(total) : `${total} item${total === 1 ? '' : 's'} available for doorstep delivery`}
           </p>
         </div>
         <Suspense>
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
             <MobileFilterButton {...filterProps} total={total} />
             <SortSelect />
           </div>
         </Suspense>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 lg:gap-5 items-start">
+      <div className="flex flex-col items-start gap-5 md:flex-row lg:gap-6">
         <Suspense>
           <FilterSidebar {...filterProps} />
         </Suspense>
-        <div className="flex-1 min-w-0 space-y-4 w-full">
+        <div className="w-full min-w-0 flex-1 space-y-3">
+          <Suspense>
+            <ActiveFilters {...filterProps} />
+          </Suspense>
           {!result ? (
-            <EmptyBox title="We couldn't load products right now" body="Please refresh the page in a moment." />
+            <EmptyBox tone="error" title="We couldn't load products right now" body="Please refresh the page in a moment." />
           ) : result.items.length === 0 ? (
             <EmptyBox
               title="No products found"
@@ -117,7 +120,7 @@ export async function CatalogListing({
             <ProductGrid
               products={result.items}
               priorityCount={2}
-              className="grid grid-cols-2 md:grid-cols-3 min-[960px]:grid-cols-4 gap-2 sm:gap-2.5"
+              className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 min-[960px]:grid-cols-4"
             />
           )}
           {totalPages > 1 && (
@@ -131,14 +134,19 @@ export async function CatalogListing({
   );
 }
 
-function EmptyBox({ title, body, action }: { title: string; body: string; action?: { href: string; label: string } }) {
+function EmptyBox({ title, body, action, tone }: { title: string; body: string; action?: { href: string; label: string }; tone?: 'error' }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
-      <PackageSearch className="w-8 h-8 text-gray-300 mx-auto mb-2.5" />
-      <h2 className="text-sm font-bold text-gray-800">{title}</h2>
-      <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-3.5">{body}</p>
+    <div role={tone === 'error' ? 'alert' : undefined} className="rounded-2xl border border-dashed border-line bg-surface px-6 py-12 text-center">
+      <span className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl ${tone === 'error' ? 'bg-danger-soft text-danger' : 'bg-surface-muted text-ink-400'}`}>
+        <PackageSearch className="h-6 w-6" aria-hidden />
+      </span>
+      <h2 className="text-base font-semibold text-ink">{title}</h2>
+      <p className="mx-auto mt-1 max-w-sm text-sm text-ink-500">{body}</p>
       {action && (
-        <Link href={action.href} className="inline-flex h-8 items-center rounded-xl border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+        <Link
+          href={action.href}
+          className="mt-4 inline-flex h-10 items-center rounded-xl border border-line-strong bg-surface px-4 text-sm font-semibold text-ink-700 hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+        >
           {action.label}
         </Link>
       )}

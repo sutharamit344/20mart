@@ -10,18 +10,18 @@ import { storeApi, StoreApiError, useStore } from '../lib/store';
 export function ServiceabilityNote({ s, compact = false }: { s: Serviceability; compact?: boolean }) {
   if (s.serviceable) {
     return (
-      <div className={`flex items-start gap-2 rounded-xl bg-emerald-50 text-emerald-800 ${compact ? 'p-2 text-[11px]' : 'p-3 text-xs'}`}>
+      <div className={`flex items-start gap-2 rounded-xl bg-success-soft text-success ${compact ? 'p-2 text-2xs' : 'p-3 text-xs'}`}>
         <CheckCircle2 className="w-4 h-4 shrink-0 mt-px" />
         <div>
           <p className="font-bold">We deliver to {[s.area, s.pincode].filter(Boolean).join(', ')}</p>
           {s.estimateText && <p className="mt-0.5">{s.estimateText}.</p>}
-          {!compact && <p className="mt-0.5 text-emerald-700">Delivery fee {s.feePaise ? formatPaise(s.feePaise) : 'free'} (free on larger orders).</p>}
+          {!compact && <p className="mt-0.5 text-success">Delivery fee {s.feePaise ? formatPaise(s.feePaise) : 'free'} (free on larger orders).</p>}
         </div>
       </div>
     );
   }
   return (
-    <div className={`flex items-start gap-2 rounded-xl bg-red-50 text-red-700 ${compact ? 'p-2 text-[11px]' : 'p-3 text-xs'}`}>
+    <div className={`flex items-start gap-2 rounded-xl bg-danger-soft text-danger ${compact ? 'p-2 text-2xs' : 'p-3 text-xs'}`}>
       <XCircle className="w-4 h-4 shrink-0 mt-px" />
       <p className="font-semibold">{s.reason ?? 'We do not deliver here yet'}</p>
     </div>
@@ -33,7 +33,7 @@ function InterestForm({ pincode }: { pincode: string }) {
   const [email, setEmail] = useState(user?.email ?? '');
   const [state, setState] = useState<'idle' | 'busy' | 'done'>('idle');
   const [error, setError] = useState<string | null>(null);
-  if (state === 'done') return <p className="text-xs font-semibold text-emerald-700">Thanks! We will email you when we start delivering to {pincode}.</p>;
+  if (state === 'done') return <p className="text-xs font-semibold text-success">Thanks! We will email you when we start delivering to {pincode}.</p>;
   return (
     <form
       className="space-y-2"
@@ -50,7 +50,7 @@ function InterestForm({ pincode }: { pincode: string }) {
         }
       }}
     >
-      <p className="text-xs text-gray-600">Want 20Mart in your area? Leave your email and we will let you know when delivery starts.</p>
+      <p className="text-xs text-ink-600">Want 20Mart in your area? Leave your email and we will let you know when delivery starts.</p>
       <div className="flex gap-2">
         <input
           type="email"
@@ -58,13 +58,13 @@ function InterestForm({ pincode }: { pincode: string }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
+          className="flex-1 min-w-0 rounded-xl border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
         />
-        <button type="submit" disabled={state === 'busy'} className="rounded-xl bg-gray-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-60">
+        <button type="submit" disabled={state === 'busy'} className="rounded-xl bg-ink px-3 py-2 text-xs font-bold text-white disabled:opacity-60">
           {state === 'busy' ? '…' : 'Notify me'}
         </button>
       </div>
-      {error && <p className="text-[11px] text-red-600">{error}</p>}
+      {error && <p className="text-2xs text-danger">{error}</p>}
     </form>
   );
 }
@@ -116,14 +116,14 @@ export const LocationPicker: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="loc-title"
-        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-white p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-pop space-y-4 max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 id="loc-title" className="flex items-center gap-2 text-base font-black text-gray-900">
+          <h2 id="loc-title" className="flex items-center gap-2 text-base font-bold text-ink">
             <MapPin className="w-4 h-4 text-brand-orange" /> Choose delivery location
           </h2>
-          <button type="button" onClick={closePicker} aria-label="Close" className="p-1 rounded-lg text-gray-400 hover:text-gray-700">
+          <button type="button" onClick={closePicker} aria-label="Close" className="p-1 rounded-lg text-ink-400 hover:text-ink-700">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -133,7 +133,7 @@ export const LocationPicker: React.FC = () => {
             type="button"
             onClick={gps}
             disabled={busy !== null}
-            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-brand-orange px-4 py-2.5 text-sm font-bold text-brand-orange hover:bg-orange-50 disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-brand-orange px-4 py-2.5 text-sm font-bold text-brand-orange hover:bg-brand-orange-50 disabled:opacity-60"
           >
             {busy === 'gps' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
             Use my current location
@@ -141,7 +141,7 @@ export const LocationPicker: React.FC = () => {
         )}
 
         <form onSubmit={submit} className="space-y-2">
-          <label htmlFor="loc-pin" className="block text-xs font-bold text-gray-600">
+          <label htmlFor="loc-pin" className="block text-xs font-bold text-ink-600">
             {gpsAvailable ? 'Or enter your PIN code' : 'Enter your delivery PIN code'}
           </label>
           <div className="flex gap-2">
@@ -154,15 +154,15 @@ export const LocationPicker: React.FC = () => {
               value={value}
               onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="e.g. 380015"
-              className="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
+              className="flex-1 min-w-0 rounded-xl border border-line px-3 py-2.5 text-sm font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-orange/40"
             />
-            <button type="submit" disabled={busy !== null} className="rounded-xl bg-gradient-to-r from-brand-orange to-[#FF5500] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">
+            <button type="submit" disabled={busy !== null} className="rounded-xl bg-brand-orange px-4 py-2.5 text-sm font-bold text-white disabled:opacity-60">
               {busy === 'pin' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Check'}
             </button>
           </div>
         </form>
 
-        {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
+        {error && <p className="text-xs font-semibold text-danger">{error}</p>}
         {result && !error && <ServiceabilityNote s={result} />}
         {result && !result.serviceable && result.code !== 'INVALID' && result.code !== 'DISABLED' && <InterestForm pincode={result.pincode} />}
         {result?.serviceable && (
@@ -186,7 +186,7 @@ export const LocationButton: React.FC<{ tone?: 'dark' | 'light'; className?: str
       <span className={`truncate font-semibold ${tone === 'dark' ? 'text-white' : 'text-ink'} hover:underline`}>
         {!ready ? '…' : label ?? 'Select location'}
       </span>
-      {off && <span className={`shrink-0 rounded-full px-1.5 py-px text-[9px] font-bold ${tone === 'dark' ? 'bg-red-500/90 text-white' : 'bg-red-50 text-red-600'}`}>Not serviceable</span>}
+      {off && <span className={`shrink-0 rounded-full px-1.5 py-px text-2xs font-bold ${tone === 'dark' ? 'bg-danger text-white' : 'bg-danger-soft text-danger'}`}>Not serviceable</span>}
     </button>
   );
 };

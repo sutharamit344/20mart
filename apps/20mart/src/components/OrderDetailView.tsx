@@ -101,20 +101,20 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
     <div className="space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Order</p>
-          <h2 className="text-base sm:text-lg font-black text-gray-900">#{order.orderNumber}</h2>
-          <p className="text-[11px] text-gray-500">Placed {fmtDate(order.createdAt)}</p>
+          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Order</p>
+          <h2 className="text-base sm:text-lg font-bold text-ink">#{order.orderNumber}</h2>
+          <p className="text-2xs text-ink-500">Placed {fmtDate(order.createdAt)}</p>
         </div>
         <div className="text-right">
-          <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${terminal ? 'bg-red-50 text-red-700' : order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700' : 'bg-orange-50 text-brand-orange-600'}`}>
+          <span className={`inline-flex rounded-full px-2.5 py-1 text-2xs font-bold ${terminal ? 'bg-danger-soft text-danger' : order.status === 'DELIVERED' ? 'bg-success-soft text-success' : 'bg-brand-orange-50 text-brand-orange-600'}`}>
             {order.statusLabel}
           </span>
-          <p className="mt-1 text-[11px] text-gray-500">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</p>
+          <p className="mt-1 text-2xs text-ink-500">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</p>
         </div>
       </div>
 
       {order.canPay && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-orange-200 bg-orange-50 p-3 text-xs text-[#9E4B00]">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-orange-200 bg-brand-orange-50 p-3 text-xs text-[#9E4B00]">
           <span>
             Payment pending. Items are held for you
             {order.reservationExpiresAt ? ` until ${new Date(order.reservationExpiresAt).toLocaleTimeString('en-IN', { timeStyle: 'short', timeZone: 'Asia/Kolkata' })}` : ''}.
@@ -126,10 +126,10 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
       )}
 
       {/* Timeline */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
-        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-gray-500">Order status</h3>
+      <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 ">
+        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-ink-500">Order status</h3>
         {terminal ? (
-          <div className="flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-800">
+          <div className="flex items-start gap-2 rounded-xl bg-danger-soft p-3 text-xs text-danger">
             <XCircle className="h-4 w-4 shrink-0" />
             <div>
               <p className="font-bold">{order.statusLabel}</p>
@@ -143,104 +143,104 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
           </div>
         ) : (
           <ol className="relative space-y-3 pl-6">
-            <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-gray-100" aria-hidden="true" />
+            <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-surface-muted" aria-hidden="true" />
             {FULFILMENT_STEPS.map((s, i) => {
               const done = reached.has(s.status) || i <= currentIdx;
               const at = reached.get(s.status);
               return (
                 <li key={s.status} className="relative">
-                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-brand-green bg-brand-green text-white' : 'border-gray-200 bg-white'}`}>
+                  <span className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${done ? 'border-brand-green bg-brand-green text-white' : 'border-line bg-surface'}`}>
                     {done && <Check className="h-3 w-3" />}
                   </span>
-                  <p className={`text-xs font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{s.label}</p>
-                  {at && <p className="text-[10px] text-gray-500">{fmtDate(at)}</p>}
+                  <p className={`text-xs font-bold ${done ? 'text-ink' : 'text-ink-400'}`}>{s.label}</p>
+                  {at && <p className="text-2xs text-ink-500">{fmtDate(at)}</p>}
                 </li>
               );
             })}
           </ol>
         )}
         {!terminal && order.status !== 'DELIVERED' && order.deliveryEstimate && (
-          <p className="mt-3 rounded-lg bg-emerald-50 p-2 text-[11px] font-semibold text-emerald-800">{order.deliveryEstimate}</p>
+          <p className="mt-3 rounded-lg bg-success-soft p-2 text-2xs font-semibold text-success">{order.deliveryEstimate}</p>
         )}
       </section>
 
       {/* Items */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
-        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
+      <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 ">
+        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-500">
           <Package className="h-3.5 w-3.5" /> Items
         </h3>
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-line-subtle">
           {order.items.map((it) => (
             <li key={it.id} className="flex items-center gap-3 py-2">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-line-subtle bg-surface-page">
                 {it.productImage ? <Image src={resolveImageSrc(it.productImage)} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
               </div>
               <div className="min-w-0 flex-1">
                 {it.product?.slug ? (
-                  <Link href={`/product/${it.product.slug}`} className="block truncate text-xs font-bold text-gray-900 hover:text-brand-green">
+                  <Link href={`/product/${it.product.slug}`} className="block truncate text-xs font-bold text-ink hover:text-brand-green">
                     {it.productName}
                   </Link>
                 ) : (
-                  <p className="truncate text-xs font-bold text-gray-900">{it.productName}</p>
+                  <p className="truncate text-xs font-bold text-ink">{it.productName}</p>
                 )}
-                <p className="text-[11px] text-gray-500">
+                <p className="text-2xs text-ink-500">
                   {it.variantName ? `${it.variantName} · ` : ''}
                   {it.quantity} × {formatPaise(it.unitPricePaise)}
                 </p>
               </div>
-              <span className="text-xs font-black text-gray-900">{formatPaise(it.totalPricePaise)}</span>
+              <span className="text-xs font-bold text-ink">{formatPaise(it.totalPricePaise)}</span>
             </li>
           ))}
         </ul>
-        <dl className="mt-2 space-y-1 border-t border-gray-100 pt-2 text-xs">
+        <dl className="mt-2 space-y-1 border-t border-line-subtle pt-2 text-xs">
           <div className="flex justify-between">
-            <dt className="text-gray-500">Subtotal</dt>
+            <dt className="text-ink-500">Subtotal</dt>
             <dd>{formatPaise(order.subtotalPaise)}</dd>
           </div>
           {order.discountPaise > 0 && (
             <div className="flex justify-between">
-              <dt className="text-gray-500">Coupon{order.couponCode ? ` ${order.couponCode}` : ''}</dt>
-              <dd className="font-semibold text-emerald-700">−{formatPaise(order.discountPaise)}</dd>
+              <dt className="text-ink-500">Coupon{order.couponCode ? ` ${order.couponCode}` : ''}</dt>
+              <dd className="font-semibold text-success">−{formatPaise(order.discountPaise)}</dd>
             </div>
           )}
           <div className="flex justify-between">
-            <dt className="text-gray-500">Delivery</dt>
+            <dt className="text-ink-500">Delivery</dt>
             <dd>{order.deliveryChargePaise ? formatPaise(order.deliveryChargePaise) : 'Free'}</dd>
           </div>
-          <div className="flex justify-between text-sm font-black text-gray-900">
+          <div className="flex justify-between text-sm font-bold text-ink">
             <dt>Total</dt>
             <dd>{formatPaise(order.totalPaise)}</dd>
           </div>
-          <p className="text-[10px] text-gray-400">{order.paymentMethod === 'CASH_ON_DELIVERY' ? 'Cash on delivery' : 'Paid online'}</p>
+          <p className="text-2xs text-ink-400">{order.paymentMethod === 'CASH_ON_DELIVERY' ? 'Cash on delivery' : 'Paid online'}</p>
         </dl>
       </section>
 
       {/* Address */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-3.5 text-xs shadow-xs">
-        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
+      <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 text-xs ">
+        <h3 className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ink-500">
           <MapPin className="h-3.5 w-3.5" /> Delivery address
         </h3>
-        <p className="font-bold text-gray-900">{order.shipName}</p>
-        <p className="text-gray-600">
+        <p className="font-bold text-ink">{order.shipName}</p>
+        <p className="text-ink-600">
           {order.shipLine1}
           {order.shipLine2 ? `, ${order.shipLine2}` : ''}
           {order.shipLandmark ? `, near ${order.shipLandmark}` : ''}, {order.shipCity}, {order.shipState} – {order.shipPincode}
         </p>
-        <p className="text-gray-500">+91 {order.shipPhone}</p>
+        <p className="text-ink-500">+91 {order.shipPhone}</p>
       </section>
 
       {order.canCancel && (
-        <section className="rounded-2xl border border-gray-100 bg-white p-3.5 shadow-xs">
+        <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 ">
           {cancelOpen ? (
             <div className="space-y-2">
-              <label htmlFor="cancel-reason" className="block text-xs font-bold text-gray-700">
+              <label htmlFor="cancel-reason" className="block text-xs font-bold text-ink-700">
                 Why are you cancelling?
               </label>
               <select
                 id="cancel-reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3 text-sm"
+                className="h-10 w-full rounded-xl border border-line bg-surface px-3 text-sm"
               >
                 <option value="">Select a reason</option>
                 <option>Ordered by mistake</option>
@@ -250,16 +250,16 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
                 <option>Other</option>
               </select>
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setCancelOpen(false)} className="h-9 rounded-xl px-3 text-xs font-semibold text-gray-600">
+                <button type="button" onClick={() => setCancelOpen(false)} className="h-9 rounded-xl px-3 text-xs font-semibold text-ink-600">
                   Keep order
                 </button>
-                <button type="button" disabled={!reason || !!busy} onClick={cancel} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-xs font-bold text-white disabled:opacity-50">
+                <button type="button" disabled={!reason || !!busy} onClick={cancel} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-danger px-4 text-xs font-bold text-white disabled:opacity-50">
                   {busy === 'cancel' && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Cancel order
                 </button>
               </div>
             </div>
           ) : (
-            <button type="button" onClick={() => setCancelOpen(true)} className="text-xs font-bold text-red-600 hover:underline">
+            <button type="button" onClick={() => setCancelOpen(true)} className="text-xs font-bold text-danger hover:underline">
               Cancel this order
             </button>
           )}

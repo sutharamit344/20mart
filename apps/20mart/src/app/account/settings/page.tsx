@@ -42,27 +42,27 @@ export default function EmailPreferencesPage() {
 
   return (
     <AccountLayout title="Email preferences" subtitle="Choose which emails we send you." activeKey="settings">
-      <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs">
-        <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
+      <div className="rounded-2xl border border-line-subtle bg-surface p-4 sm:p-5 ">
+        <div className="flex items-center gap-2 border-b border-line-subtle pb-3">
           <Mail className="h-4 w-4 text-brand-orange" />
-          <h2 className="text-sm font-bold text-gray-900">Email</h2>
+          <h2 className="text-sm font-bold text-ink">Email</h2>
         </div>
-        {error && <p role="alert" className="mt-3 text-xs font-semibold text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-3 text-xs font-semibold text-danger">{error}</p>}
         {!prefs && !error && (
-          <p className="flex items-center gap-2 py-6 text-xs text-gray-400" aria-busy="true">
+          <p className="flex items-center gap-2 py-6 text-xs text-ink-400" aria-busy="true">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </p>
         )}
         {prefs && (
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-line-subtle">
             {rows.map((r) => (
               <li key={r.key} className="flex items-center justify-between gap-3 py-3">
                 <label htmlFor={`pref-${r.key}`} className="min-w-0 cursor-pointer">
-                  <span className="block text-xs sm:text-sm font-bold text-gray-800">{r.title}</span>
-                  <span className="block text-[11px] text-gray-500">{r.text}</span>
+                  <span className="block text-xs sm:text-sm font-bold text-ink-800">{r.title}</span>
+                  <span className="block text-2xs text-ink-500">{r.text}</span>
                 </label>
                 <span className="flex items-center gap-2">
-                  {saving === r.key && <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />}
+                  {saving === r.key && <Loader2 className="h-3.5 w-3.5 animate-spin text-ink-400" />}
                   <input
                     id={`pref-${r.key}`}
                     type="checkbox"
@@ -76,7 +76,7 @@ export default function EmailPreferencesPage() {
             ))}
           </ul>
         )}
-        <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-gray-50 p-2 text-[11px] text-gray-500">
+        <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-surface-page p-2 text-2xs text-ink-500">
           <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           In-app notifications for your orders are always kept in your notification centre. Account emails (like your welcome email) are always sent.
         </p>

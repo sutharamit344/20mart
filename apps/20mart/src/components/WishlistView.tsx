@@ -46,10 +46,10 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
 
   if (authStatus === 'guest') {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
+      <div className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
         <Heart className="mx-auto mb-2 h-8 w-8 text-brand-orange" />
-        <p className="text-sm font-bold text-gray-900">Sign in to see your wishlist</p>
-        <p className="mt-1 text-xs text-gray-500">Saved items are kept on your account across devices.</p>
+        <p className="text-sm font-bold text-ink">Sign in to see your wishlist</p>
+        <p className="mt-1 text-xs text-ink-500">Saved items are kept on your account across devices.</p>
         <Link href="/auth?returnTo=/wishlist" className="mt-4 inline-flex h-9 items-center rounded-xl bg-brand-green px-4 text-xs font-bold text-white">
           Sign in with Google
         </Link>
@@ -58,17 +58,17 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
   }
   if (!items) {
     return (
-      <div className="flex items-center justify-center py-16 text-xs text-gray-400" aria-busy="true">
+      <div className="flex items-center justify-center py-16 text-xs text-ink-400" aria-busy="true">
         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading your wishlist…
       </div>
     );
   }
   if (!items.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
-        <Heart className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-        <p className="text-sm font-bold text-gray-900">Your wishlist is empty</p>
-        <p className="mt-1 text-xs text-gray-500">Tap the heart on any product to save it for later.</p>
+      <div className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
+        <Heart className="mx-auto mb-2 h-8 w-8 text-ink-400" />
+        <p className="text-sm font-bold text-ink">Your wishlist is empty</p>
+        <p className="mt-1 text-xs text-ink-500">Tap the heart on any product to save it for later.</p>
         <Link href="/shop" className="mt-4 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
           Browse products
         </Link>
@@ -81,26 +81,26 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
       {items.map((p) => {
         const out = p.stockState === 'OUT';
         return (
-          <li key={p.id} className={`flex gap-3 rounded-2xl border border-gray-100 bg-white p-2.5 shadow-xs ${busy === p.id ? 'opacity-60' : ''}`}>
-            <Link href={`/product/${p.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+          <li key={p.id} className={`flex gap-3 rounded-2xl border border-line-subtle bg-surface p-2.5  ${busy === p.id ? 'opacity-60' : ''}`}>
+            <Link href={`/product/${p.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-line-subtle bg-surface-page">
               {p.image ? <Image src={resolveImageSrc(p.image.url)} alt={p.image.alt} fill sizes="80px" className="object-contain p-1" /> : null}
             </Link>
             <div className="flex min-w-0 flex-1 flex-col justify-between">
               <div className="min-w-0">
-                <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-gray-900 hover:text-brand-green">
+                <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-ink hover:text-brand-green">
                   {p.name}
                 </Link>
                 <div className="mt-0.5 flex items-baseline gap-1.5">
-                  <span className="text-sm font-black text-gray-900">{formatPaise(p.sellingPricePaise)}</span>
-                  {p.mrpPaise > p.sellingPricePaise && <span className="text-[10px] text-gray-400 line-through">{formatPaise(p.mrpPaise)}</span>}
+                  <span className="text-sm font-bold text-ink">{formatPaise(p.sellingPricePaise)}</span>
+                  {p.mrpPaise > p.sellingPricePaise && <span className="text-2xs text-ink-400 line-through">{formatPaise(p.mrpPaise)}</span>}
                 </div>
-                <p className={`text-[10px] font-semibold ${out ? 'text-red-600' : p.stockState === 'LOW' ? 'text-amber-600' : 'text-emerald-700'}`}>
+                <p className={`text-2xs font-semibold ${out ? 'text-danger' : p.stockState === 'LOW' ? 'text-warning' : 'text-success'}`}>
                   {out ? 'Out of stock' : p.stockState === 'LOW' ? 'Only a few left' : 'In stock'}
                 </p>
               </div>
               <div className="mt-1.5 flex items-center gap-1.5">
                 {p.hasVariants ? (
-                  <Link href={`/product/${p.slug}`} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white">
+                  <Link href={`/product/${p.slug}`} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-2xs font-bold text-white">
                     Choose option
                   </Link>
                 ) : (
@@ -108,7 +108,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
                     type="button"
                     disabled={out || !!busy}
                     onClick={() => act(p.id, () => storeApi(`/api/wishlist/${p.id}/move-to-cart`, { body: {} }), 'Moved to cart')}
-                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white disabled:bg-gray-200 disabled:text-gray-400"
+                    className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-orange px-2.5 text-2xs font-bold text-white disabled:bg-line disabled:text-ink-400"
                   >
                     <ShoppingCart className="h-3 w-3" /> Move to cart
                   </button>
@@ -118,7 +118,7 @@ export function WishlistView({ compact = false }: { compact?: boolean }) {
                   disabled={!!busy}
                   aria-label={`Remove ${p.name} from wishlist`}
                   onClick={() => act(p.id, () => storeApi(`/api/wishlist/${p.id}`, { method: 'DELETE' }), 'Removed from wishlist')}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-line text-ink-500 hover:bg-danger-soft hover:text-danger"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

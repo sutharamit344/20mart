@@ -101,26 +101,34 @@ export default function CheckoutPage() {
 
   if (loadError) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <p className="text-sm font-bold text-gray-900">{loadError}</p>
-        <button type="button" onClick={() => load()} className="mt-3 text-xs font-bold text-brand-orange">
-          Try again
-        </button>
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <div role="alert" className="rounded-2xl border border-danger-line bg-danger-soft p-5">
+          <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-danger" aria-hidden />
+          <p className="text-sm font-semibold text-ink">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => load()}
+            className="mt-3 inline-flex h-10 items-center rounded-xl border border-line-strong bg-surface px-4 text-sm font-semibold text-ink-700 hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
   if (!summary) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 flex items-center justify-center text-xs text-gray-400" aria-busy="true">
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-20 text-sm text-ink-500" aria-busy="true">
         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Preparing checkout…
       </div>
     );
   }
   if (!summary.cart.lines.length) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <p className="text-sm font-bold text-gray-900">Your cart is empty</p>
-        <Link href="/shop" className="mt-3 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white">
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <p className="text-lg font-semibold text-ink">Your cart is empty</p>
+        <p className="mt-1 text-sm text-ink-500">Add a few essentials before checking out.</p>
+        <Link href="/shop" className="mt-4 inline-flex h-11 items-center rounded-xl bg-brand-orange px-5 text-sm font-semibold text-white shadow-sm hover:bg-brand-orange-600">
           Browse products
         </Link>
       </div>
@@ -131,12 +139,12 @@ export default function CheckoutPage() {
   const selected = summary.addresses.find((a) => a.id === addressId) ?? null;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-3 pb-28 md:pb-10">
-      <h1 className="text-lg sm:text-xl font-black text-gray-900">Checkout</h1>
-      <p className="mb-3 text-xs text-gray-500">All prices and charges are calculated securely on our server.</p>
+    <div className="mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6 md:pb-10">
+      <h1 className="text-lg font-semibold text-ink sm:text-xl">Checkout</h1>
+      <p className="mb-4 mt-0.5 text-xs text-ink-500">All prices and charges are calculated securely on our server.</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="lg:col-span-8 space-y-3">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-6">
+        <div className="space-y-3 lg:col-span-8">
           {/* 1. Address */}
           <Section step={1} title="Delivery address" icon={<MapPin className="h-4 w-4" />}>
             {editing ? (
@@ -149,7 +157,7 @@ export default function CheckoutPage() {
                 }}
               />
             ) : summary.addresses.length === 0 ? (
-              <button type="button" onClick={() => setEditing('new')} className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-6 text-sm font-bold text-brand-orange">
+              <button type="button" onClick={() => setEditing('new')} className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line py-6 text-sm font-semibold text-brand-orange-700 hover:border-brand-orange/40 hover:bg-brand-orange-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
                 <Plus className="h-4 w-4" /> Add a delivery address
               </button>
             ) : (
@@ -163,26 +171,26 @@ export default function CheckoutPage() {
                         tabIndex={0}
                         onClick={() => load(a.id)}
                         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && load(a.id)}
-                        className={`relative h-full cursor-pointer rounded-xl border p-3 text-xs transition-colors ${a.id === addressId ? 'border-brand-orange bg-orange-50/50 ring-1 ring-brand-orange/30' : 'border-gray-200 hover:border-gray-300'}`}
+                        className={`relative h-full cursor-pointer rounded-xl border p-3 pr-11 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${a.id === addressId ? 'border-brand-orange bg-brand-orange-50/60 ring-1 ring-brand-orange/30' : 'border-line hover:border-line-strong'}`}
                       >
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-gray-900">{a.name}</span>
-                          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gray-500">{a.type}</span>
-                          {a.isDefault && <span className="text-[9px] font-bold uppercase text-brand-green">Default</span>}
+                          <span className="text-sm font-semibold text-ink">{a.name}</span>
+                          <span className="rounded bg-surface-muted px-1.5 py-0.5 text-2xs font-medium uppercase text-ink-500">{a.type}</span>
+                          {a.isDefault && <span className="text-2xs font-semibold uppercase text-brand-green">Default</span>}
                         </div>
-                        <p className="mt-1 text-gray-600 leading-relaxed">
+                        <p className="mt-1 leading-relaxed text-ink-600">
                           {a.addressLine1}
                           {a.addressLine2 ? `, ${a.addressLine2}` : ''}
                           {a.landmark ? `, near ${a.landmark}` : ''}, {a.city}, {a.state} – {a.pincode}
                         </p>
-                        <p className="mt-0.5 text-gray-500">+91 {a.phone}</p>
+                        <p className="mt-0.5 tabular-nums text-ink-500">+91 {a.phone}</p>
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditing(a);
                           }}
-                          className="absolute right-2 top-2 rounded p-1 text-gray-400 hover:bg-white hover:text-gray-700"
+                          className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-ink-400 hover:bg-surface hover:text-ink-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
                           aria-label={`Edit address for ${a.name}`}
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -191,11 +199,11 @@ export default function CheckoutPage() {
                     </li>
                   ))}
                 </ul>
-                <button type="button" onClick={() => setEditing('new')} className="inline-flex items-center gap-1 text-xs font-bold text-brand-orange">
+                <button type="button" onClick={() => setEditing('new')} className="inline-flex h-9 items-center gap-1 rounded-lg text-sm font-semibold text-brand-orange-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
                   <Plus className="h-3.5 w-3.5" /> Add new address
                 </button>
                 {selected && delivery.serviceability && (
-                  <p className={`flex items-start gap-1.5 rounded-lg p-2 text-[11px] font-semibold ${delivery.serviceability.serviceable ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-700'}`}>
+                  <p className={`flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs font-medium ${delivery.serviceability.serviceable ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                     <Truck className="h-3.5 w-3.5 shrink-0 mt-px" />
                     {delivery.serviceability.serviceable ? delivery.serviceability.estimateText : `${delivery.serviceability.reason}. Please choose another address.`}
                   </p>
@@ -206,25 +214,25 @@ export default function CheckoutPage() {
 
           {/* 2. Items */}
           <Section step={2} title={`Review items (${cart.totalQuantity})`} icon={<CheckCircle2 className="h-4 w-4" />}>
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-line-subtle">
               {cart.lines.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 py-2">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
-                    {l.imageUrl ? <Image src={resolveImageSrc(l.imageUrl)} alt="" fill sizes="48px" className="object-contain p-0.5" /> : null}
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-sunken">
+                    {l.imageUrl ? <Image src={resolveImageSrc(l.imageUrl)} alt="" fill sizes="48px" className="object-contain p-1 mix-blend-multiply" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-bold text-gray-900">{l.name}</p>
-                    <p className="text-[11px] text-gray-500">
+                    <p className="truncate text-sm font-medium text-ink-800">{l.name}</p>
+                    <p className="text-xs tabular-nums text-ink-500">
                       {l.variantName ? `${l.variantName} · ` : ''}Qty {l.quantity} × {formatPaise(l.unitPricePaise)}
                     </p>
-                    {l.state !== 'ok' && <p className="text-[11px] font-semibold text-amber-700">{l.message}</p>}
+                    {l.state !== 'ok' && <p className="text-xs font-medium text-warning">{l.message}</p>}
                   </div>
-                  <span className="text-xs font-black text-gray-900">{formatPaise(l.lineTotalPaise)}</span>
+                  <span className="text-sm font-semibold tabular-nums text-ink">{formatPaise(l.lineTotalPaise)}</span>
                 </li>
               ))}
             </ul>
             {cart.hasIssues && (
-              <Link href="/cart" className="mt-1 inline-flex text-xs font-bold text-brand-orange">
+              <Link href="/cart" className="mt-2 inline-flex text-sm font-semibold text-brand-orange-700 hover:underline">
                 Fix items in cart →
               </Link>
             )}
@@ -233,7 +241,7 @@ export default function CheckoutPage() {
           {/* 3. Payment */}
           <Section step={3} title="Payment method" icon={<CreditCard className="h-4 w-4" />}>
             {summary.paymentMethods.length === 0 ? (
-              <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">No payment method is available right now. Please try again later.</p>
+              <p className="rounded-lg bg-surface-page p-3 text-sm text-ink-600">No payment method is available right now. Please try again later.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup" aria-label="Payment method">
                 {summary.paymentMethods.map((m) => (
@@ -243,12 +251,12 @@ export default function CheckoutPage() {
                     role="radio"
                     aria-checked={method === m}
                     onClick={() => setMethod(m)}
-                    className={`flex items-center gap-2.5 rounded-xl border p-3 text-left text-xs transition-colors ${method === m ? 'border-brand-orange bg-orange-50/50 ring-1 ring-brand-orange/30' : 'border-gray-200 hover:border-gray-300'}`}
+                    className={`flex min-h-14 items-center gap-3 rounded-xl border p-3 text-left text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${method === m ? 'border-brand-orange bg-brand-orange-50/60 ring-1 ring-brand-orange/30' : 'border-line hover:border-line-strong'}`}
                   >
                     {m === 'ONLINE' ? <CreditCard className="h-5 w-5 text-brand-green" /> : <Banknote className="h-5 w-5 text-brand-green" />}
                     <span>
-                      <span className="block font-bold text-gray-900">{m === 'ONLINE' ? 'Pay online' : 'Cash on delivery'}</span>
-                      <span className="text-[11px] text-gray-500">{m === 'ONLINE' ? 'UPI, cards, net banking via Razorpay' : 'Pay when your order arrives'}</span>
+                      <span className="block text-sm font-semibold text-ink">{m === 'ONLINE' ? 'Pay online' : 'Cash on delivery'}</span>
+                      <span className="text-xs text-ink-500">{m === 'ONLINE' ? 'UPI, cards, net banking via Razorpay' : 'Pay when your order arrives'}</span>
                     </span>
                   </button>
                 ))}
@@ -258,54 +266,56 @@ export default function CheckoutPage() {
         </div>
 
         {/* Summary */}
-        <aside className="lg:col-span-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-xs space-y-3 lg:sticky lg:top-20">
-          <h2 className="text-sm font-bold text-gray-900">Price details</h2>
-          <dl className="space-y-1.5 text-xs">
+        <aside className="space-y-3 rounded-2xl border border-line-subtle bg-surface p-4 lg:sticky lg:top-24 lg:col-span-4" aria-labelledby="price-title">
+          <h2 id="price-title" className="text-sm font-semibold text-ink">Price details</h2>
+          <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-gray-500">Items ({cart.totalQuantity})</dt>
-              <dd className="font-semibold text-gray-900">{formatPaise(cart.subtotalPaise)}</dd>
+              <dt className="text-ink-500">Items ({cart.totalQuantity})</dt>
+              <dd className="font-medium tabular-nums text-ink">{formatPaise(cart.subtotalPaise)}</dd>
             </div>
             {cart.discountPaise > 0 && (
               <div className="flex justify-between">
-                <dt className="text-gray-500">Coupon {cart.coupon?.code}</dt>
-                <dd className="font-semibold text-emerald-700">−{formatPaise(cart.discountPaise)}</dd>
+                <dt className="text-ink-500">Coupon {cart.coupon?.code}</dt>
+                <dd className="font-medium tabular-nums text-success">−{formatPaise(cart.discountPaise)}</dd>
               </div>
             )}
             <div className="flex justify-between">
-              <dt className="text-gray-500">Delivery</dt>
-              <dd className={delivery.deliveryChargePaise ? 'font-semibold text-gray-900' : 'font-semibold text-emerald-700'}>
+              <dt className="text-ink-500">Delivery</dt>
+              <dd className={delivery.deliveryChargePaise ? 'font-medium tabular-nums text-ink' : 'font-medium text-success'}>
                 {delivery.deliveryChargePaise ? formatPaise(delivery.deliveryChargePaise) : 'Free'}
               </dd>
             </div>
-            {delivery.amountToFreeDeliveryPaise > 0 && <p className="text-[10px] text-gray-400">Add {formatPaise(delivery.amountToFreeDeliveryPaise)} more for free delivery.</p>}
+            {delivery.amountToFreeDeliveryPaise > 0 && <p className="text-2xs text-ink-500">Add {formatPaise(delivery.amountToFreeDeliveryPaise)} more for free delivery.</p>}
           </dl>
           <CouponBox onChange={() => load(addressId)} />
-          <div className="flex justify-between border-t border-gray-100 pt-2.5">
-            <span className="text-sm font-bold text-gray-900">Total</span>
-            <span className="text-base font-black text-gray-900">{formatPaise(summary.totalPaise)}</span>
+          <div className="flex items-baseline justify-between border-t border-line-subtle pt-3">
+            <span className="text-sm font-semibold text-ink">Total</span>
+            <span className="text-lg font-bold tabular-nums text-ink">{formatPaise(summary.totalPaise)}</span>
           </div>
           {(summary.blockers.length > 0 || error) && (
-            <div role="alert" className="space-y-1 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900">
-              {error && <p className="font-bold">{error.message}</p>}
+            <div role="alert" className="space-y-1 rounded-xl border border-warning-line bg-warning-soft p-3 text-xs text-warning">
+              {error && <p className="font-semibold">{error.message}</p>}
               {[...(error?.issues ?? []), ...summary.blockers.filter((b) => b !== error?.message)].map((b) => (
                 <p key={b} className="flex gap-1.5">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {b}
+                  <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden /> {b}
                 </p>
               ))}
             </div>
           )}
-          <PlaceButton disabled={!summary.canPlaceOrder || !method || !addressId || !!editing} placing={placing} method={method} total={summary.totalPaise} onClick={placeOrder} />
-          <p className="flex items-center gap-1.5 text-[10px] text-gray-400">
-            <ShieldCheck className="h-3.5 w-3.5 text-brand-green" /> Payments are verified with the provider before your order is confirmed.
+          <div className="hidden md:block">
+            <PlaceButton disabled={!summary.canPlaceOrder || !method || !addressId || !!editing} placing={placing} method={method} total={summary.totalPaise} onClick={placeOrder} />
+          </div>
+          <p className="flex items-start gap-1.5 text-2xs text-ink-500">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-green" aria-hidden /> Payments are verified with the provider before your order is confirmed.
           </p>
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-14 z-30 border-t border-gray-200 bg-white/95 px-4 py-2.5 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-line bg-surface/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-surface/90 md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase text-gray-400">Total</p>
-            <p className="text-base font-black text-gray-900">{formatPaise(summary.totalPaise)}</p>
+          <div className="leading-tight">
+            <p className="text-2xs text-ink-500">Total</p>
+            <p className="text-base font-bold tabular-nums text-ink">{formatPaise(summary.totalPaise)}</p>
           </div>
           <div className="flex-1 max-w-[210px]">
             <PlaceButton disabled={!summary.canPlaceOrder || !method || !addressId || !!editing} placing={placing} method={method} total={summary.totalPaise} onClick={placeOrder} />
@@ -318,10 +328,10 @@ export default function CheckoutPage() {
 
 function Section({ step, title, icon, children }: { step: number; title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-gray-100 bg-white p-3.5 sm:p-4 shadow-xs">
-      <h2 className="mb-2.5 flex items-center gap-2 text-sm font-bold text-gray-900">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-green text-[11px] font-black text-white">{step}</span>
-        <span className="text-brand-green">{icon}</span>
+    <section className="rounded-2xl border border-line-subtle bg-surface p-4">
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-green text-2xs font-semibold text-white" aria-hidden>{step}</span>
+        <span className="text-ink-400" aria-hidden>{icon}</span>
         {title}
       </h2>
       {children}
@@ -335,7 +345,7 @@ function PlaceButton({ disabled, placing, method, total, onClick }: { disabled: 
       type="button"
       disabled={disabled || placing}
       onClick={onClick}
-      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-orange to-[#FF5500] text-sm font-black text-white shadow-md transition-all hover:from-[#FF8A00] hover:to-[#FF6600] disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-orange text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-400 disabled:shadow-none"
     >
       {placing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
       {placing ? 'Placing order…' : method === 'ONLINE' ? `Pay ${formatPaise(total)}` : 'Place order'}

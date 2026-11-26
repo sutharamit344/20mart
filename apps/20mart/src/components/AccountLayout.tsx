@@ -15,7 +15,6 @@ import {
   LogOut,
   ChevronRight,
   Truck,
-  Compass,
   Bell,
 } from 'lucide-react';
 
@@ -62,94 +61,115 @@ export const AccountLayout: React.FC<AccountLayoutProps> = ({
       .map((n) => n[0]?.toUpperCase())
       .join('') || '?';
 
+  const isActive = (item: (typeof navItems)[number]) => (activeKey ? activeKey === item.key : pathname === item.href);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-8 sm:pt-3.5 sm:pb-10 space-y-4 sm:space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start">
-        {/* Left Side Navigation Menu (Desktop & Tablet) */}
-        <div className="md:col-span-4 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs space-y-4">
-          {/* User Profile Card Header */}
-          <div className="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+    <div className="mx-auto max-w-7xl px-4 pb-10 pt-3 sm:px-6 sm:pt-4">
+      {/* Mobile: compact identity + horizontally scrolling section tabs */}
+      <div className="mb-3 md:hidden">
+        <div className="mb-2 flex items-center gap-3">
+          {user?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={user.image} alt="" referrerPolicy="no-referrer" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+          ) : (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-xs font-semibold text-white">{initials}</span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-ink">{user?.name || 'My Account'}</p>
+            <p className="truncate text-2xs text-ink-500">{user?.email || ' '}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-danger hover:bg-danger-soft"
+          >
+            <LogOut className="h-4 w-4" aria-hidden /> Sign out
+          </button>
+        </div>
+        <nav aria-label="Account sections" className="-mx-4">
+          <ul className="flex gap-1.5 overflow-x-auto px-4 pb-1 scrollbar-none">
+            {navItems.map((item) => {
+              const on = isActive(item);
+              return (
+                <li key={item.key} className="shrink-0">
+                  <Link
+                    href={item.href}
+                    aria-current={on ? 'page' : undefined}
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-medium ${
+                      on ? 'border-brand-orange/40 bg-brand-orange-50 text-brand-orange-700' : 'border-line bg-surface text-ink-600'
+                    }`}
+                  >
+                    {item.label}
+                    {item.badge && item.badge !== '0' && <span className="tabular-nums text-ink-400">{item.badge}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-12 lg:gap-6">
+        {/* Desktop/tablet sidebar */}
+        <aside className="sticky top-24 hidden space-y-3 rounded-2xl border border-line-subtle bg-surface p-3 md:col-span-4 md:block lg:col-span-3">
+          <div className="flex items-center gap-3 border-b border-line-subtle px-1 pb-3">
             {user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.image}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="h-12 w-12 shrink-0 rounded-2xl object-cover shadow-xs"
-              />
+              <img src={user.image} alt="" referrerPolicy="no-referrer" className="h-10 w-10 shrink-0 rounded-full object-cover" />
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-green text-white font-bold text-lg shadow-xs">
-                {initials}
-              </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-green text-sm font-semibold text-white">{initials}</div>
             )}
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm sm:text-base font-bold text-gray-900 truncate">
-                {user?.name || 'My Account'}
-              </h2>
-              <p className="text-[11px] text-gray-500 truncate">{user?.email || ' '}</p>
+              <p className="truncate text-sm font-semibold text-ink">{user?.name || 'My Account'}</p>
+              <p className="truncate text-2xs text-ink-500">{user?.email || ' '}</p>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-0.5">
+          <nav aria-label="Account sections" className="space-y-0.5">
             {navItems.map((item) => {
-              const isActive = activeKey ? activeKey === item.key : pathname === item.href;
+              const on = isActive(item);
               const Icon = item.icon;
-
               return (
                 <Link
                   key={item.key}
                   href={item.href}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold transition-all ${
-                    isActive
-                      ? 'bg-brand-cream text-brand-orange font-bold'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  aria-current={on ? 'page' : undefined}
+                  className={`flex h-10 items-center justify-between rounded-xl px-3 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${
+                    on ? 'bg-brand-orange-50 font-semibold text-brand-orange-700' : 'font-medium text-ink-700 hover:bg-surface-muted hover:text-ink'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-brand-orange' : 'text-gray-400'}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {item.badge && (
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                          isActive
-                            ? 'bg-brand-orange text-white'
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                    <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-brand-orange' : 'text-gray-300'}`} />
-                  </div>
+                  <span className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 shrink-0 ${on ? 'text-brand-orange' : 'text-ink-400'}`} aria-hidden />
+                    {item.label}
+                  </span>
+                  {item.badge && item.badge !== '0' ? (
+                    <span className="rounded-full bg-surface-muted px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-ink-600">{item.badge}</span>
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 text-ink-400" aria-hidden />
+                  )}
                 </Link>
               );
             })}
-
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors mt-2"
+              className="mt-1 flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-sm font-medium text-danger transition-colors hover:bg-danger-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
             >
-              <LogOut className="w-4 h-4 shrink-0" />
-              <span>Sign Out</span>
+              <LogOut className="h-4 w-4 shrink-0" aria-hidden />
+              Sign out
             </button>
           </nav>
-        </div>
+        </aside>
 
-        {/* Right Content Panel */}
-        <div className="md:col-span-8 rounded-2xl sm:rounded-3xl border border-gray-100 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-          <div className="pb-3 border-b border-gray-100">
-            <h1 className="text-base sm:text-lg font-bold text-gray-900">{title}</h1>
-            {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+        {/* Content */}
+        <section className="min-w-0 space-y-4 rounded-2xl border border-line-subtle bg-surface p-4 sm:p-5 md:col-span-8 lg:col-span-9">
+          <div className="border-b border-line-subtle pb-3">
+            <h1 className="text-lg font-semibold text-ink sm:text-xl">{title}</h1>
+            {subtitle && <p className="mt-0.5 text-xs text-ink-500">{subtitle}</p>}
           </div>
-
           <div>{children}</div>
-        </div>
+        </section>
       </div>
     </div>
   );
 };
-

@@ -43,13 +43,13 @@ export default function FaqsPage() {
       />
 
       <div className="text-center space-y-2">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-brand-orange mx-auto">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-orange-100 text-brand-orange mx-auto">
           <HelpCircle className="w-6 h-6" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+        <h1 className="text-xl font-semibold text-ink sm:text-2xl">
           Frequently Asked Questions
         </h1>
-        <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto">
+        <p className="text-xs sm:text-sm text-ink-500 max-w-md mx-auto">
           Everything you need to know about shopping, delivery, and coupons at 20Mart
         </p>
       </div>

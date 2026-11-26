@@ -23,17 +23,17 @@ export default function PrivacyPolicyPage() {
       />
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-brand-green text-xs font-bold border border-emerald-200/50">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success-soft text-brand-green text-xs font-bold border border-success-line/50">
           <Shield className="w-3.5 h-3.5" />
           <span>Security & Data Protection</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">20Mart Privacy Policy</h1>
-        <p className="text-xs text-gray-400">Effective Date: November 2026 • 20Mart Retail India</p>
+        <h1 className="text-xl font-semibold text-ink sm:text-2xl">20Mart Privacy Policy</h1>
+        <p className="text-xs text-ink-400">Effective Date: November 2026 • 20Mart Retail India</p>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-xs text-xs sm:text-sm text-gray-600 space-y-6 leading-relaxed">
+      <div className="rounded-2xl border border-line-subtle bg-surface p-5 sm:p-8 text-sm text-ink-600 space-y-6 leading-relaxed">
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-ink flex items-center gap-2">
             <Lock className="w-4 h-4 text-brand-green" />
             <span>1. Information We Collect</span>
           </h2>
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-ink flex items-center gap-2">
             <Eye className="w-4 h-4 text-brand-green" />
             <span>2. How We Use Your Data</span>
           </h2>
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-ink flex items-center gap-2">
             <FileText className="w-4 h-4 text-brand-green" />
             <span>3. Data Protection & Sharing</span>
           </h2>
@@ -68,7 +68,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section id="analytics" className="space-y-2 scroll-mt-24">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-bold text-ink flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-brand-green" />
             <span>4. Cookies & Shopping Analytics</span>
           </h2>
@@ -88,7 +88,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-sm sm:text-base font-bold text-gray-900">5. Contact Our Data Protection Team</h2>
+          <h2 className="text-sm sm:text-base font-bold text-ink">5. Contact Our Data Protection Team</h2>
           <p>
             For inquiries regarding privacy, data deletion, or updating your information, please visit our{' '}
             <Link href="/contact" className="text-brand-green font-bold underline">

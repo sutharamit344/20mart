@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
 import { resolveImageSrc } from '@20mart/ui';
 import { CatalogListing } from '../../../components/catalog/CatalogListing';
 import { getCategories, getCategory } from '../../../lib/catalog';
@@ -67,46 +66,46 @@ export default async function CategoryDetailPage({
       breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Categories', href: '/category' }, { label: category.name }]}
       emptyAction={{ href: '/category', label: 'Browse other categories' }}
       banner={
-        <div className="space-y-2.5 mb-3.5 sm:mb-4">
-          <div
-            className="relative overflow-hidden rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 shadow-xs border border-gray-100"
-            style={{ background: `linear-gradient(135deg, ${theme.bg} 0%, #FFFFFF 100%)` }}
-          >
-            <div className="space-y-1 min-w-0">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/80 text-xs font-bold text-gray-700">
-                <Sparkles className="w-3.5 h-3.5 text-brand-orange" />
-                <span>{category.productCount} products</span>
-              </div>
-              <p className="text-xs text-gray-600 max-w-md">
+        <div className="mb-4 space-y-3">
+          <div className="flex items-center gap-4 rounded-2xl border border-line-subtle bg-surface p-4 sm:p-5">
+            <div
+              className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-16 sm:w-16"
+              style={{ backgroundColor: theme.bg }}
+            >
+              {category.imageUrl ? (
+                <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="64px" className="object-contain p-1.5" />
+              ) : (
+                <Icon className="h-7 w-7" style={{ color: theme.iconColor }} aria-hidden />
+              )}
+            </div>
+            <div className="min-w-0 space-y-0.5">
+              <p className="text-2xs font-semibold uppercase tracking-wide text-ink-500">
+                {category.productCount} product{category.productCount === 1 ? '' : 's'}
+              </p>
+              <p className="max-w-xl text-sm text-ink-600">
                 {category.description || `Everyday ${category.name.toLowerCase()} essentials at great value.`}
               </p>
             </div>
-            <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded-xl overflow-hidden bg-white/70 p-1.5 shadow-xs border border-white flex items-center justify-center">
-              {category.imageUrl ? (
-                <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1" />
-              ) : (
-                <Icon className="h-8 w-8" style={{ color: theme.iconColor }} />
-              )}
-            </div>
           </div>
           {category.children.length > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
-              <Link
-                href={`/category/${category.slug}`}
-                className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${!sub ? 'border-brand-orange bg-orange-50 text-brand-orange' : 'border-gray-200 bg-white text-gray-600'}`}
-              >
-                All
-              </Link>
-              {category.children.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/category/${category.slug}?sub=${c.slug}`}
-                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${sub?.id === c.id ? 'border-brand-orange bg-orange-50 text-brand-orange' : 'border-gray-200 bg-white text-gray-600'}`}
-                >
-                  {c.name}
-                </Link>
-              ))}
-            </div>
+            <nav aria-label={`${category.name} subcategories`} className="-mx-4 sm:mx-0">
+              <ul className="flex gap-2 overflow-x-auto px-4 scrollbar-none sm:flex-wrap sm:px-0">
+                {[{ id: '', slug: '', name: 'All' }, ...category.children].map((c) => {
+                  const on = c.id ? sub?.id === c.id : !sub;
+                  return (
+                    <li key={c.id || 'all'} className="shrink-0">
+                      <Link
+                        href={c.slug ? `/category/${category.slug}?sub=${c.slug}` : `/category/${category.slug}`}
+                        aria-current={on ? 'page' : undefined}
+                        className={`inline-flex h-9 items-center rounded-full border px-3.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${on ? 'border-brand-green/30 bg-brand-green-50 text-brand-green' : 'border-line bg-surface text-ink-600 hover:border-line-strong hover:text-ink'}`}
+                      >
+                        {c.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
           )}
         </div>
       }

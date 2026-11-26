@@ -7,8 +7,8 @@ import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { StoreApiError, storeApi } from '../lib/store';
 
 const field =
-  'w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/15 focus:outline-none';
-const label = 'block text-[11px] font-bold text-gray-700 mb-1';
+  'w-full h-10 rounded-xl border border-line bg-surface px-3 text-sm text-ink placeholder:text-ink-400 focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/15 focus:outline-none';
+const label = 'block text-2xs font-bold text-ink-700 mb-1';
 
 interface Serviceability {
   serviceable: boolean;
@@ -78,12 +78,12 @@ export function AddressForm({
     }
   };
 
-  const fe = (k: string) => errors[k]?.[0] && <p className="mt-0.5 text-[11px] font-medium text-red-600">{errors[k][0]}</p>;
+  const fe = (k: string) => errors[k]?.[0] && <p className="mt-0.5 text-2xs font-medium text-danger">{errors[k][0]}</p>;
 
   return (
     <form onSubmit={submit} className="space-y-3" noValidate>
       {error && (
-        <p role="alert" className="rounded-xl bg-red-50 p-2.5 text-xs text-red-700">
+        <p role="alert" className="rounded-xl bg-danger-soft p-2.5 text-xs text-danger">
           {error}
         </p>
       )}
@@ -96,7 +96,7 @@ export function AddressForm({
         <div>
           <label htmlFor="af-phone" className={label}>Mobile number *</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500">+91</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-ink-500">+91</span>
             <input
               id="af-phone"
               className={`${field} pl-11`}
@@ -159,7 +159,7 @@ export function AddressForm({
         </div>
       </div>
       {service && (
-        <p className={`flex items-center gap-1.5 text-[11px] font-semibold ${service === 'checking' ? 'text-gray-400' : service.serviceable ? 'text-emerald-700' : 'text-red-600'}`} aria-live="polite">
+        <p className={`flex items-center gap-1.5 text-2xs font-semibold ${service === 'checking' ? 'text-ink-400' : service.serviceable ? 'text-success' : 'text-danger'}`} aria-live="polite">
           {service === 'checking' ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking delivery…
@@ -182,12 +182,12 @@ export function AddressForm({
             type="button"
             onClick={() => set('type', t)}
             aria-pressed={form.type === t}
-            className={`h-8 rounded-full border px-3 text-xs font-semibold ${form.type === t ? 'border-brand-orange bg-orange-50 text-brand-orange-600' : 'border-gray-200 text-gray-600'}`}
+            className={`h-8 rounded-full border px-3 text-xs font-semibold ${form.type === t ? 'border-brand-orange bg-brand-orange-50 text-brand-orange-600' : 'border-line text-ink-600'}`}
           >
             {t}
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-2 text-xs font-semibold text-gray-700">
+        <label className="ml-auto flex items-center gap-2 text-xs font-semibold text-ink-700">
           <input type="checkbox" className="h-4 w-4 accent-brand-orange" checked={form.isDefault} onChange={(e) => set('isDefault', e.target.checked)} />
           Make default
         </label>

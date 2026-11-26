@@ -65,17 +65,17 @@ export function ConsentBanner() {
               </Link>
             </p>
             {manual && current && (
-              <p className="mt-1.5 text-[11px] font-semibold text-gray-500">Current choice: {current === 'granted' ? 'analytics allowed' : 'essential only'}</p>
+              <p className="mt-1.5 text-2xs font-semibold text-ink-500">Current choice: {current === 'granted' ? 'analytics allowed' : 'essential only'}</p>
             )}
-            {optOut && <p className="mt-1.5 text-[11px] font-semibold text-gray-500">Your browser asks sites not to track you, so analytics stays off.</p>}
+            {optOut && <p className="mt-1.5 text-2xs font-semibold text-ink-500">Your browser asks sites not to track you, so analytics stays off.</p>}
             {error && (
-              <p role="alert" className="mt-1.5 text-[11px] font-semibold text-red-600">
+              <p role="alert" className="mt-1.5 text-2xs font-semibold text-danger">
                 {error}
               </p>
             )}
           </div>
           {manual && (
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="-mr-1 -mt-1 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700">
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="-mr-1 -mt-1 rounded-md p-1 text-ink-400 hover:bg-surface-muted hover:text-ink-700">
               <X className="h-4 w-4" />
             </button>
           )}

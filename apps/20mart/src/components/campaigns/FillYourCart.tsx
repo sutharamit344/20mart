@@ -76,10 +76,10 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
 
   if (authStatus === 'guest') {
     return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 text-center shadow-xs">
+      <div className="rounded-2xl border border-line-subtle bg-surface p-5 text-center ">
         <ShoppingBasket className="mx-auto h-7 w-7 text-brand-orange" />
-        <p className="mt-2 text-sm font-bold text-gray-900">Sign in to fill your cart</p>
-        <p className="mt-0.5 text-xs text-gray-500">Your list is saved to your account so you can come back to it.</p>
+        <p className="mt-2 text-sm font-bold text-ink">Sign in to fill your cart</p>
+        <p className="mt-0.5 text-xs text-ink-500">Your list is saved to your account so you can come back to it.</p>
         <Link href={`/auth?returnTo=/campaigns/${slug}`} className="mt-3 inline-flex h-9 items-center rounded-xl bg-brand-orange px-4 text-xs font-bold text-white hover:bg-brand-orange-600">
           Sign in with Google
         </Link>
@@ -89,7 +89,7 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
   }
   if (authStatus === 'loading' || (authStatus === 'authenticated' && !saved)) {
     return (
-      <p className="flex items-center justify-center gap-2 py-10 text-xs text-gray-400" aria-busy="true">
+      <p className="flex items-center justify-center gap-2 py-10 text-xs text-ink-400" aria-busy="true">
         <Loader2 className="h-4 w-4 animate-spin" /> Loading your list…
       </p>
     );
@@ -100,10 +100,10 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
       <div className="lg:col-span-8">
         <ProductList products={products} readOnly={!s.editable} qtyOf={qtyOf} favs={favs} busy={busy} maxQty={maxQty} onQty={setQty} onFav={toggleFav} />
       </div>
-      <aside className="lg:col-span-4 h-fit rounded-2xl border border-gray-100 bg-white p-4 shadow-xs space-y-2 lg:sticky lg:top-20">
-        <h2 className="text-sm font-bold text-gray-900">Your campaign cart</h2>
+      <aside className="lg:col-span-4 h-fit rounded-2xl border border-line-subtle bg-surface p-4 space-y-2 lg:sticky lg:top-20">
+        <h2 className="text-sm font-bold text-ink">Your campaign cart</h2>
         {s.joined ? (
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+          <p className="flex items-center gap-1.5 text-2xs font-semibold text-success">
             <CheckCircle2 className="h-3.5 w-3.5" /> You&apos;ve joined
           </p>
         ) : (
@@ -115,21 +115,21 @@ export function FillYourCart({ slug, products, maxQty }: { slug: string; product
         )}
         <dl className="space-y-1 text-xs">
           <div className="flex justify-between">
-            <dt className="text-gray-500">Items saved</dt>
-            <dd className="font-bold text-gray-900">{s.totalUnits}</dd>
+            <dt className="text-ink-500">Items saved</dt>
+            <dd className="font-bold text-ink">{s.totalUnits}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Estimated value today</dt>
-            <dd className="font-bold text-gray-900">{formatPaise(s.estimatedValuePaise)}</dd>
+            <dt className="text-ink-500">Estimated value today</dt>
+            <dd className="font-bold text-ink">{formatPaise(s.estimatedValuePaise)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Favourites</dt>
-            <dd className="font-bold text-gray-900">{s.favorites.length}</dd>
+            <dt className="text-ink-500">Favourites</dt>
+            <dd className="font-bold text-ink">{s.favorites.length}</dd>
           </div>
         </dl>
-        <p className="text-[10px] text-gray-400">Prices may change at launch. Nothing is charged or reserved.</p>
-        {!s.editable && <p className="rounded-lg bg-gray-50 p-2 text-[11px] text-gray-600">This campaign has ended — your list is kept for reference.</p>}
-        <Link href="/account/coupons" className="block text-[11px] font-bold text-brand-green hover:underline">
+        <p className="text-2xs text-ink-400">Prices may change at launch. Nothing is charged or reserved.</p>
+        {!s.editable && <p className="rounded-lg bg-surface-page p-2 text-2xs text-ink-600">This campaign has ended — your list is kept for reference.</p>}
+        <Link href="/account/coupons" className="block text-2xs font-bold text-brand-green hover:underline">
           View my coupons
         </Link>
       </aside>
@@ -156,7 +156,7 @@ function ProductList({
   onQty?: (id: string, q: number) => void;
   onFav?: (id: string) => void;
 }) {
-  if (!products.length) return <p className="mt-4 text-center text-xs text-gray-500">Products for this campaign are coming soon.</p>;
+  if (!products.length) return <p className="mt-4 text-center text-xs text-ink-500">Products for this campaign are coming soon.</p>;
   return (
     <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left">
       {products.map((p) => {
@@ -164,37 +164,37 @@ function ProductList({
         const fav = favs?.has(p.id) ?? false;
         const isBusy = busy === p.id;
         return (
-          <li key={p.id} className={`flex gap-2.5 rounded-2xl border bg-white p-2.5 shadow-xs ${q ? 'border-amber-200' : 'border-gray-100'}`}>
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+          <li key={p.id} className={`flex gap-2.5 rounded-2xl border bg-surface p-2.5  ${q ? 'border-warning-line' : 'border-line-subtle'}`}>
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-page">
               {p.image && <Image src={resolveImageSrc(p.image.url)} alt={p.image.alt} fill sizes="64px" className="object-cover" />}
             </div>
             <div className="min-w-0 flex-1">
-              <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-gray-900 hover:underline">
+              <Link href={`/product/${p.slug}`} className="line-clamp-2 text-xs font-bold text-ink hover:underline">
                 {p.name}
               </Link>
-              <p className="text-xs font-black text-gray-900">{formatPaise(p.sellingPricePaise)}</p>
+              <p className="text-xs font-bold text-ink">{formatPaise(p.sellingPricePaise)}</p>
               {!readOnly && onQty && (
                 <div className="mt-1 flex items-center justify-between gap-2">
                   {q ? (
-                    <div className="inline-flex items-center rounded-lg border border-gray-200" role="group" aria-label={`Quantity of ${p.name}`}>
-                      <button type="button" disabled={isBusy} onClick={() => onQty(p.id, q - 1)} className="flex h-7 w-7 items-center justify-center text-gray-600 disabled:opacity-40" aria-label="Decrease">
+                    <div className="inline-flex items-center rounded-lg border border-line" role="group" aria-label={`Quantity of ${p.name}`}>
+                      <button type="button" disabled={isBusy} onClick={() => onQty(p.id, q - 1)} className="flex h-7 w-7 items-center justify-center text-ink-600 disabled:opacity-40" aria-label="Decrease">
                         <Minus className="h-3.5 w-3.5" />
                       </button>
                       <span className="w-6 text-center text-xs font-bold" aria-live="polite">
                         {isBusy ? <Loader2 className="mx-auto h-3 w-3 animate-spin" /> : q}
                       </span>
-                      <button type="button" disabled={isBusy || q >= maxQty} onClick={() => onQty(p.id, q + 1)} className="flex h-7 w-7 items-center justify-center text-gray-600 disabled:opacity-40" aria-label="Increase">
+                      <button type="button" disabled={isBusy || q >= maxQty} onClick={() => onQty(p.id, q + 1)} className="flex h-7 w-7 items-center justify-center text-ink-600 disabled:opacity-40" aria-label="Increase">
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ) : (
-                    <button type="button" disabled={isBusy} onClick={() => onQty(p.id, 1)} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-[11px] font-bold text-white hover:bg-brand-orange-600 disabled:opacity-50">
+                    <button type="button" disabled={isBusy} onClick={() => onQty(p.id, 1)} className="inline-flex h-7 items-center rounded-lg bg-brand-orange px-2.5 text-2xs font-bold text-white hover:bg-brand-orange-600 disabled:opacity-50">
                       {isBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Add to list'}
                     </button>
                   )}
                   {onFav && (
-                    <button type="button" disabled={isBusy} onClick={() => onFav(p.id)} aria-pressed={fav} aria-label={fav ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50">
-                      <Heart className={`h-4 w-4 ${fav ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                    <button type="button" disabled={isBusy} onClick={() => onFav(p.id)} aria-pressed={fav} aria-label={fav ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-surface-muted">
+                      <Heart className={`h-4 w-4 ${fav ? 'fill-current text-danger' : 'text-ink-400'}`} />
                     </button>
                   )}
                 </div>

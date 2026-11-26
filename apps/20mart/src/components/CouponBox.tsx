@@ -17,7 +17,7 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
 
   if (authStatus !== 'authenticated') {
     return (
-      <p className="flex items-center gap-1.5 rounded-lg bg-gray-50 p-2 text-[11px] text-gray-500">
+      <p className="flex items-center gap-1.5 rounded-lg bg-surface-page p-2 text-2xs text-ink-500">
         <Tag className="h-3.5 w-3.5 text-brand-green" />
         <span>
           <Link href="/auth?returnTo=/cart" className="font-bold text-brand-green underline">
@@ -32,12 +32,12 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
   if (cart.coupon) {
     const c = cart.coupon;
     return (
-      <div className={`rounded-lg border p-2 text-[11px] ${c.valid ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
+      <div className={`rounded-lg border p-2 text-2xs ${c.valid ? 'border-success-line bg-success-soft' : 'border-warning-line bg-warning-soft'}`}>
         <div className="flex items-center justify-between gap-2">
-          <p className="flex min-w-0 items-center gap-1.5 font-bold text-gray-900">
-            {c.valid ? <Tag className="h-3.5 w-3.5 shrink-0 text-emerald-700" /> : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />}
+          <p className="flex min-w-0 items-center gap-1.5 font-bold text-ink">
+            {c.valid ? <Tag className="h-3.5 w-3.5 shrink-0 text-success" /> : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-warning" />}
             <span className="font-mono">{c.code}</span>
-            {c.valid && <span className="truncate font-semibold text-emerald-800">−{formatPaise(c.discountPaise)}</span>}
+            {c.valid && <span className="truncate font-semibold text-success">−{formatPaise(c.discountPaise)}</span>}
           </p>
           <button
             type="button"
@@ -46,14 +46,14 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
               await removeCoupon();
               onChange?.();
             }}
-            className="inline-flex h-7 items-center gap-1 rounded-md px-2 font-bold text-gray-600 hover:bg-white disabled:opacity-50"
+            className="inline-flex h-7 items-center gap-1 rounded-md px-2 font-bold text-ink-600 hover:bg-surface disabled:opacity-50"
             aria-label={`Remove coupon ${c.code}`}
           >
             <X className="h-3.5 w-3.5" /> Remove
           </button>
         </div>
-        {c.title && c.valid && <p className="mt-0.5 text-emerald-800">{c.title}</p>}
-        {!c.valid && c.message && <p className="mt-0.5 font-semibold text-amber-800">{c.message}</p>}
+        {c.title && c.valid && <p className="mt-0.5 text-success">{c.title}</p>}
+        {!c.valid && c.message && <p className="mt-0.5 font-semibold text-warning">{c.message}</p>}
       </div>
     );
   }
@@ -72,7 +72,7 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
         }
       }}
     >
-      <label htmlFor="coupon-code" className="text-[11px] font-bold text-gray-700">
+      <label htmlFor="coupon-code" className="text-2xs font-bold text-ink-700">
         Coupon code
       </label>
       <div className="flex gap-1.5">
@@ -88,18 +88,18 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
           placeholder="e.g. WELCOME50"
           aria-invalid={!!error}
           aria-describedby={error ? 'coupon-error' : undefined}
-          className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2.5 font-mono text-xs uppercase outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/15"
+          className="h-9 min-w-0 flex-1 rounded-lg border border-line px-2.5 font-mono text-xs uppercase outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/15"
         />
         <button type="submit" disabled={cartBusy || !code.trim()} className="inline-flex h-9 items-center rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover disabled:opacity-50">
           {cartBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
         </button>
       </div>
       {error && (
-        <p id="coupon-error" role="alert" className="text-[11px] font-semibold text-red-600">
+        <p id="coupon-error" role="alert" className="text-2xs font-semibold text-danger">
           {error}
         </p>
       )}
-      <Link href="/account/coupons" className="inline-block text-[10px] font-semibold text-brand-green hover:underline">
+      <Link href="/account/coupons" className="inline-block text-2xs font-semibold text-brand-green hover:underline">
         View my coupons
       </Link>
     </form>

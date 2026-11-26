@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, PackageSearch } from 'lucide-react';
+import { PackageSearch } from 'lucide-react';
+import { EmptyState } from '@20mart/ui';
+import { SectionHeader } from '../components/SectionHeader';
 import { getCategories, getHomepageCampaigns, getPopular, getPricePoints, getProducts } from '../lib/catalog';
 import { CampaignBanners, type HomeCampaign } from '../components/campaigns/CampaignBanners';
 import { CategoryStrip } from '../components/CategoryStrip';
@@ -15,6 +17,8 @@ import { TrackView } from '../components/TrackView';
 
 // Statically rendered and refreshed every minute (plus on-demand revalidation from the admin).
 export const revalidate = 60;
+
+const HOME_GRID = 'grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 min-[960px]:grid-cols-5';
 
 export const metadata: Metadata = pageMetadata({ title: '20Mart – Your Everyday Value Market', path: '/' });
 
@@ -31,7 +35,12 @@ async function loadHome() {
     return {
       categories,
       trending: popular,
-      newest: newest.items.slice(0, 5),
+      // Don't repeat products already shown in "Popular right now" (falls back to the plain list if that empties it).
+      newest: (() => {
+        const shown = new Set(popular.map((p) => p.id));
+        const fresh = newest.items.filter((p) => !shown.has(p.id));
+        return (fresh.length >= 2 ? fresh : newest.items).slice(0, 5);
+      })(),
       deals: deals.items,
       pricePoints,
       campaigns: campaigns as unknown as HomeCampaign[],
@@ -52,7 +61,7 @@ export default async function HomePage() {
     {/* Outside the space-y container: a <script> sibling would otherwise add top margin to the first section */}
     <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
     <TrackView name="HOME_VIEWED" />
-    <div className="space-y-6 sm:space-y-8 pb-8">
+    <div className="space-y-8 pb-8 sm:space-y-10">
       {/* Category chips + hero (shared components) */}
       <div className="space-y-3 pt-3">
         <CategoryStrip categories={categories} />
@@ -64,68 +73,44 @@ export default async function HomePage() {
 
       {/* Shop by price — real price-point collections */}
       {pricePoints.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="mb-2 text-base sm:text-lg font-bold text-gray-900">Shop by price</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="shop-by-price">
+          <SectionHeader id="shop-by-price" title="Shop by price" subtitle="Everyday essentials at fixed prices" />
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
             {pricePoints.map((pp) => (
               <Link
                 key={pp.amountPaise}
                 href={`/shop?pricePoint=${pp.amountPaise}`}
-                className="group flex flex-col items-center justify-center rounded-2xl border border-orange-100 bg-gradient-to-br from-brand-cream to-white py-3 sm:py-4 shadow-2xs transition-all hover:border-brand-orange/50 hover:shadow-xs"
+                className="group flex flex-col items-center justify-center rounded-2xl border border-line-subtle bg-surface py-3 shadow-card transition-[border-color,box-shadow] hover:border-brand-orange/40 hover:shadow-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 sm:py-4"
               >
-                <span className="text-[10px] sm:text-xs font-semibold text-gray-500">Everything at</span>
-                <span className="text-lg sm:text-2xl font-black text-brand-orange group-hover:scale-105 transition-transform">{pp.label}</span>
+                <span className="text-2xs font-medium text-ink-500">Everything at</span>
+                <span className="text-xl font-bold tabular-nums text-brand-orange-700 sm:text-2xl">{pp.label}</span>
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      {/* 3. Popular (by real units sold; falls back to featured) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-brand-cream text-brand-orange">
-              <Sparkles className="w-4 h-4 fill-current" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-gray-900">Popular right now</h2>
-              <p className="text-xs text-gray-500">Everyday favourites from the 20Mart shelves</p>
-            </div>
-          </div>
-          <Link
-            href="/shop"
-            className="text-xs sm:text-sm font-bold text-brand-orange hover:underline"
-          >
-            See More →
-          </Link>
-        </div>
-
+      {/* Popular (by real units sold; falls back to featured) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="popular-title">
+        <SectionHeader id="popular-title" title="Popular right now" subtitle="Everyday favourites from the 20Mart shelves" href="/shop" />
         {trending.length ? (
-          <ProductGrid
-            products={trending}
-            priorityCount={2}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 gap-2 sm:gap-2.5"
-          />
+          <ProductGrid products={trending} priorityCount={2} className={HOME_GRID} />
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white py-10 text-center">
-            <PackageSearch className="mb-2 h-8 w-8 text-brand-orange" />
-            <p className="text-sm font-bold text-gray-900">{error ? 'Products are temporarily unavailable' : 'New products are on their way'}</p>
-            <p className="mt-1 text-xs text-gray-500">{error ? 'Please refresh in a moment.' : 'Check back soon — we are stocking the shelves.'}</p>
+          <div className="rounded-2xl border border-dashed border-line bg-surface">
+            <EmptyState
+              icon={<PackageSearch className="h-7 w-7" />}
+              title={error ? 'Products are temporarily unavailable' : 'New products are on their way'}
+              description={error ? 'Please refresh in a moment.' : 'Check back soon — we are stocking the shelves.'}
+            />
           </div>
         )}
       </section>
 
       {/* New arrivals */}
       {newest.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900">New arrivals</h2>
-            <Link href="/shop?sort=newest" className="text-xs sm:text-sm font-bold text-brand-orange hover:underline">
-              See all →
-            </Link>
-          </div>
-          <ProductGrid products={newest} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 min-[960px]:grid-cols-5 gap-2 sm:gap-2.5" />
+        <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="new-title">
+          <SectionHeader id="new-title" title="New arrivals" subtitle="Just added to the shelves" href="/shop?sort=newest" />
+          <ProductGrid products={newest} className={HOME_GRID} />
         </section>
       )}
 

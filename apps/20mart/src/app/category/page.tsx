@@ -18,64 +18,61 @@ export default async function CategoryListingPage() {
   const categories = await getCategories().catch(() => []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-5 sm:space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:px-6 sm:py-6">
       <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Categories' }]} />
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+      <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shop by Category</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Everyday home, kitchen, stationery and daily-use essentials</p>
+          <h1 className="text-lg font-semibold text-ink sm:text-xl">Shop by category</h1>
+          <p className="mt-0.5 text-xs text-ink-500">Everyday home, kitchen, stationery and daily-use essentials</p>
         </div>
-        <Link href="/shop" className="text-xs font-bold text-brand-orange hover:underline flex items-center gap-1">
-          <span>View All Products</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+        <Link
+          href="/shop"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md text-sm font-semibold text-brand-orange-700 hover:text-brand-orange-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+        >
+          All products <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>
 
       {categories.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-sm text-gray-500">
+        <p className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center text-sm text-ink-500">
           Categories are being set up. Please check back soon.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
             const theme = getCategoryTheme(category.slug);
             const Icon = theme.icon;
             return (
-              <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
-                className="group relative flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-orange-200 transition-all"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-brand-cream text-[10px] sm:text-[11px] font-bold text-brand-orange">
-                      {category.productCount} item{category.productCount === 1 ? '' : 's'}
-                    </span>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-brand-green transition-colors">{category.name}</h2>
-                    {category.description && <p className="text-xs text-gray-500 line-clamp-2">{category.description}</p>}
-                  </div>
-                  <div
-                    className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded-2xl p-2 flex items-center justify-center overflow-hidden"
+              <li key={category.id}>
+                <Link
+                  href={`/category/${category.slug}`}
+                  className="group flex h-full items-center gap-4 rounded-2xl border border-line-subtle bg-surface p-4 transition-[border-color,box-shadow] hover:border-line hover:shadow-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+                >
+                  <span
+                    className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-16 sm:w-16"
                     style={{ backgroundColor: theme.bg }}
                   >
                     {category.imageUrl ? (
-                      <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="80px" className="object-contain p-1.5 group-hover:scale-110 transition-transform duration-300" />
+                      <Image src={resolveImageSrc(category.imageUrl)} alt="" fill sizes="64px" className="object-contain p-1.5" />
                     ) : (
-                      <Icon className="h-8 w-8" style={{ color: theme.iconColor }} />
+                      <Icon className="h-7 w-7" style={{ color: theme.iconColor }} aria-hidden />
                     )}
-                  </div>
-                </div>
-                <div className="mt-3.5 flex items-center justify-between text-xs font-bold text-brand-orange group-hover:translate-x-0.5 transition-transform">
-                  <span>Browse</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </Link>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold text-ink">{category.name}</span>
+                    <span className="block text-2xs font-medium text-ink-500">
+                      {category.productCount} item{category.productCount === 1 ? '' : 's'}
+                    </span>
+                    {category.description && <span className="mt-1 line-clamp-2 block text-xs text-ink-500">{category.description}</span>}
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5 group-hover:text-ink-700" aria-hidden />
+                </Link>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
-
     </div>
   );
 }

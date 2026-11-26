@@ -102,22 +102,26 @@ export interface BreadcrumbProps {
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
   return (
-    <nav className={cn('flex items-center text-xs text-gray-500 space-x-1.5', className)}>
-      {items.map((item, idx) => {
-        const isLast = idx === items.length - 1;
-        return (
-          <React.Fragment key={idx}>
-            {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
-            {isLast || !item.href ? (
-              <span className="font-semibold text-gray-800 truncate">{item.label}</span>
-            ) : (
-              <a href={item.href} className="hover:text-brand-orange hover:underline transition-colors">
-                {item.label}
-              </a>
-            )}
-          </React.Fragment>
-        );
-      })}
+    <nav aria-label="Breadcrumb" className={cn('min-w-0 text-xs text-ink-500', className)}>
+      <ol className="flex min-w-0 items-center gap-1">
+        {items.map((item, idx) => {
+          const isLast = idx === items.length - 1;
+          return (
+            <li key={idx} className={cn('flex items-center gap-1', isLast ? 'min-w-0' : 'shrink-0')}>
+              {idx > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink-400" aria-hidden="true" />}
+              {isLast || !item.href ? (
+                <span aria-current={isLast ? 'page' : undefined} className="truncate font-medium text-ink-700">
+                  {item.label}
+                </span>
+              ) : (
+                <a href={item.href} className="rounded transition-colors hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
+                  {item.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 };
@@ -150,7 +154,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   className,
 }) => {
   if (totalPages <= 1) return null;
-  const arrow = 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed';
+  const arrow = 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-ink-600 hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 disabled:opacity-40 disabled:cursor-not-allowed';
 
   return (
     <nav aria-label="Pagination" className={cn('flex flex-wrap items-center justify-center gap-1.5', className)}>
@@ -160,7 +164,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {paginationItems(currentPage, totalPages).map((page, i) =>
         page === null ? (
-          <span key={`gap-${i}`} className="flex h-9 w-6 shrink-0 items-center justify-center text-xs text-gray-500" aria-hidden="true">
+          <span key={`gap-${i}`} className="flex h-9 w-6 shrink-0 items-center justify-center text-xs text-ink-500" aria-hidden="true">
             …
           </span>
         ) : (
@@ -171,8 +175,8 @@ export const Pagination: React.FC<PaginationProps> = ({
             aria-current={currentPage === page ? 'page' : undefined}
             onClick={() => onPageChange(page)}
             className={cn(
-              'flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-2 text-xs font-bold transition-all',
-              currentPage === page ? 'bg-brand-orange text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              'flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-2 text-xs font-semibold tabular-nums transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50',
+              currentPage === page ? 'bg-brand-orange text-white shadow-sm' : 'border border-line bg-surface text-ink-700 hover:bg-surface-muted'
             )}
           >
             {page}

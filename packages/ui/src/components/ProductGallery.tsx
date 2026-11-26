@@ -75,7 +75,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
         onClick={() => setIsLightboxOpen(true)}
-        className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-100 bg-white flex items-center justify-center shadow-xs cursor-zoom-in select-none"
+        className="group relative aspect-square w-full overflow-hidden rounded-2xl bg-surface-sunken flex items-center justify-center cursor-zoom-in select-none"
       >
         {/* Zoomed Image on Hover */}
         <div
@@ -92,18 +92,20 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             padding="none"
             priority={true}
             objectFit="contain"
-            className="w-full h-full"
+            sizes="(min-width: 768px) 40vw, 100vw"
+            className="w-full h-full bg-transparent p-4 sm:p-6"
+            imgClassName="mix-blend-multiply"
           />
         </div>
 
         {/* Hover Zoom Hint Badge (Bottom Right) */}
         <div
           className={cn(
-            'absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-gray-200/80 text-[11px] font-bold text-gray-700 shadow-xs pointer-events-none transition-opacity duration-200',
+            'absolute bottom-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/90 text-2xs font-medium text-ink-600 shadow-card pointer-events-none transition-opacity duration-200',
             isZoomed ? 'opacity-0' : 'opacity-100'
           )}
         >
-          <ZoomIn className="w-3.5 h-3.5 text-brand-orange" />
+          <ZoomIn className="w-3.5 h-3.5 text-ink-500" />
           <span className="hidden sm:inline">Roll over image to zoom in</span>
           <span className="sm:hidden">Tap to Zoom</span>
         </div>
@@ -115,7 +117,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             e.stopPropagation();
             setIsLightboxOpen(true);
           }}
-          className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur-xs border border-gray-200 text-gray-600 shadow-xs opacity-0 group-hover:opacity-100 hover:text-brand-orange hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink-600 shadow-card opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-ink transition-opacity cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
           title="Open Fullscreen Zoom"
           aria-label="Open Fullscreen Zoom"
         >
@@ -131,11 +133,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               key={idx}
               type="button"
               onClick={() => setSelectedIdx(idx)}
+              aria-label={`Show image ${idx + 1}`}
+              aria-current={selectedIdx === idx ? 'true' : undefined}
               className={cn(
-                'relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition-all cursor-pointer',
-                selectedIdx === idx
-                  ? 'border-brand-orange ring-2 ring-brand-orange/25 shadow-xs scale-105'
-                  : 'border-gray-200 hover:border-gray-300 opacity-70 hover:opacity-100'
+                'relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border-2 bg-surface-sunken p-1 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50',
+                selectedIdx === idx ? 'border-brand-orange' : 'border-transparent hover:border-line-strong'
               )}
             >
               <ProductImage
