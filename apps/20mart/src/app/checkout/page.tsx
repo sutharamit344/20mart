@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { resolveImageSrc } from '@20mart/ui';
+import { Modal, resolveImageSrc } from '@20mart/ui';
 import { useRouter } from 'next/navigation';
 import { formatPaise, type CartView, type SavedAddress } from '@20mart/shared';
 import { AlertTriangle, Banknote, CheckCircle2, CreditCard, Loader2, MapPin, Pencil, Plus, ShieldCheck, Truck } from 'lucide-react';
@@ -43,6 +43,8 @@ export default function CheckoutPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [addressId, setAddressId] = useState<string | null>(null);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [selectingAddressId, setSelectingAddressId] = useState<string | null>(null);
   const [editing, setEditing] = useState<SavedAddress | 'new' | null>(null);
   const [method, setMethod] = useState<'ONLINE' | 'CASH_ON_DELIVERY' | null>(null);
   const [placing, setPlacing] = useState(false);
@@ -147,61 +149,52 @@ export default function CheckoutPage() {
         <div className="space-y-3 lg:col-span-8">
           {/* 1. Address */}
           <Section step={1} title="Delivery address" icon={<MapPin className="h-4 w-4" />}>
-            {editing ? (
-              <AddressForm
-                address={editing === 'new' ? null : editing}
-                onCancel={summary.addresses.length ? () => setEditing(null) : undefined}
-                onSaved={(a) => {
-                  setEditing(null);
-                  void load(a.id);
+            {summary.addresses.length === 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing('new');
+                  setAddressModalOpen(true);
                 }}
-              />
-            ) : summary.addresses.length === 0 ? (
-              <button type="button" onClick={() => setEditing('new')} className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line py-6 text-sm font-semibold text-brand-orange-700 hover:border-brand-orange/40 hover:bg-brand-orange-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line py-6 text-sm font-semibold text-brand-orange-700 hover:border-brand-orange/40 hover:bg-brand-orange-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 cursor-pointer"
+              >
                 <Plus className="h-4 w-4" /> Add a delivery address
               </button>
             ) : (
-              <div className="space-y-2">
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup" aria-label="Delivery address">
-                  {summary.addresses.map((a) => (
-                    <li key={a.id}>
-                      <div
-                        role="radio"
-                        aria-checked={a.id === addressId}
-                        tabIndex={0}
-                        onClick={() => load(a.id)}
-                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && load(a.id)}
-                        className={`relative h-full cursor-pointer rounded-xl border p-3 pr-11 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${a.id === addressId ? 'border-brand-orange bg-brand-orange-50/60 ring-1 ring-brand-orange/30' : 'border-line hover:border-line-strong'}`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-semibold text-ink">{a.name}</span>
-                          <span className="rounded bg-surface-muted px-1.5 py-0.5 text-2xs font-medium uppercase text-ink-500">{a.type}</span>
-                          {a.isDefault && <span className="text-2xs font-semibold uppercase text-brand-green">Default</span>}
-                        </div>
-                        <p className="mt-1 leading-relaxed text-ink-600">
-                          {a.addressLine1}
-                          {a.addressLine2 ? `, ${a.addressLine2}` : ''}
-                          {a.landmark ? `, near ${a.landmark}` : ''}, {a.city}, {a.state} – {a.pincode}
-                        </p>
-                        <p className="mt-0.5 tabular-nums text-ink-500">+91 {a.phone}</p>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditing(a);
-                          }}
-                          className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-ink-400 hover:bg-surface hover:text-ink-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
-                          aria-label={`Edit address for ${a.name}`}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
+              <div className="space-y-2.5">
+                {selected && (
+                  <div className="flex items-start justify-between gap-3 rounded-xl border border-brand-orange/40 bg-brand-orange-50/40 p-3 text-xs">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-sm font-semibold text-ink">{selected.name}</span>
+                        <span className="rounded bg-surface-muted px-1.5 py-0.5 text-2xs font-medium uppercase text-ink-500">
+                          {selected.type}
+                        </span>
+                        {selected.isDefault && (
+                          <span className="text-2xs font-semibold uppercase text-brand-green">Default</span>
+                        )}
                       </div>
-                    </li>
-                  ))}
-                </ul>
-                <button type="button" onClick={() => setEditing('new')} className="inline-flex h-9 items-center gap-1 rounded-lg text-sm font-semibold text-brand-orange-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50">
-                  <Plus className="h-3.5 w-3.5" /> Add new address
-                </button>
+                      <p className="mt-1 leading-relaxed text-ink-600">
+                        {selected.addressLine1}
+                        {selected.addressLine2 ? `, ${selected.addressLine2}` : ''}
+                        {selected.landmark ? `, near ${selected.landmark}` : ''}, {selected.city}, {selected.state} –{' '}
+                        {selected.pincode}
+                      </p>
+                      <p className="mt-0.5 tabular-nums text-ink-500">+91 {selected.phone}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditing(null);
+                        setAddressModalOpen(true);
+                      }}
+                      className="shrink-0 cursor-pointer rounded-lg border border-brand-orange/40 bg-surface px-3 py-1.5 text-xs font-semibold text-brand-orange-700 transition-colors hover:bg-brand-orange-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+
                 {selected && delivery.serviceability && (
                   <p className={`flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs font-medium ${delivery.serviceability.serviceable ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                     <Truck className="h-3.5 w-3.5 shrink-0 mt-px" />
@@ -210,6 +203,116 @@ export default function CheckoutPage() {
                 )}
               </div>
             )}
+
+            <Modal
+              isOpen={addressModalOpen}
+              onClose={() => {
+                setAddressModalOpen(false);
+                setEditing(null);
+              }}
+              title={
+                editing === 'new'
+                  ? 'Add delivery address'
+                  : editing
+                  ? 'Edit delivery address'
+                  : 'Select delivery address'
+              }
+              maxWidth="lg"
+            >
+              {editing ? (
+                <AddressForm
+                  address={editing === 'new' ? null : editing}
+                  onCancel={() => {
+                    setEditing(null);
+                    if (summary.addresses.length === 0) setAddressModalOpen(false);
+                  }}
+                  onSaved={(a) => {
+                    setEditing(null);
+                    setAddressModalOpen(false);
+                    void load(a.id);
+                  }}
+                />
+              ) : (
+                <div className="space-y-3">
+                  <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2" role="radiogroup" aria-label="Delivery address">
+                    {summary.addresses.map((a) => {
+                      const isCurrent = a.id === addressId;
+                      const isSwitching = selectingAddressId === a.id;
+                      return (
+                        <li key={a.id}>
+                          <div
+                            role="radio"
+                            aria-checked={isCurrent}
+                            tabIndex={0}
+                            onClick={async () => {
+                              setSelectingAddressId(a.id);
+                              try {
+                                await load(a.id);
+                                setAddressModalOpen(false);
+                              } finally {
+                                setSelectingAddressId(null);
+                              }
+                            }}
+                            onKeyDown={async (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setSelectingAddressId(a.id);
+                                try {
+                                  await load(a.id);
+                                  setAddressModalOpen(false);
+                                } finally {
+                                  setSelectingAddressId(null);
+                                }
+                              }
+                            }}
+                            className={`relative h-full cursor-pointer rounded-xl border p-3 pr-11 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${
+                              isCurrent
+                                ? 'border-brand-orange bg-brand-orange-50/60 ring-1 ring-brand-orange/30'
+                                : 'border-line hover:border-line-strong'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-semibold text-ink">{a.name}</span>
+                              <span className="rounded bg-surface-muted px-1.5 py-0.5 text-2xs font-medium uppercase text-ink-500">
+                                {a.type}
+                              </span>
+                              {a.isDefault && (
+                                <span className="text-2xs font-semibold uppercase text-brand-green">Default</span>
+                              )}
+                              {isSwitching && <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-orange" />}
+                            </div>
+                            <p className="mt-1 leading-relaxed text-ink-600">
+                              {a.addressLine1}
+                              {a.addressLine2 ? `, ${a.addressLine2}` : ''}
+                              {a.landmark ? `, near ${a.landmark}` : ''}, {a.city}, {a.state} – {a.pincode}
+                            </p>
+                            <p className="mt-0.5 tabular-nums text-ink-500">+91 {a.phone}</p>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditing(a);
+                              }}
+                              className="absolute right-1.5 top-1.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-ink-400 hover:bg-surface hover:text-ink-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+                              aria-label={`Edit address for ${a.name}`}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => setEditing('new')}
+                    className="inline-flex h-9 cursor-pointer items-center gap-1 rounded-lg text-sm font-semibold text-brand-orange-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add new address
+                  </button>
+                </div>
+              )}
+            </Modal>
           </Section>
 
           {/* 2. Items */}
