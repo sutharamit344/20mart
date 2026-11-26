@@ -61,6 +61,8 @@ export const generateMetadata = (): Metadata => ({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // Lets env(safe-area-inset-*) report the iPhone home-indicator inset (bottom navigation padding).
+  viewportFit: 'cover',
   themeColor: '#0B5D38',
 };
 
@@ -72,7 +74,7 @@ export default async function RootLayout({
   const categories = await getHeaderCategories();
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#F8F9FA] text-gray-900 antialiased pb-16 md:pb-0 overflow-x-clip font-sans">
+      <body className="min-h-screen flex flex-col bg-surface-page text-ink antialiased pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0 overflow-x-clip font-sans">
         <StoreProvider>
           <LocationProvider>
             <Header categories={categories} />

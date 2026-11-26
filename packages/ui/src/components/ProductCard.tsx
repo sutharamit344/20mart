@@ -21,6 +21,11 @@ export interface ProductCardProps {
   className?: string;
 }
 
+/**
+ * Storefront product tile. One border, one loud element (the cart control), price as the strongest text.
+ * The product name is a real button stretched over the card, so the whole tile is clickable and keyboard
+ * reachable; the wishlist and cart controls sit above it (z-10).
+ */
 const ProductCardComponent: React.FC<ProductCardProps> = ({
   product,
   quantity = 0,
@@ -36,27 +41,38 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
 }) => {
   const outOfStock = product.stockState === 'OUT';
   const lowStock = product.stockState === 'LOW';
+  const hasMrp = product.mrpPaise > product.sellingPricePaise;
+
+  const controlH = compact ? 'h-8' : 'h-8 sm:h-9';
 
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between h-full rounded-xl sm:rounded-2xl border border-gray-200/90 bg-white transition-all duration-300 hover:border-orange-300 hover:shadow-[0_6px_20px_-4px_rgba(255,122,0,0.14),0_2px_6px_-2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 select-none',
-        compact ? 'p-1.5 sm:p-2' : 'p-2 sm:p-2.5',
+        'group relative flex h-full flex-col rounded-2xl border border-line-subtle bg-surface transition-[border-color,box-shadow] duration-150 hover:border-line hover:shadow-card-hover select-none',
+        compact ? 'p-2' : 'p-2 sm:p-2.5',
         className
       )}
     >
-      {/* Image */}
-      <div className="relative mb-1.5 w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#F9FAFB] border border-gray-100 aspect-square flex items-center justify-center">
-        {product.discountPercent > 0 && !outOfStock && (
-          <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-brand-cream border border-orange-200/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-black text-brand-orange shadow-2xs">
-            -{product.discountPercent}%
-          </div>
-        )}
-        {outOfStock && (
-          <div className="absolute left-1.5 top-1.5 z-10 rounded-md bg-gray-900/80 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-white">
-            Out of stock
-          </div>
-        )}
+      {/* Image well: no border of its own, consistent 1:1 fit for every product photo */}
+      <div className="relative overflow-hidden rounded-xl bg-surface-sunken">
+        <ProductImage
+          src={product.image?.url}
+          alt={product.image?.alt ?? product.name}
+          aspectRatio="square"
+          padding={compact ? 'sm' : 'md'}
+          objectFit="contain"
+          priority={priority}
+          className={cn('rounded-none bg-transparent', outOfStock && 'opacity-60 grayscale-[35%]')}
+          imgClassName="mix-blend-multiply transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+
+        {outOfStock ? (
+          <span className="absolute left-1.5 top-1.5 rounded-md bg-ink/80 px-1.5 py-0.5 text-2xs font-semibold text-white">Out of stock</span>
+        ) : product.discountPercent > 0 ? (
+          <span className="absolute left-1.5 top-1.5 rounded-md bg-brand-orange-50 px-1.5 py-0.5 text-2xs font-bold tabular-nums text-brand-orange-700 ring-1 ring-inset ring-brand-orange-200/70">
+            {product.discountPercent}% off
+          </span>
+        ) : null}
 
         {onToggleWishlist && (
           <button
@@ -68,101 +84,89 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
               onToggleWishlist(product);
             }}
             className={cn(
-              'absolute right-1.5 top-1.5 z-10 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/95 backdrop-blur-xs border border-gray-100 shadow-xs transition-all hover:scale-110 active:scale-95 cursor-pointer',
-              isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+              'absolute right-1 top-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-surface/90 shadow-card transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50',
+              isWishlisted ? 'text-danger' : 'text-ink-400 hover:text-danger'
             )}
           >
-            <Heart className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', isWishlisted && 'fill-current')} />
+            <Heart className={cn('h-4 w-4', isWishlisted && 'fill-current')} />
           </button>
         )}
-
-        <div
-          onClick={() => onClick?.(product)}
-          className={cn('h-full w-full cursor-pointer flex items-center justify-center p-1 sm:p-1.5', outOfStock && 'opacity-60 grayscale-[35%]')}
-        >
-          <ProductImage
-            src={product.image?.url}
-            alt={product.image?.alt ?? product.name}
-            aspectRatio="square"
-            padding="none"
-            objectFit="contain"
-            priority={priority}
-            className="group-hover:scale-105 transition-transform duration-300 bg-transparent"
-          />
-        </div>
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col justify-between">
-        <div onClick={() => onClick?.(product)} className="cursor-pointer">
-          <p className="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wider truncate">
-            {product.brand ? product.brand.name : product.category.name}
-          </p>
-          <h3
+      <div className={cn('flex flex-1 flex-col', compact ? 'pt-1.5' : 'pt-2')}>
+        <p className="truncate text-2xs font-medium text-ink-500">
+          {lowStock ? (
+            <span className="inline-flex items-center gap-1 font-semibold text-warning">
+              <span className="h-1.5 w-1.5 rounded-full bg-warning" aria-hidden />
+              Only a few left
+            </span>
+          ) : (
+            product.brand?.name ?? product.category.name
+          )}
+        </p>
+        <h3 className={cn('mt-0.5 font-medium leading-snug text-ink-800', compact ? 'text-xs' : 'text-xs sm:text-sm')} title={product.name}>
+          <button
+            type="button"
+            onClick={() => onClick?.(product)}
             className={cn(
-              'font-semibold text-gray-800 line-clamp-2 group-hover:text-brand-green transition-colors leading-snug',
-              compact ? 'text-[11px] sm:text-xs mt-0.5 h-7 sm:h-8' : 'text-xs sm:text-[13px] mt-0.5 h-8 sm:h-9'
+              'line-clamp-2 w-full text-left cursor-pointer group-hover:text-ink focus:outline-none',
+              // Stretched hit area: the whole card opens the product; focus ring is drawn on the card outline.
+              "after:absolute after:inset-0 after:z-0 after:rounded-2xl after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-brand-orange/60"
             )}
-            title={product.name}
           >
             {product.name}
-          </h3>
-          {/* Fixed-height availability line keeps card heights aligned */}
-          <p className="mt-0.5 h-4 text-[10px] font-semibold leading-4">
-            {lowStock ? <span className="text-amber-700">Only a few left</span> : outOfStock ? <span className="text-gray-500">Currently unavailable</span> : null}
-          </p>
-        </div>
+          </button>
+        </h3>
 
-        <div className="mt-auto pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1 sm:gap-2">
-          <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap min-w-0">
-            <span className="text-xs sm:text-sm md:text-base font-black text-gray-900">{formatPaise(product.sellingPricePaise)}</span>
-            {product.mrpPaise > product.sellingPricePaise && (
-              <span className="text-[10px] sm:text-xs text-gray-500 line-through">{formatPaise(product.mrpPaise)}</span>
+        <div className={cn('mt-auto flex items-end justify-between gap-1.5', compact ? 'pt-1.5' : 'pt-2')}>
+          <div className="min-w-0 leading-tight">
+            <span className={cn('block font-bold tabular-nums text-ink', compact ? 'text-sm' : 'text-sm sm:text-base')}>
+              {formatPaise(product.sellingPricePaise)}
+            </span>
+            {hasMrp && (
+              <span className="block text-2xs tabular-nums text-ink-400">
+                MRP <span className="line-through">{formatPaise(product.mrpPaise)}</span>
+              </span>
             )}
           </div>
 
           {outOfStock ? (
             <span
-              className={cn(
-                'flex items-center justify-center rounded-lg sm:rounded-xl bg-gray-100 text-gray-400 font-bold shrink-0 leading-none',
-                compact ? 'h-6.5 px-2 text-[10px] min-w-[56px]' : 'h-7 sm:h-7.5 px-2.5 text-[11px] min-w-[64px] sm:min-w-[70px]'
-              )}
+              className={cn('relative z-10 inline-flex shrink-0 items-center justify-center rounded-lg bg-surface-muted px-2.5 text-2xs font-semibold text-ink-400', controlH)}
               aria-label="Out of stock"
             >
               Sold out
             </span>
           ) : quantity > 0 ? (
             <div
-              className={cn(
-                'flex items-center justify-between font-bold text-white bg-gradient-to-r from-brand-orange to-[#FF6200] rounded-lg sm:rounded-xl shadow-xs shrink-0 select-none overflow-hidden border border-orange-500/20',
-                compact ? 'h-6.5 min-w-[68px]' : 'h-7 sm:h-7.5 min-w-[74px] sm:min-w-[80px]'
-              )}
+              className={cn('relative z-10 flex shrink-0 items-center rounded-lg bg-brand-orange text-white shadow-sm', controlH)}
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 type="button"
-                aria-label="Decrease quantity"
+                aria-label={`Decrease quantity of ${product.name}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onDecrement?.(product);
                 }}
-                className="h-full px-1.5 sm:px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
+                className="flex h-full w-7 sm:w-8 items-center justify-center rounded-l-lg hover:bg-brand-orange-600 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
               >
-                <Minus className="h-3 w-3 stroke-[2.5]" />
+                <Minus className="h-3.5 w-3.5 stroke-[2.5]" />
               </button>
-              <span className="px-1 text-center font-black text-white text-[11px] sm:text-xs leading-none min-w-[14px]" aria-live="polite">
+              <span className="min-w-[1.25rem] text-center text-xs font-bold tabular-nums" aria-live="polite">
                 {quantity}
               </span>
               <button
                 type="button"
-                aria-label="Increase quantity"
+                aria-label={`Increase quantity of ${product.name}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onIncrement?.(product);
                 }}
-                className="h-full px-1.5 sm:px-2 flex items-center justify-center hover:bg-black/15 active:scale-90 transition-all cursor-pointer text-white"
+                className="flex h-full w-7 sm:w-8 items-center justify-center rounded-r-lg hover:bg-brand-orange-600 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80"
               >
-                <Plus className="h-3 w-3 stroke-[2.5]" />
+                <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
               </button>
             </div>
           ) : (
@@ -174,8 +178,8 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
                 onAddToCart?.(product);
               }}
               className={cn(
-                'flex items-center justify-center font-bold text-white transition-all bg-brand-orange hover:bg-brand-orange-600 active:scale-95 shadow-xs hover:shadow-sm rounded-lg sm:rounded-xl shrink-0 cursor-pointer select-none leading-none',
-                compact ? 'h-6.5 px-2 text-[10px] sm:text-[11px] gap-0.5 min-w-[56px]' : 'h-7 sm:h-7.5 px-2.5 sm:px-3 text-xs gap-1 min-w-[64px] sm:min-w-[70px]'
+                'relative z-10 inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-brand-orange bg-surface px-3 text-xs font-semibold text-brand-orange transition-colors hover:bg-brand-orange hover:text-white active:scale-[0.97] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 focus-visible:ring-offset-1',
+                controlH
               )}
             >
               <Plus className="h-3.5 w-3.5 stroke-[2.5]" />

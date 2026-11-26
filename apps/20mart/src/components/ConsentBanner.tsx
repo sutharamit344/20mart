@@ -49,15 +49,15 @@ export function ConsentBanner() {
   };
 
   return (
-    <div role="dialog" aria-modal="false" aria-labelledby="consent-title" className="fixed inset-x-3 bottom-[4.5rem] z-50 md:inset-x-auto md:bottom-4 md:right-4 md:w-[380px]">
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-lg">
+    <div role="dialog" aria-modal="false" aria-labelledby="consent-title" className="fixed inset-x-3 bottom-[calc(3.5rem+env(safe-area-inset-bottom)+0.5rem)] z-50 animate-pop-in md:inset-x-auto md:bottom-4 md:right-4 md:w-[380px]">
+      <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto rounded-2xl border border-line bg-surface p-4 shadow-pop">
         <div className="flex items-start gap-3">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-cream text-brand-orange">
             <BarChart3 className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p id="consent-title" className="text-sm font-bold text-gray-900">Help us stock what you need</p>
-            <p className="mt-1 text-xs leading-relaxed text-gray-600">
+            <p id="consent-title" className="text-sm font-semibold text-ink">Help us stock what you need</p>
+            <p className="mt-1 text-xs leading-relaxed text-ink-600">
               With your permission we record which products and categories you view and what you search for on 20Mart, so we can stock
               the right items. We never sell this data. Essential cookies for sign-in, your cart and delivery location are always on.{' '}
               <Link href="/privacy#analytics" className="font-semibold text-brand-orange-600 underline">
@@ -85,7 +85,7 @@ export function ConsentBanner() {
             type="button"
             disabled={busy}
             onClick={() => choose(false)}
-            className="inline-flex h-9 items-center justify-center rounded-xl border border-gray-300 bg-white px-3 text-xs font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-line-strong bg-surface px-3 text-sm font-semibold text-ink-700 hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-400/40 disabled:opacity-50"
           >
             Essential only
           </button>
@@ -93,7 +93,7 @@ export function ConsentBanner() {
             type="button"
             disabled={busy || optOut}
             onClick={() => choose(true)}
-            className="inline-flex h-9 items-center justify-center rounded-xl bg-brand-orange px-3 text-xs font-bold text-white hover:bg-brand-orange-600 disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-orange px-3 text-sm font-semibold text-white hover:bg-brand-orange-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/40 focus-visible:ring-offset-1 disabled:opacity-50"
           >
             Allow analytics
           </button>

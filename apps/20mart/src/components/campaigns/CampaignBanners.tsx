@@ -30,35 +30,38 @@ export function CampaignBanners({ campaigns }: { campaigns: HomeCampaign[] }) {
   if (!live.length) return null;
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6" aria-label="Current campaigns">
-      <div className={`grid gap-2.5 sm:gap-3 ${live.length > 1 ? 'sm:grid-cols-2' : ''}`}>
+      <div className={`grid gap-3 ${live.length > 1 ? 'md:grid-cols-2' : ''}`}>
         {live.map((c) => {
           const fyc = c.type === 'FILL_YOUR_CART';
           return (
             <Link
               key={c.id}
               href={`/campaigns/${c.slug}`}
-              className={`group relative flex min-h-[112px] items-center overflow-hidden rounded-2xl border p-4 shadow-xs transition hover:shadow-md ${fyc ? 'border-amber-200 bg-gradient-to-br from-[#FFF4D6] to-[#FFE7B0]' : 'border-emerald-100 bg-gradient-to-br from-emerald-50 to-white'}`}
+              className={`group flex min-h-[120px] items-stretch overflow-hidden rounded-2xl border transition-shadow hover:shadow-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/50 ${fyc ? 'border-brand-orange-200/60 bg-brand-cream' : 'border-brand-green/15 bg-brand-green-50'}`}
             >
-              <div className="relative z-10 max-w-[70%] space-y-1">
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${fyc ? 'bg-gray-900 text-amber-300' : 'bg-brand-green text-white'}`}>
-                  {fyc ? <ShoppingBasket className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+              <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-4 sm:p-5">
+                <span className={`inline-flex w-fit items-center gap-1 text-2xs font-semibold uppercase tracking-wide ${fyc ? 'text-brand-orange-700' : 'text-brand-green'}`}>
+                  {fyc ? <ShoppingBasket className="h-3.5 w-3.5" aria-hidden /> : <Sparkles className="h-3.5 w-3.5" aria-hidden />}
                   {fyc ? 'Fill your cart' : 'Offer'}
                 </span>
-                <p className="text-base sm:text-lg font-black leading-tight text-gray-900">{c.bannerTitle || c.name}</p>
-                {c.bannerSubtitle && <p className="text-[11px] sm:text-xs text-gray-700 line-clamp-2">{c.bannerSubtitle}</p>}
+                <p className="text-base font-semibold leading-snug text-ink sm:text-lg">{c.bannerTitle || c.name}</p>
+                {c.bannerSubtitle && <p className="line-clamp-2 text-xs text-ink-600 sm:text-sm">{c.bannerSubtitle}</p>}
                 {c.coupon?.code && (
-                  <p className="text-[11px] font-bold text-brand-green">
-                    Use code <span className="font-mono">{c.coupon.code}</span>
+                  <p className="text-xs text-ink-600">
+                    Use code{' '}
+                    <span className="rounded-md border border-dashed border-line-strong bg-surface px-1.5 py-0.5 font-mono text-2xs font-semibold text-ink">
+                      {c.coupon.code}
+                    </span>
                   </p>
                 )}
-                <span className="inline-flex items-center gap-1 pt-0.5 text-[11px] font-bold text-[#C25D00]">
-                  {fyc ? 'Start your list' : 'Shop now'} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-brand-orange-700">
+                  {fyc ? 'Start your list' : 'Shop now'} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
               {c.bannerImageUrl && (
-                <div className="absolute inset-y-0 right-0 w-[38%]">
+                <div className="relative w-[36%] max-w-[220px] shrink-0 bg-surface-sunken">
                   {/* eslint-disable-next-line @next/next/no-img-element -- banner URLs come from admin uploads on any storage host */}
-                  <img src={resolveImageSrc(c.bannerImageUrl)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={resolveImageSrc(c.bannerImageUrl)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 </div>
               )}
             </Link>
