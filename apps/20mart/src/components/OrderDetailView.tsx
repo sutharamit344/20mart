@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { resolveImageSrc } from '@20mart/ui';
 import { useRouter } from 'next/navigation';
 import { FULFILMENT_STEPS, formatPaise, PAYMENT_STATUS_LABEL, type OrderStatusCode, type PaymentStatusCode } from '@20mart/shared';
-import { Check, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, CreditCard, Loader2, MapPin, Package, XCircle } from 'lucide-react';
 import { storeApi, useStore } from '../lib/store';
 import { payWithRazorpay, type CheckoutPaymentParams } from '../lib/razorpay';
 
@@ -59,10 +59,13 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
   const [busy, setBusy] = useState<'pay' | 'cancel' | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [reason, setReason] = useState('');
+  const [showFullStatus, setShowFullStatus] = useState(false);
 
   const terminal = order.status === 'CANCELLED' || order.status === 'FAILED';
   const reached = new Map(order.history.map((h) => [h.status, h.at]));
   const currentIdx = FULFILMENT_STEPS.findIndex((s) => s.status === order.status);
+  const activeStep = currentIdx >= 0 ? FULFILMENT_STEPS[currentIdx] : null;
+  const activeAt = activeStep ? (reached.get(activeStep.status) ?? order.createdAt) : order.createdAt;
 
   const pay = async () => {
     setBusy('pay');
@@ -127,7 +130,27 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
 
       {/* Timeline */}
       <section className="rounded-2xl border border-line-subtle bg-surface p-3.5 ">
-        <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-ink-500">Order status</h3>
+        <div className="mb-2.5 flex items-center justify-between gap-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500">Order status</h3>
+          {!terminal && (
+            <button
+              type="button"
+              onClick={() => setShowFullStatus((v) => !v)}
+              aria-expanded={showFullStatus}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-md text-xs font-semibold text-brand-green hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
+            >
+              {showFullStatus ? (
+                <>
+                  Hide full status <ChevronUp className="h-3.5 w-3.5" />
+                </>
+              ) : (
+                <>
+                  View all status <ChevronDown className="h-3.5 w-3.5" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
         {terminal ? (
           <div className="flex items-start gap-2 rounded-xl bg-danger-soft p-3 text-xs text-danger">
             <XCircle className="h-4 w-4 shrink-0" />
@@ -141,7 +164,7 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               )}
             </div>
           </div>
-        ) : (
+        ) : showFullStatus ? (
           <ol className="relative space-y-3 pl-6">
             <span className="absolute left-[9px] top-1 bottom-1 w-0.5 bg-surface-muted" aria-hidden="true" />
             {FULFILMENT_STEPS.map((s, i) => {
@@ -158,6 +181,16 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
               );
             })}
           </ol>
+        ) : (
+          <div className="flex items-start gap-2.5">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-brand-green bg-brand-green text-white">
+              <Check className="h-3 w-3" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-ink">{activeStep?.label ?? order.statusLabel}</p>
+              <p className="text-2xs text-ink-500">{fmtDate(activeAt)}</p>
+            </div>
+          </div>
         )}
         {!terminal && order.status !== 'DELIVERED' && order.deliveryEstimate && (
           <p className="mt-3 rounded-lg bg-success-soft p-2 text-2xs font-semibold text-success">{order.deliveryEstimate}</p>
