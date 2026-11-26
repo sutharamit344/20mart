@@ -44,7 +44,13 @@ async function loadHome() {
       deals: deals.items,
       pricePoints,
       campaigns: campaigns as unknown as HomeCampaign[],
-      heroProducts: newest.items.filter((product) => product.image).slice(0, 6),
+      heroProducts: Array.from(
+        new Map(
+          [...newest.items, ...popular, ...deals.items]
+            .filter((product) => product.image)
+            .map((product) => [product.id, product])
+        ).values()
+      ),
       error: false,
     };
   } catch (e) {
