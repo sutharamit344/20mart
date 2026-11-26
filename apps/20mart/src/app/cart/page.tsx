@@ -56,6 +56,7 @@ export default function CartPage() {
   const { cart, cartReady, cartBusy, setLineQuantity, removeLine, clearCart, authStatus } = useStore();
   const [info, setInfo] = useState<StoreInfo | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [updatingLineId, setUpdatingLineId] = useState<string | null>(null);
 
   useEffect(() => {
     storeApi<StoreInfo>('/api/store-info').then(setInfo).catch(() => undefined);
@@ -177,9 +178,30 @@ export default function CartPage() {
               <span>Some items changed or are not available for your delivery location. Update or remove them, or change the location, to continue.</span>
             </div>
           )}
-          <ul className={`${panel} divide-y divide-line-subtle ${cartBusy ? 'opacity-70' : ''}`} aria-busy={cartBusy}>
+          <ul className={`${panel} divide-y divide-line-subtle`} aria-busy={cartBusy}>
             {cart.lines.map((l) => (
-              <CartRow key={l.id} line={l} busy={cartBusy} onQty={(q) => setLineQuantity(l.id, q)} onRemove={() => removeLine(l.id)} />
+              <CartRow
+                key={l.id}
+                line={l}
+                busy={cartBusy}
+                updating={updatingLineId === l.id}
+                onQty={async (q) => {
+                  setUpdatingLineId(l.id);
+                  try {
+                    await setLineQuantity(l.id, q);
+                  } finally {
+                    setUpdatingLineId(null);
+                  }
+                }}
+                onRemove={async () => {
+                  setUpdatingLineId(l.id);
+                  try {
+                    await removeLine(l.id);
+                  } finally {
+                    setUpdatingLineId(null);
+                  }
+                }}
+              />
             ))}
           </ul>
           <Link
@@ -265,13 +287,25 @@ function CheckoutButton({ enabled, guest }: { enabled: boolean; guest: boolean }
   );
 }
 
-function CartRow({ line, busy, onQty, onRemove }: { line: CartLine; busy: boolean; onQty: (q: number) => void; onRemove: () => void }) {
+function CartRow({
+  line,
+  busy,
+  updating,
+  onQty,
+  onRemove,
+}: {
+  line: CartLine;
+  busy: boolean;
+  updating: boolean;
+  onQty: (q: number) => void;
+  onRemove: () => void;
+}) {
   const blocked = line.state === 'unavailable' || line.state === 'out_of_stock';
   const warn = line.state !== 'ok' || line.priceChanged;
   const stepBtn =
     'flex h-full w-9 items-center justify-center text-ink-600 hover:bg-surface-muted disabled:opacity-40 disabled:hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-orange/50';
   return (
-    <li className={`flex items-center gap-3 p-3 sm:p-4 ${line.state !== 'ok' ? 'bg-warning-soft/50' : ''}`}>
+    <li className={`flex items-center gap-3 p-3 sm:p-4 transition-opacity ${updating ? 'opacity-70' : ''} ${line.state !== 'ok' ? 'bg-warning-soft/50' : ''}`}>
       <Link
         href={`/product/${line.slug}`}
         className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-sunken sm:h-20 sm:w-20 ${blocked ? 'opacity-50 grayscale' : ''}`}

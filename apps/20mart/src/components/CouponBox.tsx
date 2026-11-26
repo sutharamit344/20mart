@@ -14,6 +14,8 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
   const { cart, cartBusy, applyCoupon, removeCoupon, authStatus } = useStore();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [applying, setApplying] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   if (authStatus !== 'authenticated') {
     return (
@@ -41,15 +43,20 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
           </p>
           <button
             type="button"
-            disabled={cartBusy}
+            disabled={removing || cartBusy}
             onClick={async () => {
-              await removeCoupon();
-              onChange?.();
+              setRemoving(true);
+              try {
+                await removeCoupon();
+                onChange?.();
+              } finally {
+                setRemoving(false);
+              }
             }}
             className="inline-flex h-7 items-center gap-1 rounded-md px-2 font-bold text-ink-600 hover:bg-surface disabled:opacity-50"
             aria-label={`Remove coupon ${c.code}`}
           >
-            <X className="h-3.5 w-3.5" /> Remove
+            {removing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Remove
           </button>
         </div>
         {c.title && c.valid && <p className="mt-0.5 text-success">{c.title}</p>}
@@ -63,12 +70,17 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
       className="space-y-1"
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!code.trim()) return;
-        const err = await applyCoupon(code.trim());
-        setError(err);
-        if (!err) {
-          setCode('');
-          onChange?.();
+        if (!code.trim() || applying || cartBusy) return;
+        setApplying(true);
+        try {
+          const err = await applyCoupon(code.trim());
+          setError(err);
+          if (!err) {
+            setCode('');
+            onChange?.();
+          }
+        } finally {
+          setApplying(false);
         }
       }}
     >
@@ -90,8 +102,8 @@ export function CouponBox({ onChange }: { onChange?: () => void }) {
           aria-describedby={error ? 'coupon-error' : undefined}
           className="h-9 min-w-0 flex-1 rounded-lg border border-line px-2.5 font-mono text-xs uppercase outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/15"
         />
-        <button type="submit" disabled={cartBusy || !code.trim()} className="inline-flex h-9 items-center rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover disabled:opacity-50">
-          {cartBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
+        <button type="submit" disabled={applying || cartBusy || !code.trim()} className="inline-flex h-9 items-center rounded-lg bg-brand-green px-3 text-xs font-bold text-white hover:bg-brand-green-hover disabled:opacity-50">
+          {applying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
         </button>
       </div>
       {error && (
