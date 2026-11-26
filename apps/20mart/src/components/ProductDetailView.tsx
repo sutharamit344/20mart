@@ -56,7 +56,7 @@ interface ProductDetailViewProps {
 const MAX_QTY = 10;
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, relatedProducts }) => {
-  const { cart, addToCart, toggleWishlist, isWishlisted, cartBusy } = useStore();
+  const { cart, addToCart, setLineQuantity, toggleWishlist, isWishlisted, cartBusy } = useStore();
   const [variantId, setVariantId] = useState<string | null>(
     product.variants.find((v) => v.stockState !== 'OUT')?.id ?? product.variants[0]?.id ?? null
   );
@@ -68,10 +68,11 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
   const stockState = avail ? (variant ? (avail.variants[variant.id] ?? 'OUT') : avail.state) : (variant?.stockState ?? product.stockState);
   const outOfStock = stockState === 'OUT';
   const discount = discountPercent(price, mrp);
-  // Quantity of this exact product + option already in the cart; once added, the CTA becomes "Go to Cart".
-  const inCartQty = cart.lines
-    .filter((l) => l.productId === product.id && (l.variantId ?? null) === (variant?.id ?? null))
-    .reduce((a, l) => a + l.quantity, 0);
+  // Active cart line for this exact product + option; counter stays synced with cart when already added.
+  const cartLine = cart.lines.find(
+    (l) => l.productId === product.id && (l.variantId ?? null) === (variant?.id ?? null)
+  );
+  const inCartQty = cartLine?.quantity ?? 0;
   const inCart = inCartQty > 0 && !outOfStock;
 
   const [quantity, setQuantity] = useState(1);
@@ -201,45 +202,57 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
 
           {/* Purchase */}
           <div ref={mainActionsRef} className="flex items-center gap-2">
-            {!inCart && (
-              <div className="flex h-11 shrink-0 items-center overflow-hidden rounded-xl border border-line bg-surface">
-                <button
-                  type="button"
-                  aria-label="Decrease quantity"
-                  disabled={quantity <= 1 || outOfStock}
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className={qtyBtn}
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-8 text-center text-sm font-semibold tabular-nums text-ink" aria-live="polite">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  aria-label="Increase quantity"
-                  disabled={quantity >= MAX_QTY || outOfStock}
-                  onClick={() => setQuantity(Math.min(MAX_QTY, quantity + 1))}
-                  className={qtyBtn}
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+            <div className="flex h-11 shrink-0 items-center overflow-hidden rounded-xl border border-line bg-surface">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                disabled={inCart ? cartBusy : quantity <= 1 || outOfStock}
+                onClick={() => {
+                  if (inCart && cartLine) {
+                    void setLineQuantity(cartLine.id, Math.max(0, inCartQty - 1));
+                  } else {
+                    setQuantity(Math.max(1, quantity - 1));
+                  }
+                }}
+                className={qtyBtn}
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-8 text-center text-sm font-semibold tabular-nums text-ink" aria-live="polite">
+                {inCart ? inCartQty : quantity}
+              </span>
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                disabled={inCart ? inCartQty >= MAX_QTY || cartBusy : quantity >= MAX_QTY || outOfStock}
+                onClick={() => {
+                  if (inCart && cartLine) {
+                    void setLineQuantity(cartLine.id, Math.min(MAX_QTY, inCartQty + 1));
+                  } else {
+                    setQuantity(Math.min(MAX_QTY, quantity + 1));
+                  }
+                }}
+                className={qtyBtn}
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
 
             {inCart ? (
               <Link
                 href="/cart"
                 className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-green px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-green-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40 focus-visible:ring-offset-2"
               >
-                <ShoppingCart className="h-4 w-4" />
-                Go to cart <span className="font-normal text-white/80">({inCartQty} in cart)</span>
+                <ShoppingCart className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  Go to cart <span className="font-normal text-white/80">({inCartQty} in cart)</span>
+                </span>
               </Link>
             ) : (
               <button
                 type="button"
                 onClick={add}
-                disabled={outOfStock}
+                disabled={outOfStock || cartBusy}
                 className="flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-brand-orange px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-orange-600 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-400 disabled:shadow-none"
               >
                 {outOfStock ? (
@@ -299,23 +312,56 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, r
         aria-hidden={!isStickyVisible}
       >
         <div className="border-t border-line bg-surface/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-surface/90">
-          <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+          <div className="mx-auto flex max-w-md items-center justify-between gap-2.5">
             <div className="min-w-0 leading-tight">
-              <span className="block text-2xs text-ink-500">{quantity > 1 && !inCart ? `${quantity} × ${formatPaise(price)}` : 'Price'}</span>
+              <span className="block text-2xs text-ink-500">
+                {(inCart ? inCartQty : quantity) > 1 ? `${inCart ? inCartQty : quantity} × ${formatPaise(price)}` : 'Price'}
+              </span>
               <span className="flex items-baseline gap-1.5">
-                <span className="text-base font-bold tabular-nums text-ink">{formatPaise(price * quantity)}</span>
-                {mrp > price && <span className="text-xs tabular-nums text-ink-400 line-through">{formatPaise(mrp * quantity)}</span>}
+                <span className="text-base font-bold tabular-nums text-ink">
+                  {formatPaise(price * (inCart ? inCartQty : quantity))}
+                </span>
+                {mrp > price && (
+                  <span className="text-xs tabular-nums text-ink-400 line-through">
+                    {formatPaise(mrp * (inCart ? inCartQty : quantity))}
+                  </span>
+                )}
               </span>
             </div>
             {inCart ? (
-              <Link
-                href="/cart"
-                tabIndex={isStickyVisible ? 0 : -1}
-                className="flex h-11 max-w-[200px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-green px-4 text-sm font-semibold text-white"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Go to cart
-              </Link>
+              <div className="flex items-center gap-2">
+                <div className="flex h-11 shrink-0 items-center overflow-hidden rounded-xl border border-line bg-surface">
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    disabled={cartBusy}
+                    tabIndex={isStickyVisible ? 0 : -1}
+                    onClick={() => cartLine && void setLineQuantity(cartLine.id, Math.max(0, inCartQty - 1))}
+                    className="flex h-full w-9 items-center justify-center text-ink-600 transition-colors hover:bg-surface-muted disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-7 text-center text-sm font-semibold tabular-nums text-ink">{inCartQty}</span>
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    disabled={inCartQty >= MAX_QTY || cartBusy}
+                    tabIndex={isStickyVisible ? 0 : -1}
+                    onClick={() => cartLine && void setLineQuantity(cartLine.id, Math.min(MAX_QTY, inCartQty + 1))}
+                    className="flex h-full w-9 items-center justify-center text-ink-600 transition-colors hover:bg-surface-muted disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <Link
+                  href="/cart"
+                  tabIndex={isStickyVisible ? 0 : -1}
+                  className="flex h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-brand-green px-3.5 text-sm font-semibold text-white"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Go to cart
+                </Link>
+              </div>
             ) : (
               <button
                 type="button"
