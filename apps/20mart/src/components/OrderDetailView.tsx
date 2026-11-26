@@ -102,17 +102,33 @@ export function OrderDetailView({ order, autoPay = false }: { order: CustomerOrd
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line-subtle bg-surface p-3.5 sm:p-4">
+        <div className="min-w-0">
           <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Order</p>
-          <h2 className="text-base sm:text-lg font-bold text-ink">#{order.orderNumber}</h2>
+          <h2 className="text-base font-bold text-ink sm:text-lg">#{order.orderNumber}</h2>
           <p className="text-2xs text-ink-500">Placed {fmtDate(order.createdAt)}</p>
         </div>
-        <div className="text-right">
-          <span className={`inline-flex rounded-full px-2.5 py-1 text-2xs font-bold ${terminal ? 'bg-danger-soft text-danger' : order.status === 'DELIVERED' ? 'bg-success-soft text-success' : 'bg-brand-orange-50 text-brand-orange-600'}`}>
-            {order.statusLabel}
-          </span>
-          <p className="mt-1 text-2xs text-ink-500">{PAYMENT_STATUS_LABEL[order.paymentStatus]}</p>
+        <div className="flex items-center gap-4 sm:text-right">
+          <div>
+            <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Payment</p>
+            <div className="mt-0.5 flex items-center gap-1.5 sm:justify-end">
+              <span
+                className={`inline-flex rounded-full px-2 py-0.5 text-2xs font-bold ${
+                  order.paymentStatus === 'PAID'
+                    ? 'bg-success-soft text-success'
+                    : order.paymentStatus === 'FAILED'
+                    ? 'bg-danger-soft text-danger'
+                    : 'bg-surface-muted text-ink-600'
+                }`}
+              >
+                {PAYMENT_STATUS_LABEL[order.paymentStatus]}
+              </span>
+            </div>
+          </div>
+          <div className="border-l border-line-subtle pl-4">
+            <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Total</p>
+            <p className="mt-0.5 text-base font-bold tabular-nums text-ink">{formatPaise(order.totalPaise)}</p>
+          </div>
         </div>
       </div>
 
