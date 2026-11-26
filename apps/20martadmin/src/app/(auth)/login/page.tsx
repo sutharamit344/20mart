@@ -16,14 +16,14 @@ export default async function AdminLoginPage(props: { searchParams: Promise<{ ne
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-green-900 via-brand-green to-[#042819] p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 sm:p-7 shadow-2xl space-y-5">
+      <div className="w-full max-w-sm rounded-2xl bg-surface p-6 sm:p-7 shadow-2xl space-y-5">
         <div className="flex flex-col items-center gap-2 text-center">
           <Logo size="md" />
-          <span className="rounded-md bg-brand-orange px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+          <span className="rounded-md bg-brand-orange px-2 py-0.5 text-2xs font-bold uppercase tracking-wider text-white">
             Admin Console
           </span>
-          <h1 className="text-lg font-extrabold text-gray-900">Sign in to continue</h1>
-          <p className="text-xs text-gray-500">Authorised 20Mart staff only. All activity is audited.</p>
+          <h1 className="text-lg font-extrabold text-ink">Sign in to continue</h1>
+          <p className="text-xs text-ink-500">Authorised 20Mart staff only. All activity is audited.</p>
         </div>
         <LoginForm next={next} />
       </div>

@@ -124,12 +124,12 @@ export function CouponForm({ initial, categories, canEdit, used }: { initial: Co
         <div>
           <label className={labelCls} htmlFor="c-code">Code</label>
           <input id="c-code" className={`${inputCls} font-mono uppercase`} value={v.code} disabled={lockValue} maxLength={32} onChange={(e) => set('code', e.target.value.toUpperCase())} required />
-          {fe('code') && <p className="mt-0.5 text-[10px] text-red-600">{fe('code')}</p>}
+          {fe('code') && <p className="mt-0.5 text-2xs text-danger">{fe('code')}</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="c-title">Title (shown to customers)</label>
           <input id="c-title" className={inputCls} value={v.title} maxLength={120} onChange={(e) => set('title', e.target.value)} required />
-          {fe('title') && <p className="mt-0.5 text-[10px] text-red-600">{fe('title')}</p>}
+          {fe('title') && <p className="mt-0.5 text-2xs text-danger">{fe('title')}</p>}
         </div>
         <div className="sm:col-span-2">
           <label className={labelCls} htmlFor="c-desc">Description (optional)</label>
@@ -145,34 +145,34 @@ export function CouponForm({ initial, categories, canEdit, used }: { initial: Co
         <div>
           <label className={labelCls} htmlFor="c-value">{v.discountType === 'FIXED' ? 'Amount off (₹)' : 'Percent off (%)'}</label>
           <input id="c-value" className={inputCls} inputMode="decimal" value={value} disabled={lockValue} onChange={(e) => setValue(e.target.value)} placeholder={v.discountType === 'FIXED' ? '50' : '10'} />
-          {fe('discountValue') && <p className="mt-0.5 text-[10px] text-red-600">{fe('discountValue')}</p>}
+          {fe('discountValue') && <p className="mt-0.5 text-2xs text-danger">{fe('discountValue')}</p>}
         </div>
         {v.discountType === 'PERCENT' && (
           <div>
             <label className={labelCls} htmlFor="c-max">Maximum discount (₹, optional)</label>
             <input id="c-max" className={inputCls} inputMode="decimal" value={maxDisc} disabled={lockValue} onChange={(e) => setMaxDisc(e.target.value)} />
-            {fe('maxDiscountPaise') && <p className="mt-0.5 text-[10px] text-red-600">{fe('maxDiscountPaise')}</p>}
+            {fe('maxDiscountPaise') && <p className="mt-0.5 text-2xs text-danger">{fe('maxDiscountPaise')}</p>}
           </div>
         )}
         <div>
           <label className={labelCls} htmlFor="c-min">Minimum order (₹)</label>
           <input id="c-min" className={inputCls} inputMode="decimal" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} placeholder="0" />
-          {fe('minOrderValuePaise') && <p className="mt-0.5 text-[10px] text-red-600">{fe('minOrderValuePaise')}</p>}
+          {fe('minOrderValuePaise') && <p className="mt-0.5 text-2xs text-danger">{fe('minOrderValuePaise')}</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="c-start">Starts</label>
           <input id="c-start" type="datetime-local" className={inputCls} value={starts} onChange={(e) => setStarts(e.target.value)} />
-          <p className="mt-0.5 text-[10px] text-gray-400">Empty = immediately</p>
+          <p className="mt-0.5 text-2xs text-ink-400">Empty = immediately</p>
         </div>
         <div>
           <label className={labelCls} htmlFor="c-end">Ends</label>
           <input id="c-end" type="datetime-local" className={inputCls} value={ends} onChange={(e) => setEnds(e.target.value)} />
-          {fe('endsAt') ? <p className="mt-0.5 text-[10px] text-red-600">{fe('endsAt')}</p> : <p className="mt-0.5 text-[10px] text-gray-400">Empty = no end date</p>}
+          {fe('endsAt') ? <p className="mt-0.5 text-2xs text-danger">{fe('endsAt')}</p> : <p className="mt-0.5 text-2xs text-ink-400">Empty = no end date</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="c-total">Total uses (all customers)</label>
           <input id="c-total" type="number" min={1} className={inputCls} value={v.usageLimit ?? ''} onChange={(e) => set('usageLimit', e.target.value ? Math.max(1, Number(e.target.value)) : null)} placeholder="Unlimited" />
-          {fe('usageLimit') && <p className="mt-0.5 text-[10px] text-red-600">{fe('usageLimit')}</p>}
+          {fe('usageLimit') && <p className="mt-0.5 text-2xs text-danger">{fe('usageLimit')}</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="c-per">Uses per customer</label>
@@ -180,38 +180,38 @@ export function CouponForm({ initial, categories, canEdit, used }: { initial: Co
         </div>
       </fieldset>
 
-      <fieldset disabled={dis} className="space-y-2 rounded-lg border border-gray-100 p-3">
-        <legend className="px-1 text-[11px] font-bold text-gray-700">Who can use it</legend>
+      <fieldset disabled={dis} className="space-y-2 rounded-lg border border-line-subtle p-3">
+        <legend className="px-1 text-2xs font-bold text-ink-700">Who can use it</legend>
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-0.5" checked={v.requiresGrant || v.autoIssueOnSignup} disabled={v.autoIssueOnSignup} onChange={(e) => set('requiresGrant', e.target.checked)} />
           <span>
-            <span className="font-semibold text-gray-800">Issued customers only</span>
-            <span className="block text-[10px] text-gray-500">Only customers who were issued this coupon (sign-up, campaign or manual) can use it. Otherwise anyone with the code can.</span>
+            <span className="font-semibold text-ink-800">Issued customers only</span>
+            <span className="block text-2xs text-ink-500">Only customers who were issued this coupon (sign-up, campaign or manual) can use it. Otherwise anyone with the code can.</span>
           </span>
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-0.5" checked={v.autoIssueOnSignup} onChange={(e) => set('autoIssueOnSignup', e.target.checked)} />
           <span>
-            <span className="font-semibold text-gray-800">Issue automatically to new customers</span>
-            <span className="block text-[10px] text-gray-500">Welcome coupon: added to every new account at first sign-in while this coupon is active.</span>
+            <span className="font-semibold text-ink-800">Issue automatically to new customers</span>
+            <span className="block text-2xs text-ink-500">Welcome coupon: added to every new account at first sign-in while this coupon is active.</span>
           </span>
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-0.5" checked={v.isActive} onChange={(e) => set('isActive', e.target.checked)} />
-          <span className="font-semibold text-gray-800">Active</span>
+          <span className="font-semibold text-ink-800">Active</span>
         </label>
       </fieldset>
 
-      <fieldset disabled={dis} className="space-y-3 rounded-lg border border-gray-100 p-3">
-        <legend className="px-1 text-[11px] font-bold text-gray-700">Eligible items (optional)</legend>
-        <p className="text-[10px] text-gray-500">Leave both empty to apply to the whole cart. Otherwise the discount is calculated on matching items only.</p>
+      <fieldset disabled={dis} className="space-y-3 rounded-lg border border-line-subtle p-3">
+        <legend className="px-1 text-2xs font-bold text-ink-700">Eligible items (optional)</legend>
+        <p className="text-2xs text-ink-500">Leave both empty to apply to the whole cart. Otherwise the discount is calculated on matching items only.</p>
         <div>
           <span className={labelCls}>Categories</span>
           <div className="flex flex-wrap gap-1.5">
             {categories.map((c) => {
               const on = v.categoryIds.includes(c.id);
               return (
-                <label key={c.id} className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${on ? 'border-brand-green bg-brand-green/5 text-brand-green' : 'border-gray-200 text-gray-600'}`}>
+                <label key={c.id} className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-2xs font-semibold ${on ? 'border-brand-green bg-brand-green/5 text-brand-green' : 'border-line text-ink-600'}`}>
                   <input type="checkbox" className="sr-only" checked={on} onChange={(e) => set('categoryIds', e.target.checked ? [...v.categoryIds, c.id] : v.categoryIds.filter((x) => x !== c.id))} />
                   {c.name}
                 </label>
@@ -219,10 +219,10 @@ export function CouponForm({ initial, categories, canEdit, used }: { initial: Co
             })}
           </div>
         </div>
-        {canEdit ? <ProductPicker value={v.products} onChange={(p) => set('products', p)} /> : <p className="text-[11px] text-gray-600">{v.products.length} product(s)</p>}
+        {canEdit ? <ProductPicker value={v.products} onChange={(p) => set('products', p)} /> : <p className="text-2xs text-ink-600">{v.products.length} product(s)</p>}
       </fieldset>
 
-      {used && canEdit && <p className="rounded-lg bg-amber-50 p-2 text-[11px] text-amber-900">This coupon has been used, so its code and discount value are locked. Create a new coupon to change them.</p>}
+      {used && canEdit && <p className="rounded-lg bg-warning-soft p-2 text-2xs text-warning">This coupon has been used, so its code and discount value are locked. Create a new coupon to change them.</p>}
       {canEdit && (
         <div className="flex justify-end">
           <Button type="submit" size="sm" variant="brand" isLoading={saving}>

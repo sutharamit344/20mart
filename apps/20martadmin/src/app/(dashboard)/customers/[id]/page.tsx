@@ -43,31 +43,31 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
         <Panel title="Profile" bodyClassName="p-3 text-xs space-y-1">
           <p>
-            <span className="text-gray-500">Phone:</span> {c.profile?.phone ? `+91 ${c.profile.phone}` : '—'}
+            <span className="text-ink-500">Phone:</span> {c.profile?.phone ? `+91 ${c.profile.phone}` : '—'}
           </p>
           <p>
-            <span className="text-gray-500">Email verified:</span> {c.emailVerified ? 'Yes (Google)' : 'No'}
+            <span className="text-ink-500">Email verified:</span> {c.emailVerified ? 'Yes (Google)' : 'No'}
           </p>
           <p>
-            <span className="text-gray-500">Order emails:</span> {c.profile?.emailOrderUpdates === false ? 'Off' : 'On'} · <span className="text-gray-500">Offer emails:</span> {c.profile?.marketingOptIn ? 'On' : 'Off'}
+            <span className="text-ink-500">Order emails:</span> {c.profile?.emailOrderUpdates === false ? 'Off' : 'On'} · <span className="text-ink-500">Offer emails:</span> {c.profile?.marketingOptIn ? 'On' : 'Off'}
           </p>
           <p>
-            <span className="text-gray-500">Wishlist items:</span> {c._count.wishlist}
+            <span className="text-ink-500">Wishlist items:</span> {c._count.wishlist}
           </p>
         </Panel>
         <Panel title="Addresses" bodyClassName="p-3 text-xs">
           {c.addresses == null ? (
-            <p className="text-gray-500">Addresses are visible to staff with order access (orders.view).</p>
+            <p className="text-ink-500">Addresses are visible to staff with order access (orders.view).</p>
           ) : c.addresses.length === 0 ? (
-            <p className="text-gray-500">No saved addresses.</p>
+            <p className="text-ink-500">No saved addresses.</p>
           ) : (
             <ul className="space-y-2">
               {c.addresses.map((a) => (
-                <li key={a.id} className="rounded-lg bg-gray-50 p-2">
-                  <p className="font-semibold text-gray-900">
-                    {a.name} · +91 {a.phone} {a.isDefault && <span className="text-[10px] text-brand-green">(default)</span>}
+                <li key={a.id} className="rounded-lg bg-surface-page p-2">
+                  <p className="font-semibold text-ink">
+                    {a.name} · +91 {a.phone} {a.isDefault && <span className="text-2xs text-brand-green">(default)</span>}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-ink-600">
                     {[a.addressLine1, a.addressLine2, a.landmark, a.city, a.state].filter(Boolean).join(', ')} — {a.pincode}
                   </p>
                 </li>
@@ -92,12 +92,12 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
               {c.orders.map((o) => (
                 <tr key={o.id}>
                   <Td>
-                    <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold hover:text-brand-orange-600">
+                    <Link href={`/orders/${o.id}`} className="font-mono text-2xs font-bold hover:text-brand-orange-600">
                       {o.orderNumber}
                     </Link>
-                    {o.couponCode && <p className="text-[10px] text-gray-400">Coupon {o.couponCode}</p>}
+                    {o.couponCode && <p className="text-2xs text-ink-400">Coupon {o.couponCode}</p>}
                   </Td>
-                  <Td className="text-gray-500">{day(o.createdAt)}</Td>
+                  <Td className="text-ink-500">{day(o.createdAt)}</Td>
                   <Td className="text-right tabular-nums">{formatINR(o.totalPaise)}</Td>
                   <Td>{o.paymentStatus.charAt(0) + o.paymentStatus.slice(1).toLowerCase().replace(/_/g, ' ')}</Td>
                   <Td>{orderStatusLabel(o.status)}</Td>
@@ -120,23 +120,23 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
               {c.couponGrants.length === 0 && <TableEmpty colSpan={3} title="No coupons issued" />}
               {c.couponGrants.map((g) => (
                 <tr key={g.coupon.id}>
-                  <Td className="font-mono text-[11px] font-bold">{g.coupon.code}</Td>
-                  <Td className="text-gray-500">{day(g.issuedAt)}</Td>
+                  <Td className="font-mono text-2xs font-bold">{g.coupon.code}</Td>
+                  <Td className="text-ink-500">{day(g.issuedAt)}</Td>
                   <Td>{g.source.charAt(0) + g.source.slice(1).toLowerCase()}</Td>
                 </tr>
               ))}
             </TBody>
           </Table>
           {c.redemptions.length > 0 && (
-            <div className="border-t border-gray-100 p-3 text-xs">
-              <p className="mb-1 font-bold text-gray-700">Redemptions</p>
+            <div className="border-t border-line-subtle p-3 text-xs">
+              <p className="mb-1 font-bold text-ink-700">Redemptions</p>
               <ul className="space-y-0.5">
                 {c.redemptions.map((r) => (
                   <li key={r.id} className="flex justify-between gap-2">
                     <span>
                       <span className="font-mono">{r.coupon.code}</span> on <span className="font-mono">{r.order.orderNumber}</span>
                     </span>
-                    <span className={r.status === 'REVERSED' ? 'text-gray-400 line-through' : 'font-semibold'}>{formatINR(r.discountPaise)}</span>
+                    <span className={r.status === 'REVERSED' ? 'text-ink-400 line-through' : 'font-semibold'}>{formatINR(r.discountPaise)}</span>
                   </li>
                 ))}
               </ul>
@@ -163,7 +163,7 @@ export default async function CustomerDetailPage(props: { params: Promise<{ id: 
                       x.campaign.name
                     )}
                   </Td>
-                  <Td className="text-gray-500">{day(x.joinedAt)}</Td>
+                  <Td className="text-ink-500">{day(x.joinedAt)}</Td>
                   <Td className="text-right tabular-nums">{x.savedUnits}</Td>
                 </tr>
               ))}

@@ -56,7 +56,7 @@ export function AdminsTable({ admins, roles, me }: { admins: AdminRow[]; roles: 
   return (
     <>
       {has('users.manage') && (
-        <div className="flex justify-end px-3 sm:px-4 py-2.5 border-b border-gray-100">
+        <div className="flex justify-end px-3 sm:px-4 py-2.5 border-b border-line-subtle">
           <Button size="sm" variant="primary" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setCreating(true)}>
             Add admin
           </Button>
@@ -74,24 +74,24 @@ export function AdminsTable({ admins, roles, me }: { admins: AdminRow[]; roles: 
           {admins.map((a) => {
             const self = a.id === me.id;
             return (
-              <tr key={a.id} className={`hover:bg-gray-50/60 ${busy === a.id ? 'opacity-60' : ''}`}>
+              <tr key={a.id} className={`hover:bg-surface-muted/60 ${busy === a.id ? 'opacity-60' : ''}`}>
                 <Td>
-                  <p className="font-semibold text-gray-900">
-                    {a.name} {self && <span className="text-[10px] font-normal text-gray-400">(you)</span>}
+                  <p className="font-semibold text-ink">
+                    {a.name} {self && <span className="text-2xs font-normal text-ink-400">(you)</span>}
                   </p>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-2xs text-ink-400">
                     @{a.username} · {a.email}
                   </p>
                 </Td>
                 <Td>
                   <div className="flex flex-wrap gap-1">
-                    {a.roles.length ? a.roles.map((r) => <StatusBadge key={r.key} status="ROLE" label={r.name} />) : <span className="text-gray-400">No role</span>}
+                    {a.roles.length ? a.roles.map((r) => <StatusBadge key={r.key} status="ROLE" label={r.name} />) : <span className="text-ink-400">No role</span>}
                   </div>
                 </Td>
                 <Td>
                   <StatusBadge status={a.status} />
                 </Td>
-                <Td className="whitespace-nowrap text-gray-500">
+                <Td className="whitespace-nowrap text-ink-500">
                   {a.lastLoginAt ? new Date(a.lastLoginAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Never'}
                 </Td>
                 <Td className="text-right">
@@ -108,7 +108,7 @@ export function AdminsTable({ admins, roles, me }: { admins: AdminRow[]; roles: 
                             <KeyRound className="w-3.5 h-3.5" />
                           </IconBtn>
                           <IconBtn label={a.status === 'ACTIVE' ? 'Deactivate' : 'Activate'} danger={a.status === 'ACTIVE'} disabled={!!busy} onClick={() => toggle(a)}>
-                            <Power className={`w-3.5 h-3.5 ${a.status === 'ACTIVE' ? 'text-emerald-600' : ''}`} />
+                            <Power className={`w-3.5 h-3.5 ${a.status === 'ACTIVE' ? 'text-success' : ''}`} />
                           </IconBtn>
                         </>
                       )}
@@ -179,11 +179,11 @@ function CreateAdminModal({ roles, onClose, onDone }: { roles: RoleOpt[]; onClos
       setSaving(false);
     }
   };
-  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-[11px] text-red-600">{fieldErrors[k][0]}</p>;
+  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-2xs text-danger">{fieldErrors[k][0]}</p>;
   return (
     <Modal isOpen onClose={onClose} title="Add admin user" maxWidth="md">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div>
           <label className={labelCls}>Full name *</label>
           <input className={inputCls} required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -210,7 +210,7 @@ function CreateAdminModal({ roles, onClose, onDone }: { roles: RoleOpt[]; onClos
             <legend className={labelCls}>Roles</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {roles.map((r) => (
-                <label key={r.key} className="flex items-center gap-2 rounded-lg border border-gray-200 p-2">
+                <label key={r.key} className="flex items-center gap-2 rounded-lg border border-line p-2">
                   <input
                     type="checkbox"
                     className="accent-brand-green"
@@ -270,12 +270,12 @@ function RolesModal({
   return (
     <Modal isOpen onClose={onClose} title={`Roles for ${admin.name}`} maxWidth="md">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div className="space-y-1.5">
           {roles.map((r) => {
             const allowed = grantable(r);
             return (
-              <label key={r.key} className={`flex items-start gap-2 rounded-lg border p-2 ${allowed ? 'border-gray-200' : 'border-gray-100 opacity-50'}`}>
+              <label key={r.key} className={`flex items-start gap-2 rounded-lg border p-2 ${allowed ? 'border-line' : 'border-line-subtle opacity-50'}`}>
                 <input
                   type="checkbox"
                   className="mt-0.5 accent-brand-green"
@@ -284,8 +284,8 @@ function RolesModal({
                   onChange={(e) => setKeys((ks) => (e.target.checked ? [...ks, r.key] : ks.filter((k) => k !== r.key)))}
                 />
                 <span>
-                  <span className="font-semibold text-gray-900">{r.name}</span>
-                  <span className="block text-[10px] text-gray-400">
+                  <span className="font-semibold text-ink">{r.name}</span>
+                  <span className="block text-2xs text-ink-400">
                     {r.permissions.length} permissions{!allowed && ' · you cannot grant this role'}
                   </span>
                 </span>
@@ -299,7 +299,7 @@ function RolesModal({
             <input className={inputCls} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
         )}
-        <p className="text-[11px] text-gray-400">Removing a role signs the admin out so the new permissions take effect immediately.</p>
+        <p className="text-2xs text-ink-400">Removing a role signs the admin out so the new permissions take effect immediately.</p>
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" size="sm" onClick={onClose}>
             Cancel
@@ -333,7 +333,7 @@ function ResetPasswordModal({ admin, onClose, onDone }: { admin: AdminRow; onClo
   return (
     <Modal isOpen onClose={onClose} title={`Reset password for ${admin.name}`} maxWidth="sm">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div>
           <label className={labelCls}>New temporary password (min 12)</label>
           <input className={inputCls} type="password" autoComplete="new-password" minLength={12} required value={password} onChange={(e) => setPassword(e.target.value)} />

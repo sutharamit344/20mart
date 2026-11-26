@@ -43,7 +43,7 @@ export const DEF = {
 /* ───────────────────────────── formatting ───────────────────────────── */
 
 const NoData = () => (
-  <span className="text-gray-400" title="No data (not tracked or not aggregated) — not zero">
+  <span className="text-ink-400" title="No data (not tracked or not aggregated) — not zero">
     —
   </span>
 );
@@ -63,7 +63,7 @@ export const dayLabel = (d: string | null | undefined, year = true) =>
 
 export function Hint({ text }: { text: string }) {
   return (
-    <span className="inline-flex align-middle text-gray-400 hover:text-gray-600" title={text} aria-label={text} role="img">
+    <span className="inline-flex align-middle text-ink-400 hover:text-ink-600" title={text} aria-label={text} role="img">
       <Info className="h-3 w-3" aria-hidden />
     </span>
   );
@@ -155,7 +155,7 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
   const invalid = !f || !t || f > t || t > maxDay;
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="inline-flex flex-wrap rounded-lg border border-gray-200 bg-white p-0.5" role="radiogroup" aria-label="Date range (IST)">
+      <div className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5" role="radiogroup" aria-label="Date range (IST)">
         {PRESETS.map((n) => (
           <button
             key={n}
@@ -166,7 +166,7 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
               setCustom(false);
               set({ from: n === 30 ? null : addDays(maxDay, -(n - 1)), to: null });
             }}
-            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${!custom && active === n ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`h-7 rounded-md px-2.5 text-2xs font-bold ${!custom && active === n ? 'bg-brand-green text-white' : 'text-ink-600 hover:bg-surface-muted'}`}
           >
             Last {n} days
           </button>
@@ -176,7 +176,7 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
           role="radio"
           aria-checked={custom || !active}
           onClick={() => setCustom(true)}
-          className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${custom || !active ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+          className={`h-7 rounded-md px-2.5 text-2xs font-bold ${custom || !active ? 'bg-brand-green text-white' : 'text-ink-600 hover:bg-surface-muted'}`}
         >
           Custom
         </button>
@@ -190,17 +190,17 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
           }}
         >
           <input type="date" aria-label="From (IST)" className={`${inputCls.replace('w-full ', '')} h-8 w-36`} value={f} max={maxDay} onChange={(e) => setF(e.target.value)} />
-          <span className="text-[11px] text-gray-400">to</span>
+          <span className="text-2xs text-ink-400">to</span>
           <input type="date" aria-label="To (IST)" className={`${inputCls.replace('w-full ', '')} h-8 w-36`} value={t} max={maxDay} onChange={(e) => setT(e.target.value)} />
-          <button type="submit" disabled={invalid} className="h-8 rounded-lg border border-gray-200 bg-white px-2.5 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40">
+          <button type="submit" disabled={invalid} className="h-8 rounded-lg border border-line bg-surface px-2.5 text-2xs font-bold text-ink-700 hover:bg-surface-muted disabled:opacity-40">
             Apply
           </button>
         </form>
       )}
-      <span className="text-[11px] text-gray-500">
-        {dayLabel(effFrom)} – {dayLabel(effTo)} <span className="text-gray-400">(IST, up to yesterday)</span>
+      <span className="text-2xs text-ink-500">
+        {dayLabel(effFrom)} – {dayLabel(effTo)} <span className="text-ink-400">(IST, up to yesterday)</span>
       </span>
-      {pending && <Loader2 className="h-4 w-4 animate-spin text-gray-400" aria-label="Loading" />}
+      {pending && <Loader2 className="h-4 w-4 animate-spin text-ink-400" aria-label="Loading" />}
     </div>
   );
 }
@@ -208,14 +208,14 @@ export function DayRangePicker({ maxDay, from, to }: { maxDay: string; from?: st
 /* ───────────────────────────── coverage ───────────────────────────── */
 
 const covTone: Record<string, string> = {
-  FULL: 'bg-emerald-50 text-emerald-700 ring-emerald-600/15',
-  PARTIAL: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-  NONE: 'bg-gray-100 text-gray-600 ring-gray-500/15',
+  FULL: 'bg-success-soft text-success ring-success-line',
+  PARTIAL: 'bg-warning-soft text-warning ring-warning-line',
+  NONE: 'bg-surface-muted text-ink-600 ring-line',
 };
 
 export function CoverageBadge({ value, title }: { value: string; title?: string }) {
   return (
-    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-1.5 py-0.5 text-[10px] font-bold ring-1 ring-inset ${covTone[value] ?? covTone.NONE}`} title={title ?? DEF.coverage}>
+    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-1.5 py-0.5 text-2xs font-bold ring-1 ring-inset ${covTone[value] ?? covTone.NONE}`} title={title ?? DEF.coverage}>
       {value}
     </span>
   );
@@ -226,22 +226,22 @@ export function CoverageBar({ coverage }: { coverage: Coverage }) {
   const missing = coverage.missingDays;
   const shown = missing.slice(0, 6);
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-gray-200/80 bg-white px-3 py-2 text-[11px] text-gray-600 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4" aria-label="Data coverage">
+    <div className="flex flex-col gap-1 rounded-lg border border-line bg-surface px-3 py-2 text-2xs text-ink-600 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4" aria-label="Data coverage">
       <span className="inline-flex items-center gap-1.5">
         Event data <CoverageBadge value={coverage.eventCoverage} /> <Hint text={DEF.coverage} />
-        <span className="text-gray-400">
+        <span className="text-ink-400">
           {coverage.eventDays.FULL} full · {coverage.eventDays.PARTIAL} partial · {coverage.eventDays.NONE} untracked day{coverage.eventDays.NONE === 1 ? '' : 's'}
         </span>
       </span>
       <span>
         Tracking since{' '}
-        <b className="font-semibold text-gray-800">{coverage.trackingStartedAt ? `${istDateTime(coverage.trackingStartedAt)} IST` : 'not started (no events yet)'}</b>
+        <b className="font-semibold text-ink-800">{coverage.trackingStartedAt ? `${istDateTime(coverage.trackingStartedAt)} IST` : 'not started (no events yet)'}</b>
       </span>
       <span>
-        Aggregated <b className="font-semibold text-gray-800">{coverage.aggregatedDays}</b> of {coverage.days} day{coverage.days === 1 ? '' : 's'}
+        Aggregated <b className="font-semibold text-ink-800">{coverage.aggregatedDays}</b> of {coverage.days} day{coverage.days === 1 ? '' : 's'}
       </span>
       {missing.length > 0 && (
-        <span className="text-amber-800" role="note">
+        <span className="text-warning" role="note">
           Not aggregated yet (no data, not zero): {shown.map((d) => dayLabel(d, false)).join(', ')}
           {missing.length > shown.length ? ` +${missing.length - shown.length} more` : ''}
         </span>
@@ -260,7 +260,7 @@ export function CoverageNotice({ coverage }: { coverage: Coverage }) {
   else if (coverage.eventCoverage === 'PARTIAL') msgs.push(`Event figures cover only the tracked part of this range (from ${dayLabel(coverage.firstTrackedDay)}). Sales and stock cover the whole range.`);
   if (coverage.missingDays.length && coverage.aggregatedDays > 0) msgs.push(`${coverage.missingDays.length} day(s) are not aggregated yet and are excluded.`);
   return (
-    <p role="note" className="rounded-lg bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-900">
+    <p role="note" className="rounded-lg bg-warning-soft px-3 py-2 text-2xs font-medium text-warning">
       {msgs.join(' ')}
     </p>
   );
@@ -269,34 +269,34 @@ export function CoverageNotice({ coverage }: { coverage: Coverage }) {
 /* ───────────────────────────── small layout pieces ───────────────────────────── */
 
 export function Metric({ label, value, hint, tone = 'neutral' }: { label: string; value: React.ReactNode; hint?: string; tone?: 'neutral' | 'green' | 'amber' | 'red' }) {
-  const toneCls = { neutral: 'text-gray-900', green: 'text-brand-green', amber: 'text-amber-700', red: 'text-red-600' }[tone];
+  const toneCls = { neutral: 'text-ink', green: 'text-brand-green', amber: 'text-warning', red: 'text-danger' }[tone];
   return (
-    <div className="min-w-0 rounded-lg bg-gray-50 px-2.5 py-2">
-      <p className="flex items-start gap-1 text-[10px] font-semibold leading-tight text-gray-500">
+    <div className="min-w-0 rounded-lg bg-surface-page px-2.5 py-2">
+      <p className="flex items-start gap-1 text-2xs font-semibold leading-tight text-ink-500">
         {label} {hint && <Hint text={hint} />}
       </p>
-      <p className={`mt-0.5 text-base font-black leading-tight tabular-nums ${toneCls}`}>{value}</p>
+      <p className={`mt-0.5 text-base font-bold leading-tight tabular-nums ${toneCls}`}>{value}</p>
     </div>
   );
 }
 
 export function MetricGroup({ title, tone, note, children }: { title: string; tone: 'green' | 'amber' | 'neutral'; note?: string; children: React.ReactNode }) {
-  const border = { green: 'border-l-brand-green', amber: 'border-l-amber-500', neutral: 'border-l-gray-300' }[tone];
+  const border = { green: 'border-l-brand-green', amber: 'border-l-warning', neutral: 'border-l-line-strong' }[tone];
   return (
-    <section className={`rounded-xl border border-l-4 border-gray-200/80 bg-white p-2.5 shadow-2xs ${border}`} aria-label={title}>
-      <h2 className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500">{title}</h2>
+    <section className={`rounded-xl border border-l-4 border-line bg-surface p-2.5  ${border}`} aria-label={title}>
+      <h2 className="mb-1.5 text-2xs font-bold uppercase tracking-wider text-ink-500">{title}</h2>
       <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">{children}</div>
-      {note && <p className="mt-1.5 text-[10px] text-gray-400">{note}</p>}
+      {note && <p className="mt-1.5 text-2xs text-ink-400">{note}</p>}
     </section>
   );
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+    <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-xs font-semibold text-danger">
       <span>{message}</span>
       {onRetry && (
-        <button type="button" onClick={onRetry} className="rounded-md border border-red-200 bg-white px-2 py-1 text-[11px] font-bold text-red-700 hover:bg-red-50">
+        <button type="button" onClick={onRetry} className="rounded-md border border-danger-line bg-surface px-2 py-1 text-2xs font-bold text-danger hover:bg-danger-soft">
           Retry
         </button>
       )}
@@ -308,7 +308,7 @@ export function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="space-y-2 animate-pulse" aria-busy="true" aria-label="Loading">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="h-16 rounded-xl bg-gray-100" />
+        <div key={i} className="h-16 rounded-xl bg-surface-muted" />
       ))}
     </div>
   );
@@ -316,7 +316,7 @@ export function Skeleton({ rows = 3 }: { rows?: number }) {
 
 export function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; label: string }) {
   return (
-    <div className="inline-flex flex-wrap rounded-lg border border-gray-200 bg-white p-0.5" role="radiogroup" aria-label={label}>
+    <div className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5" role="radiogroup" aria-label={label}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -324,7 +324,7 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
           role="radio"
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
-          className={`h-6 rounded-md px-2 text-[11px] font-bold ${value === o.value ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+          className={`h-6 rounded-md px-2 text-2xs font-bold ${value === o.value ? 'bg-ink text-white' : 'text-ink-600 hover:bg-surface-muted'}`}
         >
           {o.label}
         </button>

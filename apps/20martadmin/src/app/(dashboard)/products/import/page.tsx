@@ -20,7 +20,7 @@ export default async function ProductImportPage() {
         title="Bulk import products"
         description="Create products with images and opening stock from a spreadsheet and an images folder."
         actions={
-          <Link href="/products" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+          <Link href="/products" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-semibold text-ink-700 hover:bg-surface-muted">
             <ArrowLeft className="w-3.5 h-3.5" /> Products
           </Link>
         }

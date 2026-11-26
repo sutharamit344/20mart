@@ -82,13 +82,13 @@ function ReceiveForm({ po, onDone }: { po: Po; onDone: () => void }) {
 
   return (
     <form onSubmit={submit} className="space-y-3 text-xs">
-      <p className="rounded-lg bg-emerald-50 p-2 text-emerald-800">
+      <p className="rounded-lg bg-success-soft p-2 text-success">
         Count what physically arrived. Only accepted units are added to <b>{po.warehouse.code}</b>; rejected units are recorded as discrepancies and never stocked.
       </p>
-      {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left">
-          <thead className="text-[10px] uppercase text-gray-500">
+          <thead className="text-2xs uppercase text-ink-500">
             <tr>
               <th className="py-1.5">Item</th>
               <th className="py-1.5 w-20 text-right">Outstanding</th>
@@ -97,13 +97,13 @@ function ReceiveForm({ po, onDone }: { po: Po; onDone: () => void }) {
               <th className="py-1.5">Discrepancy note</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-line-subtle">
             {open.map((i) => (
               <tr key={i.id}>
                 <td className="py-1.5 pr-2">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-ink">
                     {i.product.name}
-                    {i.variant && <span className="font-normal text-gray-500"> · {i.variant.name}</span>}
+                    {i.variant && <span className="font-normal text-ink-500"> · {i.variant.name}</span>}
                   </p>
                 </td>
                 <td className="text-right pr-2">{outstanding(i)}</td>
@@ -192,27 +192,27 @@ export function PoDetail({ po, perms }: { po: Po; perms: { manage: boolean; rece
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div>
-            <p className="text-[10px] text-gray-500">Supplier</p>
+            <p className="text-2xs text-ink-500">Supplier</p>
             <p className="font-semibold">{po.supplier.name}</p>
-            <p className="text-[10px] text-gray-400">{[po.supplier.phone, po.supplier.gstin].filter(Boolean).join(' · ')}</p>
+            <p className="text-2xs text-ink-400">{[po.supplier.phone, po.supplier.gstin].filter(Boolean).join(' · ')}</p>
           </div>
           <div>
-            <p className="text-[10px] text-gray-500">Receive at</p>
+            <p className="text-2xs text-ink-500">Receive at</p>
             <p className="font-semibold">
               {po.warehouse.code} · {po.warehouse.name}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-gray-500">Expected</p>
+            <p className="text-2xs text-ink-500">Expected</p>
             <p className="font-semibold">{po.expectedDate ? new Date(po.expectedDate).toLocaleDateString('en-IN') : '—'}</p>
           </div>
           <div>
-            <p className="text-[10px] text-gray-500">Created</p>
+            <p className="text-2xs text-ink-500">Created</p>
             <p className="font-semibold">{fmt(po.createdAt)}</p>
-            <p className="text-[10px] text-gray-400">{po.createdBy?.name ?? ''}</p>
+            <p className="text-2xs text-ink-400">{po.createdBy?.name ?? ''}</p>
           </div>
         </div>
-        {po.notes && <p className="rounded-lg bg-gray-50 p-2 text-xs text-gray-600">{po.notes}</p>}
+        {po.notes && <p className="rounded-lg bg-surface-page p-2 text-xs text-ink-600">{po.notes}</p>}
         <Table minWidth={640}>
           <THead>
             <Th>Item</Th>
@@ -227,15 +227,15 @@ export function PoDetail({ po, perms }: { po: Po; perms: { manage: boolean; rece
             {po.items.map((i) => (
               <tr key={i.id}>
                 <Td>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-ink">
                     {i.product.name}
-                    {i.variant && <span className="font-normal text-gray-500"> · {i.variant.name}</span>}
+                    {i.variant && <span className="font-normal text-ink-500"> · {i.variant.name}</span>}
                   </p>
-                  <p className="font-mono text-[10px] text-gray-400">{i.variant?.sku ?? i.product.sku}</p>
+                  <p className="font-mono text-2xs text-ink-400">{i.variant?.sku ?? i.product.sku}</p>
                 </Td>
                 <Td className="text-right">{i.quantityOrdered}</Td>
-                <Td className="text-right text-emerald-700 font-semibold">{i.quantityReceived}</Td>
-                <Td className="text-right text-red-600">{i.quantityRejected || '—'}</Td>
+                <Td className="text-right text-success font-semibold">{i.quantityReceived}</Td>
+                <Td className="text-right text-danger">{i.quantityRejected || '—'}</Td>
                 <Td className="text-right font-bold">{po.status === 'CLOSED' || po.status === 'CANCELLED' ? '—' : outstanding(i)}</Td>
                 <Td className="text-right">{formatINR(i.unitCostPaise)}</Td>
                 <Td className="text-right">{formatINR(i.unitCostPaise * i.quantityOrdered)}</Td>
@@ -243,7 +243,7 @@ export function PoDetail({ po, perms }: { po: Po; perms: { manage: boolean; rece
             ))}
           </TBody>
         </Table>
-        <p className="text-right text-xs font-bold text-gray-900">Order value {formatINR(po.totalPaise)}</p>
+        <p className="text-right text-xs font-bold text-ink">Order value {formatINR(po.totalPaise)}</p>
       </Panel>
 
       {canReceive && (
@@ -260,21 +260,21 @@ export function PoDetail({ po, perms }: { po: Po; perms: { manage: boolean; rece
 
       <Panel title={`Goods receipts (${po.receipts.length})`} bodyClassName="p-3 sm:p-4">
         {po.receipts.length === 0 ? (
-          <p className="text-xs text-gray-500">Nothing received yet.</p>
+          <p className="text-xs text-ink-500">Nothing received yet.</p>
         ) : (
           <ul className="space-y-2 text-xs">
             {po.receipts.map((r) => (
-              <li key={r.id} className="rounded-lg border border-gray-100 p-2.5">
-                <p className="font-semibold text-gray-900">
+              <li key={r.id} className="rounded-lg border border-line-subtle p-2.5">
+                <p className="font-semibold text-ink">
                   <span className="font-mono">{r.receiptNumber}</span> · {fmt(r.createdAt)} · {r.receivedBy?.name ?? '—'}
                 </p>
-                <ul className="mt-1 space-y-0.5 text-gray-600">
+                <ul className="mt-1 space-y-0.5 text-ink-600">
                   {r.items.map((it) => (
                     <li key={it.id}>
                       {it.purchaseOrderItem.product.name}
-                      {it.purchaseOrderItem.variant ? ` · ${it.purchaseOrderItem.variant.name}` : ''}: <b className="text-emerald-700">+{it.quantityAccepted}</b>
+                      {it.purchaseOrderItem.variant ? ` · ${it.purchaseOrderItem.variant.name}` : ''}: <b className="text-success">+{it.quantityAccepted}</b>
                       {it.quantityRejected > 0 && (
-                        <span className="text-red-600">
+                        <span className="text-danger">
                           {' '}
                           · {it.quantityRejected} rejected ({it.discrepancyNote})
                         </span>
@@ -282,7 +282,7 @@ export function PoDetail({ po, perms }: { po: Po; perms: { manage: boolean; rece
                     </li>
                   ))}
                 </ul>
-                {r.notes && <p className="mt-1 text-[11px] text-gray-500">{r.notes}</p>}
+                {r.notes && <p className="mt-1 text-2xs text-ink-500">{r.notes}</p>}
               </li>
             ))}
           </ul>

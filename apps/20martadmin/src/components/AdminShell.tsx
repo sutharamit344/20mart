@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminSidebar, type SidebarUser } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
@@ -18,6 +18,25 @@ export const AdminShell: React.FC<AdminShellProps> = ({ user, permissions, store
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
+  // Desktop sidebar collapse is a per-browser preference (UI only).
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem('admin.sidebarCollapsed') === '1');
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((c) => {
+      try {
+        localStorage.setItem('admin.sidebarCollapsed', c ? '0' : '1');
+      } catch {
+        /* storage unavailable */
+      }
+      return !c;
+    });
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -38,14 +57,18 @@ export const AdminShell: React.FC<AdminShellProps> = ({ user, permissions, store
         onLogout={logout}
         storefrontUrl={storefrontUrl}
         inquiriesBadge={newInquiries}
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
       />
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+      <div className="flex h-screen min-w-0 flex-1 flex-col overflow-y-auto bg-surface-page">
         <AdminHeader
           user={user}
           onMenuClick={() => setOpen(true)}
           canSearchProducts={permissions.includes('products.view')}
+          onLogout={logout}
+          storefrontUrl={storefrontUrl}
         />
-        <main className="p-3 sm:p-5 lg:p-6 flex-1 w-full max-w-[1400px] mx-auto">{children}</main>
+        <main className="mx-auto w-full max-w-[1440px] flex-1 p-3 sm:p-5 lg:p-6">{children}</main>
       </div>
     </div>
   );

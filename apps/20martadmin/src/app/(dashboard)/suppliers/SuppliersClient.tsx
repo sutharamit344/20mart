@@ -37,7 +37,7 @@ function SupplierModal({ supplier, onClose }: { supplier: Supplier | null; onClo
     <div>
       <label className={labelCls}>{label}</label>
       <input className={inputCls} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} {...props} />
-      {errors[k] && <p className="mt-0.5 text-[10px] text-red-600">{errors[k][0]}</p>}
+      {errors[k] && <p className="mt-0.5 text-2xs text-danger">{errors[k][0]}</p>}
     </div>
   );
   const submit = async (e: React.FormEvent) => {
@@ -101,7 +101,7 @@ export function SuppliersClient({ items, canManage }: { items: Supplier[]; canMa
   return (
     <>
       {canManage && (
-        <div className="flex justify-end p-3 border-b border-gray-100">
+        <div className="flex justify-end p-3 border-b border-line-subtle">
           <Button size="sm" variant="brand" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setEditing('new')}>
             Add supplier
           </Button>
@@ -121,20 +121,20 @@ export function SuppliersClient({ items, canManage }: { items: Supplier[]; canMa
           {items.length === 0 && <TableEmpty colSpan={7} title="No suppliers yet" description="Add the vendors you buy stock from." />}
           {items.map((s) => (
             <tr key={s.id}>
-              <Td className="font-semibold text-gray-900">{s.name}</Td>
+              <Td className="font-semibold text-ink">{s.name}</Td>
               <Td>
                 <p>{s.contactPerson ?? '—'}</p>
-                <p className="text-[10px] text-gray-400">{[s.phone, s.email].filter(Boolean).join(' · ')}</p>
+                <p className="text-2xs text-ink-400">{[s.phone, s.email].filter(Boolean).join(' · ')}</p>
               </Td>
               <Td>{[s.city, s.state, s.pinCode].filter(Boolean).join(', ') || '—'}</Td>
-              <Td className="font-mono text-[11px]">{s.gstin ?? '—'}</Td>
+              <Td className="font-mono text-2xs">{s.gstin ?? '—'}</Td>
               <Td className="text-right">{s._count.purchaseOrders}</Td>
               <Td>
                 <StatusBadge status={s.status} />
               </Td>
               <Td className="text-right">
                 {canManage && (
-                  <button type="button" aria-label={`Edit ${s.name}`} onClick={() => setEditing(s)} className="p-1 text-gray-400 hover:text-gray-700">
+                  <button type="button" aria-label={`Edit ${s.name}`} onClick={() => setEditing(s)} className="p-1 text-ink-400 hover:text-ink-700">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                 )}

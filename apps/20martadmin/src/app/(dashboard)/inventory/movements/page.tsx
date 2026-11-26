@@ -43,31 +43,31 @@ export default async function MovementsPage(props: { searchParams: Promise<Recor
             {data.items.length === 0 && <TableEmpty colSpan={8} title="No stock movements" description="Nothing matches these filters yet." />}
             {data.items.map((m) => (
               <tr key={m.id}>
-                <Td className="whitespace-nowrap text-gray-500">{m.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</Td>
-                <Td className="font-mono text-[11px]">{m.inventory.warehouse.code}</Td>
+                <Td className="whitespace-nowrap text-ink-500">{m.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</Td>
+                <Td className="font-mono text-2xs">{m.inventory.warehouse.code}</Td>
                 <Td>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-ink">
                     {m.inventory.product.name}
-                    {m.inventory.variant && <span className="font-normal text-gray-500"> · {m.inventory.variant.name}</span>}
+                    {m.inventory.variant && <span className="font-normal text-ink-500"> · {m.inventory.variant.name}</span>}
                   </p>
-                  <p className="font-mono text-[10px] text-gray-400">{m.inventory.variant?.sku ?? m.inventory.product.sku}</p>
+                  <p className="font-mono text-2xs text-ink-400">{m.inventory.variant?.sku ?? m.inventory.product.sku}</p>
                 </Td>
                 <Td>
                   <StatusBadge status={m.movementType} label={label(m.movementType)} />
                 </Td>
-                <Td className={`text-right font-bold ${m.quantity >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                <Td className={`text-right font-bold ${m.quantity >= 0 ? 'text-success' : 'text-danger'}`}>
                   {m.quantity > 0 ? '+' : ''}
                   {m.quantity}
                 </Td>
-                <Td className="text-right text-gray-500">
+                <Td className="text-right text-ink-500">
                   {m.previousQuantity} → {m.newQuantity}
-                  {(m.movementType === 'RESERVATION' || m.movementType === 'RELEASE') && <span className="block text-[10px]">reserved</span>}
+                  {(m.movementType === 'RESERVATION' || m.movementType === 'RELEASE') && <span className="block text-2xs">reserved</span>}
                 </Td>
                 <Td className="max-w-[18rem]">
                   <p className="truncate">{m.reason}</p>
-                  {m.reference && <p className="font-mono text-[10px] text-gray-400">{m.reference}</p>}
+                  {m.reference && <p className="font-mono text-2xs text-ink-400">{m.reference}</p>}
                 </Td>
-                <Td className="text-gray-500">{m.performedBy?.name ?? 'System'}</Td>
+                <Td className="text-ink-500">{m.performedBy?.name ?? 'System'}</Td>
               </tr>
             ))}
           </TBody>

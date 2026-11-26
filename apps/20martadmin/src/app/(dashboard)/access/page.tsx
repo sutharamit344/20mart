@@ -25,13 +25,13 @@ export default async function AccessPage() {
       <Panel title="Role permissions">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-xs">
-            <thead className="bg-gray-50/80 text-[10px] uppercase text-gray-500">
+            <thead className="bg-surface-page/80 text-2xs uppercase text-ink-500">
               <tr>
-                <th className="sticky left-0 bg-gray-50 px-3 py-2">Permission</th>
+                <th className="sticky left-0 bg-surface-page px-3 py-2">Permission</th>
                 {roles.map((r) => (
                   <th key={r.id} className="px-2 py-2 text-center whitespace-nowrap">
                     {r.name}
-                    <span className="block font-normal normal-case text-gray-400">{r.adminCount} admin{r.adminCount === 1 ? '' : 's'}</span>
+                    <span className="block font-normal normal-case text-ink-400">{r.adminCount} admin{r.adminCount === 1 ? '' : 's'}</span>
                   </th>
                 ))}
               </tr>
@@ -39,22 +39,22 @@ export default async function AccessPage() {
             <tbody>
               {groups.map((g) => (
                 <Fragment key={g}>
-                  <tr className="bg-gray-50/40">
-                    <td colSpan={roles.length + 1} className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                  <tr className="bg-surface-page/40">
+                    <td colSpan={roles.length + 1} className="px-3 py-1.5 text-2xs font-bold uppercase tracking-wide text-ink-400">
                       {g}
                     </td>
                   </tr>
                   {permissions
                     .filter((p) => p.group === g)
                     .map((p) => (
-                      <tr key={p.key} className="border-t border-gray-50">
-                        <td className="sticky left-0 bg-white px-3 py-1.5">
-                          <span className="font-mono text-[11px] text-gray-800">{p.key}</span>
-                          <span className="block text-[10px] text-gray-400">{p.description}</span>
+                      <tr key={p.key} className="border-t border-line-subtle">
+                        <td className="sticky left-0 bg-surface px-3 py-1.5">
+                          <span className="font-mono text-2xs text-ink-800">{p.key}</span>
+                          <span className="block text-2xs text-ink-400">{p.description}</span>
                         </td>
                         {roles.map((r) => (
                           <td key={r.id} className="px-2 py-1.5 text-center">
-                            {r.permissions.includes(p.key) ? <Check className="mx-auto w-3.5 h-3.5 text-emerald-600" aria-label="granted" /> : <span className="text-gray-200">—</span>}
+                            {r.permissions.includes(p.key) ? <Check className="mx-auto w-3.5 h-3.5 text-success" aria-label="granted" /> : <span className="text-line-strong">—</span>}
                           </td>
                         ))}
                       </tr>
@@ -64,7 +64,7 @@ export default async function AccessPage() {
             </tbody>
           </table>
         </div>
-        <p className="border-t border-gray-100 px-3 py-2 text-[11px] text-gray-400">
+        <p className="border-t border-line-subtle px-3 py-2 text-2xs text-ink-400">
           System roles are defined in code and synced by <code>pnpm db:seed</code>; Super Admin always holds every permission.
         </p>
       </Panel>

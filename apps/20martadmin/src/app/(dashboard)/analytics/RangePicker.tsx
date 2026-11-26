@@ -28,7 +28,7 @@ export function RangePicker({ range, from, to }: { range: string; from: string; 
   };
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="inline-flex flex-wrap rounded-lg border border-gray-200 bg-white p-0.5" role="radiogroup" aria-label="Date range">
+      <div className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5" role="radiogroup" aria-label="Date range">
         {PRESETS.map((p) => (
           <button
             key={p.value}
@@ -36,7 +36,7 @@ export function RangePicker({ range, from, to }: { range: string; from: string; 
             role="radio"
             aria-checked={range === p.value}
             onClick={() => (p.value === 'custom' ? go({ range: 'custom', from: f, to: t }) : go({ range: p.value, from: '', to: '' }))}
-            className={`h-7 rounded-md px-2.5 text-[11px] font-bold ${range === p.value ? 'bg-brand-green text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+            className={`h-7 rounded-md px-2.5 text-2xs font-bold ${range === p.value ? 'bg-brand-green text-white' : 'text-ink-600 hover:bg-surface-muted'}`}
           >
             {p.label}
           </button>
@@ -51,14 +51,14 @@ export function RangePicker({ range, from, to }: { range: string; from: string; 
           }}
         >
           <input type="date" aria-label="From" className={`${inputCls} h-8 w-36`} value={f} onChange={(e) => setF(e.target.value)} />
-          <span className="text-[11px] text-gray-400">to</span>
+          <span className="text-2xs text-ink-400">to</span>
           <input type="date" aria-label="To" className={`${inputCls} h-8 w-36`} value={t} onChange={(e) => setT(e.target.value)} />
-          <button type="submit" className="h-8 rounded-lg border border-gray-200 bg-white px-2.5 text-[11px] font-bold text-gray-700 hover:bg-gray-50">
+          <button type="submit" className="h-8 rounded-lg border border-line bg-surface px-2.5 text-2xs font-bold text-ink-700 hover:bg-surface-muted">
             Apply
           </button>
         </form>
       )}
-      {pending && <Loader2 className="h-4 w-4 animate-spin text-gray-400" aria-label="Loading" />}
+      {pending && <Loader2 className="h-4 w-4 animate-spin text-ink-400" aria-label="Loading" />}
     </div>
   );
 }

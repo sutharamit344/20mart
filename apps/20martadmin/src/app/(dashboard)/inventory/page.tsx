@@ -32,7 +32,7 @@ export default async function InventoryPage(props: { searchParams: Promise<Recor
         }
       />
       {warehouses.length === 0 && (
-        <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+        <p className="rounded-lg bg-warning-soft p-3 text-xs text-warning">
           No warehouses yet. <Link href="/warehouses" className="font-bold underline">Add your fulfilment location</Link> before recording stock.
         </p>
       )}

@@ -70,7 +70,7 @@ export function PoEditor({
 
   if (!suppliers.length || !warehouses.length) {
     return (
-      <Panel bodyClassName="p-4 text-xs text-amber-800 bg-amber-50 rounded-xl">
+      <Panel bodyClassName="p-4 text-xs text-warning bg-warning-soft rounded-xl">
         {!suppliers.length ? 'Add an active supplier first. ' : ''}
         {!warehouses.length ? 'Add a warehouse to receive the goods into first.' : ''}
       </Panel>
@@ -80,7 +80,7 @@ export function PoEditor({
   return (
     <Panel title={existing ? 'Edit draft' : undefined} bodyClassName="p-3 sm:p-4">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className={labelCls}>Supplier *</label>
@@ -115,7 +115,7 @@ export function PoEditor({
         {lines.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left">
-              <thead className="text-[10px] uppercase text-gray-500">
+              <thead className="text-2xs uppercase text-ink-500">
                 <tr>
                   <th className="py-1.5">Item</th>
                   <th className="py-1.5 w-24">Qty</th>
@@ -124,12 +124,12 @@ export function PoEditor({
                   <th className="w-8" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-line-subtle">
                 {lines.map((l, i) => (
                   <tr key={`${l.productId}:${l.variantId ?? ''}`}>
                     <td className="py-1.5">
-                      <p className="font-semibold text-gray-900">{l.label}</p>
-                      <p className="font-mono text-[10px] text-gray-400">{l.sku}</p>
+                      <p className="font-semibold text-ink">{l.label}</p>
+                      <p className="font-mono text-2xs text-ink-400">{l.sku}</p>
                     </td>
                     <td>
                       <input className={inputCls} inputMode="numeric" value={l.quantity} onChange={(e) => upd(i, 'quantity', e.target.value.replace(/\D/g, ''))} />
@@ -139,7 +139,7 @@ export function PoEditor({
                     </td>
                     <td className="text-right">{formatINR((Number(l.quantity) || 0) * (parseRupeesToPaise(l.unitCost || '0') ?? 0))}</td>
                     <td className="text-right">
-                      <button type="button" aria-label="Remove line" onClick={() => setLines(lines.filter((_, j) => j !== i))} className="p-1 text-gray-400 hover:text-red-600">
+                      <button type="button" aria-label="Remove line" onClick={() => setLines(lines.filter((_, j) => j !== i))} className="p-1 text-ink-400 hover:text-danger">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
@@ -147,7 +147,7 @@ export function PoEditor({
                 ))}
               </tbody>
             </table>
-            <p className="mt-2 text-right font-bold text-gray-900">Total {formatINR(total)}</p>
+            <p className="mt-2 text-right font-bold text-ink">Total {formatINR(total)}</p>
           </div>
         )}
         <div>

@@ -54,7 +54,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen bg-[#F8F9FA] text-gray-900 antialiased overflow-x-clip">{children}</body>
+      <body className="min-h-screen bg-surface-page text-ink antialiased overflow-x-clip">{children}</body>
     </html>
   );
 }

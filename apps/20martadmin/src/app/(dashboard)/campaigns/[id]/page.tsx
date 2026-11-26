@@ -56,7 +56,7 @@ export default async function CampaignDetailPage(props: { params: Promise<{ id: 
 
       {fyc ? (
         <section aria-labelledby="demand-h" className="space-y-2">
-          <h2 id="demand-h" className="text-xs font-bold uppercase tracking-wider text-amber-700">Pre-launch demand — interest, not sales</h2>
+          <h2 id="demand-h" className="text-xs font-bold uppercase tracking-wider text-warning">Pre-launch demand — interest, not sales</h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             <StatCard label="Participants" value={a.demand.participants} hint="Signed-in customers who joined" />
             <StatCard label="Saved carts" value={a.demand.savedCarts} hint={`${a.demand.savedUnits} units wanted`} />
@@ -82,7 +82,7 @@ export default async function CampaignDetailPage(props: { params: Promise<{ id: 
       ) : null}
 
       <section aria-labelledby="sales-h" className="space-y-2">
-        <h2 id="sales-h" className="text-xs font-bold uppercase tracking-wider text-gray-500">Sales during the campaign (paid orders only)</h2>
+        <h2 id="sales-h" className="text-xs font-bold uppercase tracking-wider text-ink-500">Sales during the campaign (paid orders only)</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
           <StatCard label="Paid orders with campaign coupon" value={a.sales.couponPaidOrders} hint={c.coupon ? c.coupon.code : 'No coupon attached'} />
           <StatCard label="Their paid revenue" value={formatINR(a.sales.couponPaidRevenuePaise)} hint={`Discount ${formatINR(a.sales.couponDiscountPaise)}`} tone="green" />

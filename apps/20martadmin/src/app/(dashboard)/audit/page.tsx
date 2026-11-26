@@ -33,13 +33,13 @@ export default async function AuditPage(props: { searchParams: Promise<Record<st
             {data.items.length === 0 && <TableEmpty colSpan={5} title="No audit entries yet" />}
             {data.items.map((l) => (
               <tr key={l.id}>
-                <Td className="whitespace-nowrap text-gray-500">{l.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</Td>
-                <Td className="whitespace-nowrap font-semibold text-gray-800">{l.adminName}</Td>
+                <Td className="whitespace-nowrap text-ink-500">{l.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</Td>
+                <Td className="whitespace-nowrap font-semibold text-ink-800">{l.adminName}</Td>
                 <Td>
                   <StatusBadge status={l.category} label={l.category.replace('_', ' ').toLowerCase()} />
                 </Td>
                 <Td className="whitespace-nowrap">{l.action}</Td>
-                <Td className="max-w-[28rem] text-gray-500">
+                <Td className="max-w-[28rem] text-ink-500">
                   <span className="line-clamp-2 break-words">{l.details}</span>
                 </Td>
               </tr>

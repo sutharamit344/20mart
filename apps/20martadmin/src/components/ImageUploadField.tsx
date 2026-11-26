@@ -56,20 +56,20 @@ export function ImageUploadField({
 
   return (
     <div>
-      <p className="block text-[11px] font-semibold text-gray-700 mb-1">{label}</p>
+      <p className="block text-2xs font-semibold text-ink-700 mb-1">{label}</p>
       <div className="flex items-center gap-3">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-line bg-surface-page">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={resolveImageSrc(preview)} alt="" className="h-full w-full object-contain" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-gray-300">
+            <div className="flex h-full w-full items-center justify-center text-ink-400">
               <ImagePlus className="w-5 h-5" />
             </div>
           )}
           {busy && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-              <Loader2 className="w-4 h-4 animate-spin text-gray-600" />
+            <div className="absolute inset-0 flex items-center justify-center bg-surface/70">
+              <Loader2 className="w-4 h-4 animate-spin text-ink-600" />
             </div>
           )}
         </div>
@@ -78,12 +78,12 @@ export function ImageUploadField({
             type="button"
             disabled={busy || disabled}
             onClick={() => input.current?.click()}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-3 text-xs font-semibold text-ink-700 hover:bg-surface-muted disabled:opacity-50"
           >
             <ImagePlus className="w-3.5 h-3.5" /> {preview ? 'Replace' : 'Upload'}
           </button>
-          <p className="mt-1 text-[10px] text-gray-400">JPEG/PNG/WebP/AVIF · max 5 MB · min 100×100</p>
-          {error && <p className="mt-1 text-[11px] font-medium text-red-600">{error}</p>}
+          <p className="mt-1 text-2xs text-ink-400">JPEG/PNG/WebP/AVIF · max 5 MB · min 100×100</p>
+          {error && <p className="mt-1 text-2xs font-medium text-danger">{error}</p>}
         </div>
         <input
           ref={input}

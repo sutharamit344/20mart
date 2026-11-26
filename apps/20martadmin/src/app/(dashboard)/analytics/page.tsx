@@ -28,10 +28,10 @@ export default async function AnalyticsPage(props: { searchParams: Promise<Recor
       <PageHeader title="Analytics" description={`Real data only · ${r.range.label} (IST)`} />
       <AnalyticsTabs active="overview" />
       <RangePicker range={r.range.range} from={r.range.fromDate} to={r.range.toDate} />
-      {error && <p role="alert" className="rounded-lg bg-amber-50 p-2 text-xs font-semibold text-amber-900">{error} — showing the last 30 days.</p>}
+      {error && <p role="alert" className="rounded-lg bg-warning-soft p-2 text-xs font-semibold text-warning">{error} — showing the last 30 days.</p>}
 
       <section aria-labelledby="sales-h" className="space-y-2">
-        <h2 id="sales-h" className="text-xs font-bold uppercase tracking-wider text-gray-500">Sales (payment received)</h2>
+        <h2 id="sales-h" className="text-xs font-bold uppercase tracking-wider text-ink-500">Sales (payment received)</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
           <StatCard label="Net revenue" value={formatINR(sales.netRevenuePaise)} hint="Paid orders minus confirmed refunds" tone="green" />
           <StatCard label="Paid revenue (gross)" value={formatINR(sales.grossPaidRevenuePaise)} hint={`${sales.paidOrders} paid order${sales.paidOrders === 1 ? '' : 's'}`} />
@@ -58,13 +58,13 @@ export default async function AnalyticsPage(props: { searchParams: Promise<Recor
               ['Cancelled', orders.cancelled],
               ['Payment failed / expired', orders.failed],
             ].map(([k, v]) => (
-              <div key={k as string} className="rounded-lg bg-gray-50 p-2">
-                <dt className="text-[10px] text-gray-500">{k}</dt>
-                <dd className="text-base font-black tabular-nums text-gray-900">{v}</dd>
+              <div key={k as string} className="rounded-lg bg-surface-page p-2">
+                <dt className="text-2xs text-ink-500">{k}</dt>
+                <dd className="text-base font-bold tabular-nums text-ink">{v}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-2 text-[10px] text-gray-400">All orders placed in the range, paid or not. Only paid orders count as revenue.</p>
+          <p className="mt-2 text-2xs text-ink-400">All orders placed in the range, paid or not. Only paid orders count as revenue.</p>
         </Panel>
         <Panel title="Top products (paid units)" bodyClassName="p-3">
           <BarList valueLabel="Units sold" points={r.topProducts.map((p) => ({ label: p.name, value: p.units, note: formatINR(p.revenuePaise) }))} empty="No paid orders in this range" />
@@ -82,62 +82,62 @@ export default async function AnalyticsPage(props: { searchParams: Promise<Recor
             ['Paying customers', customers.buyers],
             ['Repeat buyers', customers.repeatBuyers],
           ].map(([k, v]) => (
-            <div key={k as string} className="rounded-lg bg-gray-50 p-2">
-              <p className="text-[10px] text-gray-500">{k}</p>
-              <p className="text-base font-black tabular-nums text-gray-900">{v}</p>
+            <div key={k as string} className="rounded-lg bg-surface-page p-2">
+              <p className="text-2xs text-ink-500">{k}</p>
+              <p className="text-base font-bold tabular-nums text-ink">{v}</p>
             </div>
           ))}
         </Panel>
         <Panel title="Coupons" bodyClassName="p-3 space-y-2 text-xs">
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-lg bg-gray-50 p-2">
-              <p className="text-[10px] text-gray-500">Distributed</p>
-              <p className="text-base font-black tabular-nums">{coupons.distributed}</p>
+            <div className="rounded-lg bg-surface-page p-2">
+              <p className="text-2xs text-ink-500">Distributed</p>
+              <p className="text-base font-bold tabular-nums">{coupons.distributed}</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-2">
-              <p className="text-[10px] text-gray-500">Redeemed</p>
-              <p className="text-base font-black tabular-nums">{coupons.redeemed}</p>
+            <div className="rounded-lg bg-surface-page p-2">
+              <p className="text-2xs text-ink-500">Redeemed</p>
+              <p className="text-base font-bold tabular-nums">{coupons.redeemed}</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-2">
-              <p className="text-[10px] text-gray-500">Discount</p>
-              <p className="text-base font-black tabular-nums">{formatINR(coupons.discountGivenPaise)}</p>
+            <div className="rounded-lg bg-surface-page p-2">
+              <p className="text-2xs text-ink-500">Discount</p>
+              <p className="text-base font-bold tabular-nums">{formatINR(coupons.discountGivenPaise)}</p>
             </div>
           </div>
-          <p className="text-[10px] text-gray-400">Distributed = issued to accounts. Redeemed = used on an order that was not cancelled.</p>
+          <p className="text-2xs text-ink-400">Distributed = issued to accounts. Redeemed = used on an order that was not cancelled.</p>
           <BarList valueLabel="Redemptions" points={coupons.top.map((c) => ({ label: c.code, value: c.redeemed, note: `${formatINR(c.discountPaise)} discount` }))} empty="No redemptions in this range" />
         </Panel>
         <Panel title="Pre-launch interest (not sales)" bodyClassName="p-3 space-y-2 text-xs">
           <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg bg-amber-50 p-2">
-              <p className="text-[10px] text-amber-800">Fill Your Cart joins</p>
-              <p className="text-base font-black tabular-nums">{interest.fycJoins}</p>
+            <div className="rounded-lg bg-warning-soft p-2">
+              <p className="text-2xs text-warning">Fill Your Cart joins</p>
+              <p className="text-base font-bold tabular-nums">{interest.fycJoins}</p>
             </div>
-            <div className="rounded-lg bg-amber-50 p-2">
-              <p className="text-[10px] text-amber-800">Saved carts updated</p>
-              <p className="text-base font-black tabular-nums">{interest.savedCarts}</p>
+            <div className="rounded-lg bg-warning-soft p-2">
+              <p className="text-2xs text-warning">Saved carts updated</p>
+              <p className="text-base font-bold tabular-nums">{interest.savedCarts}</p>
             </div>
-            <div className="rounded-lg bg-amber-50 p-2">
-              <p className="text-[10px] text-amber-800">Units wanted</p>
-              <p className="text-base font-black tabular-nums">{interest.savedUnits}</p>
+            <div className="rounded-lg bg-warning-soft p-2">
+              <p className="text-2xs text-warning">Units wanted</p>
+              <p className="text-base font-bold tabular-nums">{interest.savedUnits}</p>
             </div>
-            <div className="rounded-lg bg-amber-50 p-2">
-              <p className="text-[10px] text-amber-800">Estimated interest</p>
-              <p className="text-base font-black tabular-nums">{formatINR(interest.estimatedInterestPaise)}</p>
+            <div className="rounded-lg bg-warning-soft p-2">
+              <p className="text-2xs text-warning">Estimated interest</p>
+              <p className="text-base font-bold tabular-nums">{formatINR(interest.estimatedInterestPaise)}</p>
             </div>
           </div>
-          <p className="text-[10px] text-gray-400">Saved campaign carts at today&apos;s prices. Nothing was ordered or paid — never added to revenue.</p>
+          <p className="text-2xs text-ink-400">Saved campaign carts at today&apos;s prices. Nothing was ordered or paid — never added to revenue.</p>
         </Panel>
       </div>
 
       <Panel title="Email (this range)" bodyClassName="p-3">
         <div className="flex flex-wrap gap-2 text-xs">
           {['SENT', 'DELIVERED', 'BOUNCED', 'COMPLAINED', 'FAILED', 'SKIPPED', 'QUEUED'].map((s) => (
-            <span key={s} className="rounded-lg bg-gray-50 px-2.5 py-1.5">
-              <span className="text-[10px] text-gray-500">{s.charAt(0) + s.slice(1).toLowerCase()}</span> <b className="tabular-nums">{email[s] ?? 0}</b>
+            <span key={s} className="rounded-lg bg-surface-page px-2.5 py-1.5">
+              <span className="text-2xs text-ink-500">{s.charAt(0) + s.slice(1).toLowerCase()}</span> <b className="tabular-nums">{email[s] ?? 0}</b>
             </span>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-gray-400">Sent = accepted by the email provider. Delivered/bounced come only from verified provider webhooks.</p>
+        <p className="mt-2 text-2xs text-ink-400">Sent = accepted by the email provider. Delivered/bounced come only from verified provider webhooks.</p>
       </Panel>
     </div>
   );

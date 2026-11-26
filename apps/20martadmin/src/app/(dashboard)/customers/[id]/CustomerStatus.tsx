@@ -21,7 +21,7 @@ export function CustomerStatus({ id, status }: { id: string; status: 'ACTIVE' | 
       </Button>
       <Modal isOpen={open} onClose={() => setOpen(false)} title={next === 'SUSPENDED' ? 'Deactivate customer' : 'Reactivate customer'}>
         <div className="space-y-2 text-xs">
-          {next === 'SUSPENDED' && <p className="text-gray-600">The customer is signed out everywhere immediately and cannot sign in until reactivated. Existing orders are not changed.</p>}
+          {next === 'SUSPENDED' && <p className="text-ink-600">The customer is signed out everywhere immediately and cannot sign in until reactivated. Existing orders are not changed.</p>}
           <label className={labelCls} htmlFor="cs-reason">
             Reason (kept in the audit log)
           </label>

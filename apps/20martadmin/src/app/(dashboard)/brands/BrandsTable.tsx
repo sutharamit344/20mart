@@ -44,7 +44,7 @@ export function BrandsTable({ items, perms }: { items: BrandRow[]; perms: { crea
   return (
     <>
       {perms.create && (
-        <div className="flex justify-end px-3 sm:px-4 py-2.5 border-b border-gray-100">
+        <div className="flex justify-end px-3 sm:px-4 py-2.5 border-b border-line-subtle">
           <Button size="sm" variant="primary" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setEditing('new')}>
             Add brand
           </Button>
@@ -60,26 +60,26 @@ export function BrandsTable({ items, perms }: { items: BrandRow[]; perms: { crea
         <TBody>
           {items.length === 0 && <TableEmpty colSpan={4} title="No brands found" description="Products without a brand are perfectly fine." />}
           {items.map((b) => (
-            <tr key={b.id} className={`hover:bg-gray-50/60 ${busyId === b.id ? 'opacity-60' : ''}`}>
+            <tr key={b.id} className={`hover:bg-surface-muted/60 ${busyId === b.id ? 'opacity-60' : ''}`}>
               <Td>
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
+                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-line-subtle bg-surface">
                     {b.logoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={resolveImageSrc(b.logoUrl)} alt="" className="h-full w-full object-contain p-0.5" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-gray-300">
+                      <div className="flex h-full w-full items-center justify-center text-ink-400">
                         <BadgeCheck className="w-4 h-4" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-gray-900">{b.name}</p>
-                    <p className="truncate font-mono text-[10px] text-gray-400">{b.slug}</p>
+                    <p className="truncate font-semibold text-ink">{b.name}</p>
+                    <p className="truncate font-mono text-2xs text-ink-400">{b.slug}</p>
                   </div>
                 </div>
               </Td>
-              <Td className="text-right font-semibold text-gray-800">{b._count.products}</Td>
+              <Td className="text-right font-semibold text-ink-800">{b._count.products}</Td>
               <Td>
                 <StatusBadge status={b.status} label={b.status === 'ACTIVE' ? 'Active' : 'Disabled'} />
               </Td>
@@ -97,7 +97,7 @@ export function BrandsTable({ items, perms }: { items: BrandRow[]; perms: { crea
                           run(b.id, () => api(`/api/admin/brands/${b.id}`, { method: 'PATCH', body: { status: b.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' } }), 'Brand updated')
                         }
                       >
-                        <Power className={`w-3.5 h-3.5 ${b.status === 'ACTIVE' ? 'text-emerald-600' : ''}`} />
+                        <Power className={`w-3.5 h-3.5 ${b.status === 'ACTIVE' ? 'text-success' : ''}`} />
                       </IconBtn>
                     </>
                   )}
@@ -174,7 +174,7 @@ function BrandForm({ brand, canUpload, onClose, onSaved }: { brand: BrandRow | n
   return (
     <Modal isOpen onClose={onClose} title={brand ? `Edit “${brand.name}”` : 'New brand'} maxWidth="md">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className={labelCls}>Name *</label>
@@ -191,7 +191,7 @@ function BrandForm({ brand, canUpload, onClose, onSaved }: { brand: BrandRow | n
                 set('slug', e.target.value.toLowerCase());
               }}
             />
-            {fieldErrors.slug?.[0] && <p className="mt-0.5 text-[11px] text-red-600">{fieldErrors.slug[0]}</p>}
+            {fieldErrors.slug?.[0] && <p className="mt-0.5 text-2xs text-danger">{fieldErrors.slug[0]}</p>}
           </div>
         </div>
         <div>

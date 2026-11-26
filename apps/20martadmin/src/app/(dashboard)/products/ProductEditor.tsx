@@ -165,16 +165,16 @@ export function ProductEditor({
     }
   };
 
-  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-[11px] text-red-600">{fieldErrors[k][0]}</p>;
+  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-2xs text-danger">{fieldErrors[k][0]}</p>;
 
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <Link href="/products" className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100" aria-label="Back to products">
+          <Link href="/products" className="rounded-lg p-1.5 text-ink-500 hover:bg-surface-muted" aria-label="Back to products">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <h1 className="truncate text-lg sm:text-xl font-extrabold text-gray-900">{isNew ? 'New product' : product.name}</h1>
+          <h1 className="truncate text-lg sm:text-xl font-extrabold text-ink">{isNew ? 'New product' : product.name}</h1>
           {product && <StatusBadge status={product.status} />}
         </div>
         {product && <StatusControls product={product} perms={perms} />}
@@ -183,7 +183,7 @@ export function ProductEditor({
       <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 items-start">
         <fieldset disabled={readOnly} className="lg:col-span-2 space-y-3 sm:space-y-4 min-w-0">
           {error && (
-            <p role="alert" className="rounded-lg border border-red-100 bg-red-50 p-2.5 text-xs text-red-700">
+            <p role="alert" className="rounded-lg border border-danger-line bg-danger-soft p-2.5 text-xs text-danger">
               {error}
             </p>
           )}
@@ -256,7 +256,7 @@ export function ProductEditor({
                 </select>
               </div>
             </div>
-            <p className={`text-[11px] ${priceError ? 'text-red-600' : 'text-gray-500'}`}>
+            <p className={`text-2xs ${priceError ? 'text-danger' : 'text-ink-500'}`}>
               {priceError ??
                 (sellingPaise && mrpPaise
                   ? `Customer pays ${formatINR(sellingPaise)}${discount ? ` · ${discount}% off MRP ${formatINR(mrpPaise)}` : ''}`
@@ -306,7 +306,7 @@ export function ProductEditor({
                   ))}
                 </select>
               </div>
-              <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
+              <label className="flex items-center gap-2 text-xs font-semibold text-ink-700">
                 <input type="checkbox" className="h-4 w-4 accent-brand-orange" checked={form.isFeatured} onChange={(e) => set('isFeatured', e.target.checked)} />
                 Featured on homepage
               </label>
@@ -324,7 +324,7 @@ export function ProductEditor({
               title="Stock"
               actions={
                 perms.inventory ? (
-                  <Link href={`/inventory?q=${encodeURIComponent(product.sku)}`} className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-orange-600 hover:underline">
+                  <Link href={`/inventory?q=${encodeURIComponent(product.sku)}`} className="inline-flex items-center gap-1 text-2xs font-semibold text-brand-orange-600 hover:underline">
                     <Boxes className="w-3 h-3" /> Manage
                   </Link>
                 ) : null
@@ -332,8 +332,8 @@ export function ProductEditor({
               bodyClassName="p-3 sm:p-4 text-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Sellable units</span>
-                <span className="flex items-center gap-2 font-bold text-gray-900">
+                <span className="text-ink-500">Sellable units</span>
+                <span className="flex items-center gap-2 font-bold text-ink">
                   {product.stock.sellable} <StatusBadge status={product.stock.state} />
                 </span>
               </div>
@@ -471,16 +471,16 @@ function ImageManager({ product, canEdit, canDelete }: { product: EditorProduct;
       bodyClassName="p-3 sm:p-4"
     >
       {images.length === 0 ? (
-        <p className="py-6 text-center text-xs text-gray-500">No images yet. Products need at least one image to be published.</p>
+        <p className="py-6 text-center text-xs text-ink-500">No images yet. Products need at least one image to be published.</p>
       ) : (
         <ul className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5 ${busy ? 'opacity-60' : ''}`}>
           {images.map((img, idx) => (
-            <li key={img.id} className={`rounded-lg border bg-white p-1.5 ${img.isPrimary ? 'border-brand-orange ring-1 ring-brand-orange/30' : 'border-gray-200'}`}>
-              <div className="relative aspect-square overflow-hidden rounded-md bg-gray-50">
+            <li key={img.id} className={`rounded-lg border bg-surface p-1.5 ${img.isPrimary ? 'border-brand-orange ring-1 ring-brand-orange/30' : 'border-line'}`}>
+              <div className="relative aspect-square overflow-hidden rounded-md bg-surface-page">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={resolveImageSrc(img.url)} alt={img.altText ?? ''} className="h-full w-full object-contain" loading="lazy" />
                 {img.isPrimary && (
-                  <span className="absolute left-1 top-1 rounded bg-brand-orange px-1.5 py-0.5 text-[9px] font-bold text-white">Primary</span>
+                  <span className="absolute left-1 top-1 rounded bg-brand-orange px-1.5 py-0.5 text-2xs font-bold text-white">Primary</span>
                 )}
               </div>
               <input
@@ -490,7 +490,7 @@ function ImageManager({ product, canEdit, canDelete }: { product: EditorProduct;
                 maxLength={150}
                 placeholder="Alt text"
                 onBlur={(e) => e.target.value !== (img.altText ?? '') && saveAlt(img.id, e.target.value)}
-                className="mt-1.5 h-7 w-full rounded border border-gray-200 px-1.5 text-[11px] focus:border-brand-green focus:outline-none"
+                className="mt-1.5 h-7 w-full rounded border border-line px-1.5 text-2xs focus:border-brand-green focus:outline-none"
               />
               {canEdit && (
                 <div className="mt-1 flex items-center justify-between">
@@ -574,13 +574,13 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
 
   return (
     <Panel title={`Variants (${product.variants.length})`} bodyClassName="p-3 sm:p-4 space-y-3 text-xs">
-      <p className="text-[11px] text-gray-500">
+      <p className="text-2xs text-ink-500">
         Optional — e.g. pack sizes or volumes. When a product has variants, stock is tracked per variant.
       </p>
       {product.variants.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-left">
-            <thead className="text-[10px] uppercase text-gray-500">
+            <thead className="text-2xs uppercase text-ink-500">
               <tr>
                 <th className="py-1.5 pr-2">Name</th>
                 <th className="py-1.5 pr-2">SKU</th>
@@ -590,17 +590,17 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
                 <th />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-subtle">
               {product.variants.map((v) => {
                 // Unreserved units summed across all warehouses (per-warehouse detail lives on the Inventory page).
                 const unreserved = v.inventories.reduce((a, i) => a + i.availableQuantity - i.reservedQuantity, 0);
                 return (
                   <tr key={v.id}>
-                    <td className="py-2 pr-2 font-semibold text-gray-900">{v.name}</td>
-                    <td className="py-2 pr-2 font-mono text-[10px] text-gray-500">{v.sku}</td>
+                    <td className="py-2 pr-2 font-semibold text-ink">{v.name}</td>
+                    <td className="py-2 pr-2 font-mono text-2xs text-ink-500">{v.sku}</td>
                     <td className="py-2 pr-2 text-right">
                       {formatINR(v.sellingPricePaise)}
-                      {v.mrpPaise > v.sellingPricePaise && <span className="ml-1 text-[10px] text-gray-400 line-through">{formatINR(v.mrpPaise)}</span>}
+                      {v.mrpPaise > v.sellingPricePaise && <span className="ml-1 text-2xs text-ink-400 line-through">{formatINR(v.mrpPaise)}</span>}
                     </td>
                     <td className="py-2 pr-2 text-right">{unreserved}</td>
                     <td className="py-2 pr-2">
@@ -613,7 +613,7 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
                             type="button"
                             disabled={busy}
                             onClick={() => run(() => api(`/api/admin/products/${product.id}/variants/${v.id}`, { method: 'PATCH', body: { status: v.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' } }), 'Variant updated')}
-                            className="rounded px-1.5 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-100"
+                            className="rounded px-1.5 py-1 text-2xs font-semibold text-ink-600 hover:bg-surface-muted"
                           >
                             {v.status === 'ACTIVE' ? 'Disable' : 'Enable'}
                           </button>
@@ -631,7 +631,7 @@ function VariantManager({ product, canEdit }: { product: EditorProduct; canEdit:
         </div>
       )}
       {canEdit && (
-        <form onSubmit={add} className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end rounded-lg bg-gray-50 p-2.5">
+        <form onSubmit={add} className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end rounded-lg bg-surface-page p-2.5">
           <div className="col-span-2 sm:col-span-1">
             <label className={labelCls}>Variant name</label>
             <input className={inputCls} required maxLength={80} placeholder="Pack of 3" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />

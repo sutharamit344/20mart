@@ -34,11 +34,11 @@ function niceMax(v: number) {
 
 function TableView({ points, valueLabel }: { points: Point[]; valueLabel: string }) {
   return (
-    <details className="mt-2 text-[11px] text-gray-600">
-      <summary className="cursor-pointer select-none font-semibold text-gray-500 hover:text-gray-800">View as table</summary>
-      <div className="mt-1 max-h-56 overflow-auto rounded-lg border border-gray-100">
+    <details className="mt-2 text-2xs text-ink-600">
+      <summary className="cursor-pointer select-none font-semibold text-ink-500 hover:text-ink-800">View as table</summary>
+      <div className="mt-1 max-h-56 overflow-auto rounded-lg border border-line-subtle">
         <table className="w-full text-left">
-          <thead className="bg-gray-50 text-[10px] uppercase text-gray-500">
+          <thead className="bg-surface-page text-2xs uppercase text-ink-500">
             <tr>
               <th className="px-2 py-1 font-semibold">Label</th>
               <th className="px-2 py-1 text-right font-semibold">{valueLabel}</th>
@@ -46,9 +46,9 @@ function TableView({ points, valueLabel }: { points: Point[]; valueLabel: string
           </thead>
           <tbody>
             {points.map((p) => (
-              <tr key={p.label} className="border-t border-gray-50">
+              <tr key={p.label} className="border-t border-line-subtle">
                 <td className="px-2 py-1">{p.label}</td>
-                <td className="px-2 py-1 text-right tabular-nums">{p.missing ? <span className="text-gray-400">No data</span> : (p.display ?? p.value.toLocaleString('en-IN'))}</td>
+                <td className="px-2 py-1 text-right tabular-nums">{p.missing ? <span className="text-ink-400">No data</span> : (p.display ?? p.value.toLocaleString('en-IN'))}</td>
               </tr>
             ))}
           </tbody>
@@ -162,17 +162,17 @@ export function ColumnChart({
         <line x1={padL} x2={W - 8} y1={padT + plotH} y2={padT + plotH} stroke="#d6d5d1" strokeWidth={1} />
       </svg>
       {(empty || allMissing) && (
-        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-[11px] text-gray-400">{allMissing ? 'No data in this range' : points.some((p) => p.missing) ? 'Zero on every day with data' : zeroLabel}</p>
+        <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-2xs text-ink-400">{allMissing ? 'No data in this range' : points.some((p) => p.missing) ? 'Zero on every day with data' : zeroLabel}</p>
       )}
       {hp && hover != null && (
         <div
-          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-[11px] shadow-md"
+          className="pointer-events-none absolute top-1 z-10 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-2xs shadow-md"
           style={{ left: `clamp(0px, calc(${((padL + hover * slot + slot / 2) / W) * 100}% - 60px), calc(100% - 140px))` }}
           role="status"
         >
-          <p className="font-black tabular-nums text-gray-900">{hp.missing ? 'No data' : (hp.display ?? hp.value.toLocaleString('en-IN'))}</p>
-          <p className="text-gray-500">{hp.label}</p>
-          {hp.note && <p className="text-gray-500">{hp.note}</p>}
+          <p className="font-bold tabular-nums text-ink">{hp.missing ? 'No data' : (hp.display ?? hp.value.toLocaleString('en-IN'))}</p>
+          <p className="text-ink-500">{hp.label}</p>
+          {hp.note && <p className="text-ink-500">{hp.note}</p>}
         </div>
       )}
       <TableView points={points} valueLabel={valueLabel} />
@@ -183,20 +183,20 @@ export function ColumnChart({
 /** Ranked horizontal bars with direct value labels (top-N lists). */
 export function BarList({ points, valueLabel, empty = 'No data yet' }: { points: Point[]; valueLabel: string; empty?: string }) {
   const max = Math.max(0, ...points.map((p) => p.value));
-  if (!points.length || max === 0) return <p className="py-4 text-center text-[11px] text-gray-400">{empty}</p>;
+  if (!points.length || max === 0) return <p className="py-4 text-center text-2xs text-ink-400">{empty}</p>;
   return (
     <div>
       <ul className="space-y-1.5" aria-label={valueLabel}>
         {points.map((p) => (
           <li key={p.label} className="group" title={p.note ? `${p.label} — ${p.note}` : p.label}>
-            <div className="flex items-baseline justify-between gap-2 text-[11px]">
-              <span className="min-w-0 truncate text-gray-700">{p.label}</span>
-              <span className="shrink-0 font-bold tabular-nums text-gray-900">{p.display ?? p.value.toLocaleString('en-IN')}</span>
+            <div className="flex items-baseline justify-between gap-2 text-2xs">
+              <span className="min-w-0 truncate text-ink-700">{p.label}</span>
+              <span className="shrink-0 font-bold tabular-nums text-ink">{p.display ?? p.value.toLocaleString('en-IN')}</span>
             </div>
-            <div className="mt-0.5 h-2 w-full rounded-sm bg-gray-100">
+            <div className="mt-0.5 h-2 w-full rounded-sm bg-surface-muted">
               <div className="h-2 rounded-r-[4px] transition-colors group-hover:opacity-80" style={{ width: `${Math.max(1.5, (p.value / max) * 100)}%`, background: SERIES }} />
             </div>
-            {p.note && <p className="text-[10px] text-gray-400">{p.note}</p>}
+            {p.note && <p className="text-2xs text-ink-400">{p.note}</p>}
           </li>
         ))}
       </ul>

@@ -63,17 +63,17 @@ const toneText: Record<Tone, string> = {
   neutral: 'text-ink',
   green: 'text-brand-green',
   orange: 'text-brand-orange-600',
-  amber: 'text-amber-600',
+  amber: 'text-warning',
   red: 'text-danger',
-  blue: 'text-blue-700',
+  blue: 'text-info',
 };
 const toneIcon: Record<Tone, string> = {
   neutral: 'bg-surface-muted text-ink-600',
-  green: 'bg-emerald-50 text-brand-green',
-  orange: 'bg-orange-50 text-brand-orange',
-  amber: 'bg-amber-50 text-amber-600',
-  red: 'bg-red-50 text-red-600',
-  blue: 'bg-blue-50 text-blue-600',
+  green: 'bg-success-soft text-brand-green',
+  orange: 'bg-brand-orange-50 text-brand-orange',
+  amber: 'bg-warning-soft text-warning',
+  red: 'bg-danger-soft text-danger',
+  blue: 'bg-info-soft text-info',
 };
 
 export function StatCard({
@@ -119,7 +119,7 @@ const badgeTones: Record<string, string> = {
   ARCHIVED: 'bg-slate-100 text-slate-500 ring-slate-500/15',
   LOW: 'bg-warning-soft text-warning ring-warning/15',
   OUT: 'bg-danger-soft text-danger ring-danger/15',
-  FEATURED: 'bg-orange-50 text-brand-orange-600 ring-orange-500/20',
+  FEATURED: 'bg-brand-orange-50 text-brand-orange-600 ring-orange-500/20',
 };
 const badgeLabels: Record<string, string> = {
   IN_STOCK: 'In stock',

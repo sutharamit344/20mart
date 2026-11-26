@@ -56,13 +56,13 @@ export function FilterBar({
   const hasFilters = !!params.get('q') || selects.some((s) => params.get(s.name));
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center rounded-xl border border-gray-200/80 bg-white p-2.5 shadow-2xs">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center rounded-xl border border-line bg-surface p-2.5 ">
       {search && (
         <div className="relative flex-1 min-w-[180px]">
           {pending ? (
-            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 animate-spin" />
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400 animate-spin" />
           ) : (
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400" />
           )}
           <input
             type="search"
@@ -70,7 +70,7 @@ export function FilterBar({
             onChange={(e) => setQ(e.target.value)}
             placeholder={placeholder}
             aria-label={placeholder}
-            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-green focus:outline-none"
+            className="w-full h-9 rounded-lg border border-line bg-surface-page pl-9 pr-3 text-xs text-ink placeholder:text-ink-400 focus:bg-surface focus:border-brand-green focus:outline-none"
           />
         </div>
       )}
@@ -81,7 +81,7 @@ export function FilterBar({
             aria-label={s.label}
             value={params.get(s.name) ?? ''}
             onChange={(e) => push({ [s.name]: e.target.value })}
-            className="h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-brand-green focus:outline-none sm:w-auto min-w-0"
+            className="h-9 rounded-lg border border-line bg-surface px-2.5 text-xs font-medium text-ink-700 focus:border-brand-green focus:outline-none sm:w-auto min-w-0"
           >
             <option value="">{s.label}</option>
             {s.options.map((o) => (
@@ -98,7 +98,7 @@ export function FilterBar({
               setQ('');
               startTransition(() => router.replace(pathname, { scroll: false }));
             }}
-            className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-gray-500 hover:bg-gray-100"
+            className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-ink-500 hover:bg-surface-muted"
           >
             <X className="w-3.5 h-3.5" /> Clear
           </button>

@@ -39,22 +39,22 @@ export function LoginForm({ next }: { next: string }) {
   };
 
   const field =
-    'w-full h-10 rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-brand-green focus:ring-2 focus:ring-brand-green/10 focus:outline-none';
+    'w-full h-10 rounded-lg border border-line bg-surface-page pl-9 pr-3 text-sm text-ink placeholder:text-ink-400 focus:bg-surface focus:border-brand-green focus:ring-2 focus:ring-brand-green/10 focus:outline-none';
 
   return (
     <form onSubmit={submit} className="space-y-3" noValidate>
       {error && (
-        <div role="alert" className="flex items-start gap-2 rounded-lg border border-red-100 bg-red-50 p-2.5 text-xs text-red-700">
+        <div role="alert" className="flex items-start gap-2 rounded-lg border border-danger-line bg-danger-soft p-2.5 text-xs text-danger">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
       <div>
-        <label htmlFor="identifier" className="block text-[11px] font-semibold text-gray-700 mb-1">
+        <label htmlFor="identifier" className="block text-2xs font-semibold text-ink-700 mb-1">
           Username or email
         </label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
           <input
             id="identifier"
             name="username"
@@ -69,11 +69,11 @@ export function LoginForm({ next }: { next: string }) {
         </div>
       </div>
       <div>
-        <label htmlFor="password" className="block text-[11px] font-semibold text-gray-700 mb-1">
+        <label htmlFor="password" className="block text-2xs font-semibold text-ink-700 mb-1">
           Password
         </label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
           <input
             id="password"
             name="password"
@@ -87,7 +87,7 @@ export function LoginForm({ next }: { next: string }) {
           <button
             type="button"
             onClick={() => setShow((s) => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink-400 hover:text-ink-600"
             aria-label={show ? 'Hide password' : 'Show password'}
           >
             {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -97,7 +97,7 @@ export function LoginForm({ next }: { next: string }) {
       <Button type="submit" variant="brand" size="md" isLoading={loading} disabled={!identifier || !password} className="w-full">
         Sign in
       </Button>
-      <p className="text-center text-[11px] text-gray-400">
+      <p className="text-center text-2xs text-ink-400">
         Forgot your password? Ask a Super Admin to reset it.
       </p>
     </form>

@@ -62,7 +62,7 @@ export function OrderActions(props: Props) {
       <div className="space-y-3 text-xs">
         {nextStatus && perms.update ? (
           awaitingOnlinePayment ? (
-            <p className="rounded-lg bg-amber-50 p-2 text-amber-800">Waiting for online payment. The order confirms automatically once the payment is verified.</p>
+            <p className="rounded-lg bg-warning-soft p-2 text-warning">Waiting for online payment. The order confirms automatically once the payment is verified.</p>
           ) : (
             <div className="space-y-2">
               <input className={inputCls} placeholder="Note for history (optional)" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
@@ -76,16 +76,16 @@ export function OrderActions(props: Props) {
                 Mark as {nextLabel}
               </Button>
               {nextStatus === 'DELIVERED' && paymentMethod === 'CASH_ON_DELIVERY' && (
-                <p className="text-[11px] text-gray-500">Marking delivered records the cash payment as collected.</p>
+                <p className="text-2xs text-ink-500">Marking delivered records the cash payment as collected.</p>
               )}
             </div>
           )
         ) : (
-          <p className="text-gray-500">{nextStatus ? 'You can view this order but not change its status.' : 'No further fulfilment steps.'}</p>
+          <p className="text-ink-500">{nextStatus ? 'You can view this order but not change its status.' : 'No further fulfilment steps.'}</p>
         )}
 
         {perms.cancel && CANCELLABLE.includes(status) && (
-          <div className="border-t border-gray-100 pt-3">
+          <div className="border-t border-line-subtle pt-3">
             {cancelOpen ? (
               <div className="space-y-2">
                 <textarea
@@ -115,7 +115,7 @@ export function OrderActions(props: Props) {
                     {cancelOpen === 'failed' ? 'Mark delivery failed' : 'Cancel order'}
                   </Button>
                 </div>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-2xs text-ink-500">
                   {cancelOpen === 'failed'
                     ? 'Goods are returned to the fulfilment warehouse stock. Paid orders get a refund request.'
                     : 'Stock is released or restocked. Paid orders get a refund request.'}
@@ -124,11 +124,11 @@ export function OrderActions(props: Props) {
             ) : (
               <div className="flex flex-wrap gap-3">
                 {status === 'OUT_FOR_DELIVERY' && (
-                  <button type="button" onClick={() => setCancelOpen('failed')} className="font-semibold text-red-600 hover:underline">
+                  <button type="button" onClick={() => setCancelOpen('failed')} className="font-semibold text-danger hover:underline">
                     Delivery failed…
                   </button>
                 )}
-                <button type="button" onClick={() => setCancelOpen('cancel')} className="font-semibold text-red-600 hover:underline">
+                <button type="button" onClick={() => setCancelOpen('cancel')} className="font-semibold text-danger hover:underline">
                   Cancel order…
                 </button>
               </div>
@@ -144,19 +144,19 @@ export function OrderActions(props: Props) {
     return (
       <div className="space-y-2">
         {refunds.map((r) => (
-          <div key={r.id} className="space-y-1.5 rounded-lg border border-gray-100 p-2">
+          <div key={r.id} className="space-y-1.5 rounded-lg border border-line-subtle p-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-semibold text-gray-800">
+              <span className="font-semibold text-ink-800">
                 {formatINR(r.amountPaise)} · {r.provider}
               </span>
               <StatusBadge status={r.status === 'PROCESSED' ? 'ACTIVE' : r.status === 'FAILED' ? 'OUT' : 'LOW'} label={r.status.toLowerCase()} />
             </div>
-            <p className="text-[11px] text-gray-500">
+            <p className="text-2xs text-ink-500">
               {r.reason}
               {r.reference ? ` · Ref ${r.reference}` : ''}
               {r.by ? ` · by ${r.by}` : ''}
             </p>
-            {r.failureReason && <p className="text-[11px] text-red-600">{r.failureReason}</p>}
+            {r.failureReason && <p className="text-2xs text-danger">{r.failureReason}</p>}
             {perms.refund && r.provider === 'RAZORPAY' && (r.status === 'REQUESTED' || r.status === 'FAILED') && (
               <Button size="sm" variant="primary" isLoading={busy} onClick={() => run(() => api(`/api/admin/refunds/${r.id}/initiate`, { body: {} }), 'Refund sent to the payment provider')}>
                 Initiate refund
@@ -203,11 +203,11 @@ export function OrderActions(props: Props) {
           </Button>
         </div>
       )}
-      {notes.length === 0 && <p className="text-gray-400">No notes yet.</p>}
+      {notes.length === 0 && <p className="text-ink-400">No notes yet.</p>}
       {notes.map((n) => (
-        <div key={n.id} className="rounded-lg bg-gray-50 p-2">
-          <p className="whitespace-pre-wrap text-gray-800">{n.note}</p>
-          <p className="mt-0.5 text-[10px] text-gray-400">
+        <div key={n.id} className="rounded-lg bg-surface-page p-2">
+          <p className="whitespace-pre-wrap text-ink-800">{n.note}</p>
+          <p className="mt-0.5 text-2xs text-ink-400">
             {n.by} · {new Date(n.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
           </p>
         </div>

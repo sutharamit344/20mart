@@ -38,7 +38,7 @@ export function ProductRowActions({
 
   return (
     <div className={`flex items-center justify-end gap-0.5 ${busy ? 'opacity-50' : ''}`}>
-      <Link href={`/products/${id}`} title={perms.update ? 'Edit' : 'View'} className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700">
+      <Link href={`/products/${id}`} title={perms.update ? 'Edit' : 'View'} className="rounded-md p-1.5 text-ink-400 hover:bg-surface-muted hover:text-ink-700">
         <Edit2 className="w-3.5 h-3.5" />
       </Link>
       {perms.update && status !== 'ARCHIVED' && (
@@ -52,7 +52,7 @@ export function ProductRowActions({
             )
           }
         >
-          {status === 'ACTIVE' ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+          {status === 'ACTIVE' ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5 text-success" />}
         </IconBtn>
       )}
       {perms.remove && status !== 'ARCHIVED' && (

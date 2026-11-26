@@ -51,11 +51,11 @@ export function DeliverySettingsForm({ initial, onlineConfigured }: { initial: S
   };
 
   const toggle = (k: 'deliveryEnabled' | 'codEnabled' | 'onlinePaymentEnabled', label: string, hint: string, disabled = false) => (
-    <label className={`flex items-start gap-2.5 rounded-lg border border-gray-200 p-2.5 ${disabled ? 'opacity-60' : ''}`}>
+    <label className={`flex items-start gap-2.5 rounded-lg border border-line p-2.5 ${disabled ? 'opacity-60' : ''}`}>
       <input type="checkbox" className="mt-0.5 h-4 w-4 accent-brand-green" disabled={disabled} checked={s[k]} onChange={(e) => setS({ ...s, [k]: e.target.checked })} />
       <span>
-        <span className="block text-xs font-semibold text-gray-900">{label}</span>
-        <span className="text-[11px] text-gray-500">{hint}</span>
+        <span className="block text-xs font-semibold text-ink">{label}</span>
+        <span className="text-2xs text-ink-500">{hint}</span>
       </span>
     </label>
   );
@@ -107,7 +107,7 @@ export function DeliverySettingsForm({ initial, onlineConfigured }: { initial: S
             <input className={inputCls} type="number" min={1} max={100} value={s.maxQtyPerLine} onChange={(e) => setS({ ...s, maxQtyPerLine: Number(e.target.value) })} />
           </div>
         </div>
-        <p className="text-[11px] text-gray-500">
+        <p className="text-2xs text-ink-500">
           Delivery estimates shown to customers come only from these hours. Set 24 or less only where you can actually deliver within a day.
         </p>
         <div className="flex justify-end">
@@ -166,7 +166,7 @@ export function PincodeManager({ items, total, q, zones }: { items: Pin[]; total
 
   return (
     <Panel title={`Delivery PIN codes (${total})`} bodyClassName="">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-b border-gray-100 p-3 sm:p-4 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 border-b border-line-subtle p-3 sm:p-4 text-xs">
         <div className="md:col-span-2">
           <label className={labelCls}>Add or update PIN codes (comma or newline separated)</label>
           <textarea className={textareaCls} rows={2} placeholder="380015, 380054, 380059" value={bulk} onChange={(e) => setBulk(e.target.value)} />
@@ -223,12 +223,12 @@ export function PincodeManager({ items, total, q, zones }: { items: Pin[]; total
           {items.length === 0 && <TableEmpty colSpan={7} title="No PIN codes configured" description="Customers cannot order until at least one serviceable PIN code is added." />}
           {items.map((p) => (
             <tr key={p.id}>
-              <Td className="font-mono font-bold text-gray-900">{p.pincode}</Td>
-              <Td>{[p.area, p.city].filter(Boolean).join(', ') || <span className="text-gray-300">—</span>}</Td>
+              <Td className="font-mono font-bold text-ink">{p.pincode}</Td>
+              <Td>{[p.area, p.city].filter(Boolean).join(', ') || <span className="text-ink-400">—</span>}</Td>
               <Td>
                 <select
                   aria-label={`Zone for ${p.pincode}`}
-                  className="h-7 rounded-md border border-gray-200 bg-white px-1.5 text-[11px]"
+                  className="h-7 rounded-md border border-line bg-surface px-1.5 text-2xs"
                   value={p.zone?.id ?? ''}
                   disabled={busy}
                   onChange={(e) => run(() => api('/api/admin/delivery/pincodes', { body: { pincode: p.pincode, isServiceable: p.isServiceable, area: p.area, city: p.city, deliveryFeePaise: p.deliveryFeePaise, estimateHours: p.estimateHours, zoneId: e.target.value || null } }), 'Zone updated')}
@@ -244,14 +244,14 @@ export function PincodeManager({ items, total, q, zones }: { items: Pin[]; total
               <Td>
                 <StatusBadge status={p.isServiceable ? 'ACTIVE' : 'OUT'} label={p.isServiceable ? 'Serviceable' : 'Blocked'} />
               </Td>
-              <Td className="text-right">{p.deliveryFeePaise !== null ? `₹${paiseToRupeeInput(p.deliveryFeePaise)}` : <span className="text-gray-300">default</span>}</Td>
-              <Td className="text-right">{p.estimateHours ? `${p.estimateHours}h` : <span className="text-gray-300">default</span>}</Td>
+              <Td className="text-right">{p.deliveryFeePaise !== null ? `₹${paiseToRupeeInput(p.deliveryFeePaise)}` : <span className="text-ink-400">default</span>}</Td>
+              <Td className="text-right">{p.estimateHours ? `${p.estimateHours}h` : <span className="text-ink-400">default</span>}</Td>
               <Td className="text-right whitespace-nowrap">
                 <button
                   type="button"
                   disabled={busy}
                   onClick={() => run(() => api('/api/admin/delivery/pincodes', { body: { pincode: p.pincode, isServiceable: !p.isServiceable, area: p.area, city: p.city, deliveryFeePaise: p.deliveryFeePaise, estimateHours: p.estimateHours } }), 'PIN code updated')}
-                  className="mr-1 rounded px-1.5 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-100"
+                  className="mr-1 rounded px-1.5 py-1 text-2xs font-semibold text-ink-600 hover:bg-surface-muted"
                 >
                   {p.isServiceable ? 'Block' : 'Allow'}
                 </button>
@@ -260,7 +260,7 @@ export function PincodeManager({ items, total, q, zones }: { items: Pin[]; total
                   disabled={busy}
                   aria-label={`Remove ${p.pincode}`}
                   onClick={() => run(() => api(`/api/admin/delivery/pincodes/${p.pincode}`, { method: 'DELETE' }), 'PIN code removed')}
-                  className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                  className="rounded p-1.5 text-ink-400 hover:bg-danger-soft hover:text-danger"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -318,7 +318,7 @@ export function ZoneManager({ zones }: { zones: Zone[] }) {
       setBusy(false);
     }
   };
-  const dflt = <span className="text-gray-300">default</span>;
+  const dflt = <span className="text-ink-400">default</span>;
   return (
     <Panel
       title={`Delivery zones (${zones.length})`}
@@ -328,11 +328,11 @@ export function ZoneManager({ zones }: { zones: Zone[] }) {
         </Button>
       }
     >
-      <p className="px-4 pt-2 text-[10px] text-gray-500">
+      <p className="px-4 pt-2 text-2xs text-ink-500">
         A zone groups PIN codes with a shared fee, estimate and minimum order. A PIN&apos;s own override wins over its zone; pausing a zone stops orders to all its PINs.
       </p>
       {edit && (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 border-b border-gray-100 p-3 text-xs items-end">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 border-b border-line-subtle p-3 text-xs items-end">
           <div className="col-span-2">
             <label className={labelCls}>Name</label>
             <input className={inputCls} value={f.name} maxLength={60} onChange={(e) => setF({ ...f, name: e.target.value })} />
@@ -376,7 +376,7 @@ export function ZoneManager({ zones }: { zones: Zone[] }) {
           {zones.length === 0 && <TableEmpty colSpan={7} title="No delivery areas" description="Create an area, assign PIN codes to it, then map a warehouse to it on the Warehouses page. PIN codes without an area cannot be delivered to." />}
           {zones.map((z) => (
             <tr key={z.id}>
-              <Td className="font-semibold text-gray-900">{z.name}</Td>
+              <Td className="font-semibold text-ink">{z.name}</Td>
               <Td className="text-right tabular-nums">{z.pincodeCount}</Td>
               <Td className="text-right">{z.deliveryFeePaise != null ? `₹${paiseToRupeeInput(z.deliveryFeePaise)}` : dflt}</Td>
               <Td className="text-right">{z.estimateHours ? `${z.estimateHours}h` : dflt}</Td>
@@ -385,10 +385,10 @@ export function ZoneManager({ zones }: { zones: Zone[] }) {
                 <StatusBadge status={z.isActive ? 'ACTIVE' : 'OUT'} label={z.isActive ? 'Active' : 'Paused'} />
               </Td>
               <Td className="text-right whitespace-nowrap">
-                <button type="button" disabled={busy} onClick={() => open(z)} className="mr-1 rounded px-1.5 py-1 text-[11px] font-semibold text-gray-600 hover:bg-gray-100">
+                <button type="button" disabled={busy} onClick={() => open(z)} className="mr-1 rounded px-1.5 py-1 text-2xs font-semibold text-ink-600 hover:bg-surface-muted">
                   Edit
                 </button>
-                <button type="button" disabled={busy} aria-label={`Delete zone ${z.name}`} onClick={() => remove(z)} className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600">
+                <button type="button" disabled={busy} aria-label={`Delete zone ${z.name}`} onClick={() => remove(z)} className="rounded p-1.5 text-ink-400 hover:bg-danger-soft hover:text-danger">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </Td>

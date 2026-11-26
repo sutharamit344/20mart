@@ -62,8 +62,8 @@ export function CouponActions({ id, isActive, canUpdate, canDelete }: { id: stri
             Customer emails (one per line or comma-separated, max 200)
           </label>
           <textarea id="issue-emails" rows={5} className={textareaCls} value={emails} onChange={(e) => setEmails(e.target.value)} />
-          <p className="text-[10px] text-gray-500">Only existing, active customer accounts receive it. Each customer is issued the coupon once and gets an in-app notification.</p>
-          {result && <p className="rounded-lg bg-gray-50 p-2 text-[11px] text-gray-700">{result}</p>}
+          <p className="text-2xs text-ink-500">Only existing, active customer accounts receive it. Each customer is issued the coupon once and gets an in-app notification.</p>
+          {result && <p className="rounded-lg bg-surface-page p-2 text-2xs text-ink-700">{result}</p>}
           <div className="flex justify-end">
             <Button
               size="sm"

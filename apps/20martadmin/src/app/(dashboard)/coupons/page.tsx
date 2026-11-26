@@ -60,31 +60,31 @@ export default async function CouponsPage(props: { searchParams: Promise<Record<
             {data.items.map((c) => {
               const s = couponState(c);
               return (
-                <tr key={c.id} className="hover:bg-gray-50/60">
+                <tr key={c.id} className="hover:bg-surface-muted/60">
                   <Td>
-                    <Link href={`/coupons/${c.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-brand-orange-600">
+                    <Link href={`/coupons/${c.id}`} className="font-mono text-2xs font-bold text-ink hover:text-brand-orange-600">
                       {c.code}
                     </Link>
-                    <p className="max-w-[14rem] truncate text-[10px] text-gray-500">{c.title}</p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="max-w-[14rem] truncate text-2xs text-ink-500">{c.title}</p>
+                    <p className="text-2xs text-ink-400">
                       {c.autoIssueOnSignup ? 'Auto-issued at sign-up' : c.requiresGrant ? 'Issued customers only' : 'Anyone with the code'}
                       {c._count.products + c._count.categories > 0 ? ' · selected items' : ''}
                     </p>
                   </Td>
                   <Td className="whitespace-nowrap">
-                    <p className="font-bold text-gray-900">{c.discountType === 'FIXED' ? formatINR(c.discountValue) : `${c.discountValue / 100}%`} off</p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="font-bold text-ink">{c.discountType === 'FIXED' ? formatINR(c.discountValue) : `${c.discountValue / 100}%`} off</p>
+                    <p className="text-2xs text-ink-400">
                       {c.minOrderValuePaise > 0 ? `min ${formatINR(c.minOrderValuePaise)}` : 'no minimum'}
                       {c.maxDiscountPaise != null ? ` · max ${formatINR(c.maxDiscountPaise)}` : ''}
                     </p>
                   </Td>
-                  <Td className="whitespace-nowrap text-gray-600">
+                  <Td className="whitespace-nowrap text-ink-600">
                     {when(c.startsAt)} → {when(c.endsAt)}
                   </Td>
                   <Td className="text-right tabular-nums">{c.issuedCount}</Td>
                   <Td className="text-right tabular-nums">
                     {c.redeemedCount}
-                    {c.usageLimit != null && <span className="text-gray-400"> / {c.usageLimit}</span>}
+                    {c.usageLimit != null && <span className="text-ink-400"> / {c.usageLimit}</span>}
                   </Td>
                   <Td className="text-right tabular-nums">{formatINR(c.discountGivenPaise)}</Td>
                   <Td>

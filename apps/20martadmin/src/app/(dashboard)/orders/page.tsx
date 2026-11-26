@@ -43,30 +43,30 @@ export default async function OrdersPage(props: { searchParams: Promise<Record<s
           <TBody>
             {data.items.length === 0 && <TableEmpty colSpan={7} title="No orders found" description="Orders placed on the storefront appear here." />}
             {data.items.map((o) => (
-              <tr key={o.id} className="hover:bg-gray-50/60">
+              <tr key={o.id} className="hover:bg-surface-muted/60">
                 <Td>
-                  <Link href={`/orders/${o.id}`} className="font-mono text-[11px] font-bold text-gray-900 hover:text-brand-orange-600">
+                  <Link href={`/orders/${o.id}`} className="font-mono text-2xs font-bold text-ink hover:text-brand-orange-600">
                     {o.orderNumber}
                   </Link>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-2xs text-ink-400">
                     {o._count.items} item{o._count.items === 1 ? '' : 's'} · {o.paymentMethod === 'CASH_ON_DELIVERY' ? 'COD' : 'Online'}
                   </p>
                 </Td>
                 <Td>
-                  <p className="font-semibold text-gray-800">{o.user.name ?? o.shipName}</p>
-                  <p className="text-[10px] text-gray-400">{o.user.email}</p>
+                  <p className="font-semibold text-ink-800">{o.user.name ?? o.shipName}</p>
+                  <p className="text-2xs text-ink-400">{o.user.email}</p>
                 </Td>
-                <Td className="whitespace-nowrap text-gray-500">{o.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</Td>
-                <Td className="text-right font-bold text-gray-900">{formatINR(o.totalPaise)}</Td>
+                <Td className="whitespace-nowrap text-ink-500">{o.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}</Td>
+                <Td className="text-right font-bold text-ink">{formatINR(o.totalPaise)}</Td>
                 <Td>
                   <StatusBadge status={o.paymentStatus === 'PAID' ? 'ACTIVE' : o.paymentStatus === 'FAILED' ? 'OUT' : o.paymentStatus.includes('REFUND') ? 'LOW' : 'DRAFT'} label={label(o.paymentStatus)} />
                 </Td>
                 <Td>
                   <StatusBadge status={o.status === 'DELIVERED' ? 'ACTIVE' : o.status === 'CANCELLED' || o.status === 'FAILED' ? 'OUT' : 'FEATURED'} label={orderStatusLabel(o.status)} />
                 </Td>
-                <Td className="font-mono text-[11px]">
+                <Td className="font-mono text-2xs">
                   {o.shipPincode}
-                  {o.fulfillmentWarehouse && <span className="block text-[10px] text-gray-400">{o.fulfillmentWarehouse.code}</span>}
+                  {o.fulfillmentWarehouse && <span className="block text-2xs text-ink-400">{o.fulfillmentWarehouse.code}</span>}
                 </Td>
               </tr>
             ))}

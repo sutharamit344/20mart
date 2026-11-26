@@ -47,18 +47,18 @@ export default async function CampaignsPage(props: { searchParams: Promise<Recor
           <TBody>
             {data.items.length === 0 && <TableEmpty colSpan={7} title="No campaigns" description="Create a promotion or a Fill Your Cart campaign." />}
             {data.items.map((c) => (
-              <tr key={c.id} className="hover:bg-gray-50/60">
+              <tr key={c.id} className="hover:bg-surface-muted/60">
                 <Td>
-                  <Link href={`/campaigns/${c.id}`} className="font-bold text-gray-900 hover:text-brand-orange-600">
+                  <Link href={`/campaigns/${c.id}`} className="font-bold text-ink hover:text-brand-orange-600">
                     {c.name}
                   </Link>
-                  <p className="font-mono text-[10px] text-gray-400">/campaigns/{c.slug}</p>
+                  <p className="font-mono text-2xs text-ink-400">/campaigns/{c.slug}</p>
                 </Td>
                 <Td>{c.type === 'FILL_YOUR_CART' ? 'Fill Your Cart' : 'Promotion'}</Td>
-                <Td className="whitespace-nowrap text-gray-600">
+                <Td className="whitespace-nowrap text-ink-600">
                   {when(c.startsAt)} → {when(c.endsAt)}
                 </Td>
-                <Td className="font-mono text-[11px]">{c.coupon?.code ?? '—'}</Td>
+                <Td className="font-mono text-2xs">{c.coupon?.code ?? '—'}</Td>
                 <Td className="text-right tabular-nums">{c._count.products}</Td>
                 <Td className="text-right tabular-nums">{c.type === 'FILL_YOUR_CART' ? c._count.participants : '—'}</Td>
                 <Td>

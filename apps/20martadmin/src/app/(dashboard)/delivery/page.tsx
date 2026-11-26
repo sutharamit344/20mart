@@ -25,7 +25,7 @@ export default async function DeliveryPage(props: { searchParams: Promise<{ q?: 
         title="Delivery & payments"
         description={`A PIN code is deliverable only when it is serviceable, belongs to an active delivery area, and that area is mapped to an active warehouse with stock. Nothing is promised elsewhere.${canEdit ? '' : ' Read-only: changing these needs delivery.update.'}`}
       />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-ink-500">
         Map delivery areas to fulfilment locations on the{' '}
         <Link href="/warehouses" className="font-semibold text-brand-orange-600 hover:underline">
           Warehouses
@@ -40,11 +40,11 @@ export default async function DeliveryPage(props: { searchParams: Promise<{ q?: 
       </fieldset>
       <Panel title={`Demand from unserved PIN codes (${interest.total})`} bodyClassName="p-3 sm:p-4">
         {interest.byPincode.length === 0 ? (
-          <p className="text-xs text-gray-500">No requests yet. Customers outside delivery areas can ask to be notified; requests are not orders or sales.</p>
+          <p className="text-xs text-ink-500">No requests yet. Customers outside delivery areas can ask to be notified; requests are not orders or sales.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5 text-xs">
             {interest.byPincode.map((r) => (
-              <span key={r.pincode} className="rounded-full bg-gray-100 px-2.5 py-1">
+              <span key={r.pincode} className="rounded-full bg-surface-muted px-2.5 py-1">
                 <b className="font-mono">{r.pincode}</b> · {r.count} {r.count === 1 ? 'person' : 'people'}
               </span>
             ))}

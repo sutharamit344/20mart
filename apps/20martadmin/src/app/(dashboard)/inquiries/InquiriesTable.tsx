@@ -42,20 +42,20 @@ export function InquiriesTable({ items, canManage }: { items: Inquiry[]; canMana
         <TBody>
           {items.length === 0 && <TableEmpty colSpan={6} title="No inquiries" description="Messages sent from the storefront contact form appear here." />}
           {items.map((i) => (
-            <tr key={i.id} className="cursor-pointer hover:bg-gray-50/60" onClick={() => setOpen(i)}>
-              <Td className="font-mono text-[11px] font-bold text-gray-900">{i.ticketNumber}</Td>
+            <tr key={i.id} className="cursor-pointer hover:bg-surface-muted/60" onClick={() => setOpen(i)}>
+              <Td className="font-mono text-2xs font-bold text-ink">{i.ticketNumber}</Td>
               <Td>
-                <p className="font-semibold text-gray-800">{i.name}</p>
-                <p className="text-[10px] text-gray-400">
+                <p className="font-semibold text-ink-800">{i.name}</p>
+                <p className="text-2xs text-ink-400">
                   {i.email}
                   {i.userId ? ' · customer' : ''}
                 </p>
               </Td>
               <Td className="max-w-[16rem]">
-                <p className="truncate font-semibold text-gray-800">{i.subject}</p>
-                <p className="truncate text-[10px] text-gray-400">{i.message}</p>
+                <p className="truncate font-semibold text-ink-800">{i.subject}</p>
+                <p className="truncate text-2xs text-ink-400">{i.message}</p>
               </Td>
-              <Td className="whitespace-nowrap text-gray-500">{when(i.createdAt)}</Td>
+              <Td className="whitespace-nowrap text-ink-500">{when(i.createdAt)}</Td>
               <Td>
                 <StatusBadge status={i.priority === 'HIGH' ? 'OUT' : i.priority === 'LOW' ? 'INACTIVE' : 'DRAFT'} label={nice(i.priority)} />
               </Td>
@@ -97,22 +97,22 @@ function InquiryDetail({ inquiry, canManage, onDone }: { inquiry: Inquiry; canMa
 
   return (
     <div className="space-y-3 text-xs">
-      <div className="rounded-lg bg-gray-50 p-3 space-y-0.5">
-        <p className="font-bold text-gray-900">{inquiry.name}</p>
+      <div className="rounded-lg bg-surface-page p-3 space-y-0.5">
+        <p className="font-bold text-ink">{inquiry.name}</p>
         <p>
           <a href={`mailto:${inquiry.email}`} className="text-brand-green underline">
             {inquiry.email}
           </a>
-          {inquiry.phone && <span className="text-gray-600"> · +91 {inquiry.phone}</span>}
+          {inquiry.phone && <span className="text-ink-600"> · +91 {inquiry.phone}</span>}
         </p>
-        <p className="text-[10px] text-gray-400">{when(inquiry.createdAt)}</p>
+        <p className="text-2xs text-ink-400">{when(inquiry.createdAt)}</p>
       </div>
       <div>
-        <p className="font-bold text-gray-900">{inquiry.subject}</p>
-        <p className="mt-1 whitespace-pre-wrap break-words text-gray-700">{inquiry.message}</p>
+        <p className="font-bold text-ink">{inquiry.subject}</p>
+        <p className="mt-1 whitespace-pre-wrap break-words text-ink-700">{inquiry.message}</p>
       </div>
       {canManage ? (
-        <div className="space-y-2 border-t border-gray-100 pt-3">
+        <div className="space-y-2 border-t border-line-subtle pt-3">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className={labelCls}>Status</label>
@@ -144,7 +144,7 @@ function InquiryDetail({ inquiry, canManage, onDone }: { inquiry: Inquiry; canMa
           </Button>
         </div>
       ) : (
-        inquiry.adminNotes && <p className="rounded-lg bg-amber-50 p-2 text-amber-900">Notes: {inquiry.adminNotes}</p>
+        inquiry.adminNotes && <p className="rounded-lg bg-warning-soft p-2 text-warning">Notes: {inquiry.adminNotes}</p>
       )}
     </div>
   );

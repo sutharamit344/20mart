@@ -91,23 +91,23 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
       <Panel
         title={
           <span className="inline-flex items-center gap-2">
-            Products {data && <span className="text-[11px] font-semibold text-gray-400">{data.total.toLocaleString('en-IN')}</span>}
-            {loading && data && <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" aria-label="Updating" />}
+            Products {data && <span className="text-2xs font-semibold text-ink-400">{data.total.toLocaleString('en-IN')}</span>}
+            {loading && data && <Loader2 className="h-3.5 w-3.5 animate-spin text-ink-400" aria-label="Updating" />}
           </span>
         }
         actions={
           <div className="flex items-center gap-1.5">
             {selected.size > 0 && (
-              <button type="button" onClick={() => setSelected(new Map())} className="h-7 rounded-lg px-2 text-[11px] font-semibold text-gray-500 hover:bg-gray-100">
+              <button type="button" onClick={() => setSelected(new Map())} className="h-7 rounded-lg px-2 text-2xs font-semibold text-ink-500 hover:bg-surface-muted">
                 Clear selection
               </button>
             )}
             {selected.size >= 2 ? (
-              <Link href={compareHref} className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-green px-2.5 text-[11px] font-bold text-white hover:bg-brand-green-hover">
+              <Link href={compareHref} className="inline-flex h-7 items-center gap-1 rounded-lg bg-brand-green px-2.5 text-2xs font-bold text-white hover:bg-brand-green-hover">
                 <GitCompare className="h-3.5 w-3.5" /> Compare {selected.size}
               </Link>
             ) : (
-              <span className="hidden text-[10px] text-gray-400 sm:inline" title="Tick 2–4 products to compare">
+              <span className="hidden text-2xs text-ink-400 sm:inline" title="Tick 2–4 products to compare">
                 Select 2–4 to compare
               </span>
             )}
@@ -115,9 +115,9 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
           </div>
         }
       >
-        <div className="flex flex-col gap-2 border-b border-gray-100 p-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-col gap-2 border-b border-line-subtle p-2.5 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative min-w-[180px] flex-1">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-400" />
             <input
               type="search"
               value={q}
@@ -125,7 +125,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
               placeholder="Search name or SKU…"
               aria-label="Search products by name or SKU"
               maxLength={100}
-              className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs text-gray-900 placeholder:text-gray-400 focus:border-brand-green focus:bg-white focus:outline-none"
+              className="h-9 w-full rounded-lg border border-line bg-surface-page pl-9 pr-3 text-xs text-ink placeholder:text-ink-400 focus:border-brand-green focus:bg-surface focus:outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -139,7 +139,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
                   setQ('');
                   set({ q: null, categoryId: null, availability: null, activity: null });
                 }}
-                className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-gray-500 hover:bg-gray-100"
+                className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2.5 text-xs font-semibold text-ink-500 hover:bg-surface-muted"
               >
                 <X className="h-3.5 w-3.5" /> Clear
               </button>
@@ -148,8 +148,8 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-gray-600 sm:min-w-[680px]" aria-busy={loading}>
-            <thead className="border-b border-gray-100 bg-gray-50/80 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+          <table className="w-full text-left text-xs text-ink-600 sm:min-w-[680px]" aria-busy={loading}>
+            <thead className="border-b border-line-subtle bg-surface-page/80 text-2xs font-semibold uppercase tracking-wide text-ink-500">
               <tr>
                 <th className="w-8 px-3 py-2">
                   <span className="sr-only">Select for comparison</span>
@@ -163,15 +163,15 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
                 <SortTh k="availability" label="Availability" sort={sort} dir={dir} onSort={toggleSort} hint={DEF.availability} />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-subtle">
               {data?.items.map((s) => (
                 <Row key={s.productId} s={s} range={range} checked={selected.has(s.productId)} disabled={!selected.has(s.productId) && selected.size >= MAX_COMPARE} onToggle={() => toggle(s)} />
               ))}
               {data && data.items.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-4 py-10 text-center">
-                    <p className="text-sm font-bold text-gray-800">{data.coverage.aggregatedDays === 0 ? 'No aggregated data for this range' : hasFilters ? 'No products match these filters' : 'No products in this range'}</p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="text-sm font-bold text-ink-800">{data.coverage.aggregatedDays === 0 ? 'No aggregated data for this range' : hasFilters ? 'No products match these filters' : 'No products in this range'}</p>
+                    <p className="mt-1 text-xs text-ink-500">
                       {data.coverage.aggregatedDays === 0 ? 'Daily aggregation runs at 03:00 IST; choose a range with aggregated days.' : hasFilters ? 'Try clearing a filter or widening the date range.' : 'Products appear once they are listed on an aggregated day.'}
                     </p>
                   </td>
@@ -179,7 +179,7 @@ export function ProductDemandClient({ maxDay, categories }: { maxDay: string; ca
               )}
               {!data && loading && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-xs text-gray-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-xs text-ink-400">
                     <Loader2 className="mx-auto h-4 w-4 animate-spin" aria-label="Loading products" />
                   </td>
                 </tr>
@@ -219,45 +219,45 @@ function Kpis({ data }: { data: ListResponse }) {
 function Row({ s, range, checked, disabled, onToggle }: { s: Summary; range: string; checked: boolean; disabled: boolean; onToggle: () => void }) {
   const a = s.availability;
   return (
-    <tr className={`hover:bg-gray-50/60 ${checked ? 'bg-emerald-50/40' : ''}`}>
+    <tr className={`hover:bg-surface-muted/60 ${checked ? 'bg-success-soft' : ''}`}>
       <td className="px-3 py-2">
         <input type="checkbox" checked={checked} disabled={disabled} onChange={onToggle} aria-label={`Select ${s.name} for comparison`} className="h-3.5 w-3.5 accent-brand-green" />
       </td>
       <td className="max-w-[200px] px-3 py-2 xl:max-w-[280px]">
-        <Link href={`${BASE}/${s.productId}${range ? `?${range}` : ''}`} className="block truncate font-bold text-gray-900 hover:text-brand-green hover:underline">
+        <Link href={`${BASE}/${s.productId}${range ? `?${range}` : ''}`} className="block truncate font-bold text-ink hover:text-brand-green hover:underline">
           {s.name}
         </Link>
-        <p className="flex items-center gap-1.5 truncate text-[10px] text-gray-400">
+        <p className="flex items-center gap-1.5 truncate text-2xs text-ink-400">
           <span className="font-mono">{s.sku}</span>
           {s.category && <span>· {s.category.name}</span>}
           {s.status !== 'ACTIVE' && <StatusBadge status={s.status} />}
           {s.eventCoverage !== 'FULL' && <CoverageBadge value={s.eventCoverage} title={`Event coverage for this product: ${s.eventCoverage}. ${DEF.coverage}`} />}
         </p>
         {/* Phones: key figures inline (the full columns appear from 640px). */}
-        <p className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] tabular-nums text-gray-500 sm:hidden">
+        <p className="mt-0.5 flex flex-wrap gap-x-2 text-2xs tabular-nums text-ink-500 sm:hidden">
           <span>{num(s.actual.unitsSold)} units</span>
           <span className="font-bold text-brand-green">{inr(s.actual.revenuePaise)}</span>
-          <span className="text-amber-700">est. lost {inr(s.estimated.lostRevenuePaise)}</span>
-          <span className={a.availabilityPct !== null && a.availabilityPct < 90 ? 'font-bold text-red-600' : ''}>avail. {pct(a.availabilityPct)}</span>
+          <span className="text-warning">est. lost {inr(s.estimated.lostRevenuePaise)}</span>
+          <span className={a.availabilityPct !== null && a.availabilityPct < 90 ? 'font-bold text-danger' : ''}>avail. {pct(a.availabilityPct)}</span>
         </p>
       </td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.orders)}</td>
       <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums">{num(s.actual.unitsSold)}</td>
       <td className="hidden px-2 py-2 text-right sm:table-cell font-bold tabular-nums text-brand-green">{inr(s.actual.revenuePaise)}</td>
-      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">{inr(s.estimated.lostRevenuePaise)}</td>
-      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-amber-700">
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-warning">{inr(s.estimated.lostRevenuePaise)}</td>
+      <td className="hidden px-2 py-2 text-right sm:table-cell tabular-nums text-warning">
         {num(s.estimated.outOfStockAttempts)}
-        {s.estimated.outOfStockUnits ? <span className="block text-[10px] text-gray-400">{s.estimated.outOfStockUnits} units</span> : null}
+        {s.estimated.outOfStockUnits ? <span className="block text-2xs text-ink-400">{s.estimated.outOfStockUnits} units</span> : null}
       </td>
       <td className="hidden px-2 py-2 text-right sm:table-cell">
-        <span className={`font-bold tabular-nums ${a.availabilityPct !== null && a.availabilityPct < 90 ? 'text-red-600' : 'text-gray-800'}`}>{pct(a.availabilityPct)}</span>
+        <span className={`font-bold tabular-nums ${a.availabilityPct !== null && a.availabilityPct < 90 ? 'text-danger' : 'text-ink-800'}`}>{pct(a.availabilityPct)}</span>
         <span className="mt-0.5 flex justify-end gap-1">
           {a.unstockedDays === s.daysWithData && s.daysWithData > 0 ? (
             <StatusBadge status="INACTIVE" label="Not stocked" />
           ) : a.inStockAtClose === false ? (
             <StatusBadge status="OUT" label="Out at end" />
           ) : a.stockoutDays > 0 ? (
-            <span className="text-[10px] text-gray-400">{a.stockoutDays} day{a.stockoutDays === 1 ? '' : 's'} with stockout</span>
+            <span className="text-2xs text-ink-400">{a.stockoutDays} day{a.stockoutDays === 1 ? '' : 's'} with stockout</span>
           ) : null}
         </span>
       </td>
@@ -269,8 +269,8 @@ function SortTh({ k, label, sort, dir, onSort, hint, estimate, className = 'text
   const active = sort === k;
   return (
     <th className={`whitespace-nowrap py-2 ${k === 'name' ? 'px-3' : 'hidden px-2 sm:table-cell'} ${className}`} aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-      <span className={`inline-flex items-center gap-1 ${estimate ? 'text-amber-700' : ''}`}>
-        <button type="button" onClick={() => onSort(k)} className={`inline-flex items-center gap-0.5 uppercase hover:text-gray-900 ${active ? 'text-gray-900' : ''}`}>
+      <span className={`inline-flex items-center gap-1 ${estimate ? 'text-warning' : ''}`}>
+        <button type="button" onClick={() => onSort(k)} className={`inline-flex items-center gap-0.5 uppercase hover:text-ink ${active ? 'text-ink' : ''}`}>
           {label}
           {active && (dir === 'asc' ? <ArrowUp className="h-3 w-3" aria-hidden /> : <ArrowDown className="h-3 w-3" aria-hidden />)}
         </button>
@@ -287,7 +287,7 @@ function Select({ label, name, options }: { label: string; name: string; options
       aria-label={label}
       value={params.get(name) ?? ''}
       onChange={(e) => set({ [name]: e.target.value || null })}
-      className="h-9 min-w-0 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 focus:border-brand-green focus:outline-none sm:w-auto"
+      className="h-9 min-w-0 rounded-lg border border-line bg-surface px-2.5 text-xs font-medium text-ink-700 focus:border-brand-green focus:outline-none sm:w-auto"
     >
       <option value="">{label}: all</option>
       {options.map((o) => (
@@ -300,10 +300,10 @@ function Select({ label, name, options }: { label: string; name: string; options
 }
 
 function Pager({ page, totalPages, total, pageSize, onPage }: { page: number; totalPages: number; total: number; pageSize: number; onPage: (p: number) => void }) {
-  const btn = 'inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-2 text-[11px] font-semibold border-gray-200 bg-white hover:bg-gray-50 disabled:border-gray-100 disabled:text-gray-300 disabled:hover:bg-white';
+  const btn = 'inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-2 text-2xs font-semibold border-line bg-surface hover:bg-surface-muted disabled:border-line-subtle disabled:text-ink-400 disabled:hover:bg-surface';
   const from = (page - 1) * pageSize + 1;
   return (
-    <div className="flex flex-col items-center justify-between gap-2 border-t border-gray-100 px-4 py-2.5 text-[11px] text-gray-500 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-2 border-t border-line-subtle px-4 py-2.5 text-2xs text-ink-500 sm:flex-row">
       <span>
         {page > totalPages ? 'Past the last page' : `${from}–${Math.min(total, page * pageSize)} of ${total.toLocaleString('en-IN')}`}
       </span>
@@ -311,7 +311,7 @@ function Pager({ page, totalPages, total, pageSize, onPage }: { page: number; to
         <button type="button" className={btn} disabled={page <= 1} onClick={() => onPage(Math.min(page - 1, totalPages))} aria-label="Previous page">
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
-        <span className="px-2 font-semibold text-gray-700">
+        <span className="px-2 font-semibold text-ink-700">
           {page} / {Math.max(1, totalPages)}
         </span>
         <button type="button" className={btn} disabled={page >= totalPages} onClick={() => onPage(page + 1)} aria-label="Next page">
@@ -359,11 +359,11 @@ export function ExportButton({ query, disabled }: { query: string; disabled?: bo
         onClick={run}
         disabled={disabled || state.busy}
         title="Download the filtered list (all pages, up to 5,000 products) as CSV. Empty cells mean no data."
-        className="inline-flex h-7 items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+        className="inline-flex h-7 items-center gap-1 rounded-lg border border-line bg-surface px-2.5 text-2xs font-bold text-ink-700 hover:bg-surface-muted disabled:opacity-40"
       >
         {state.busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} CSV
       </button>
-      <span role="status" aria-live="polite" className={`max-w-[220px] truncate text-[10px] font-semibold ${state.ok ? 'text-emerald-700' : 'text-red-600'}`} title={state.msg ?? undefined}>
+      <span role="status" aria-live="polite" className={`max-w-[220px] truncate text-2xs font-semibold ${state.ok ? 'text-success' : 'text-danger'}`} title={state.msg ?? undefined}>
         {state.msg}
       </span>
     </span>

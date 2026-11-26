@@ -26,13 +26,13 @@ export default async function EmailLogPage(props: { searchParams: Promise<Record
         description="Sent = accepted by Resend. Delivered / bounced only come from verified Resend webhooks — nothing is assumed."
       />
       {!configured && (
-        <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900">
+        <p role="status" className="rounded-lg border border-warning-line bg-warning-soft p-2.5 text-xs text-warning">
           Email is not configured: set <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code> (a verified sending domain). Until then emails are recorded as <b>Skipped</b> and customers still get in-app notifications.
         </p>
       )}
-      <div className="flex flex-wrap gap-1.5 text-[11px]">
+      <div className="flex flex-wrap gap-1.5 text-2xs">
         {STATUSES.map((s) => (
-          <span key={s} className="rounded-lg border border-gray-100 bg-white px-2 py-1">
+          <span key={s} className="rounded-lg border border-line-subtle bg-surface px-2 py-1">
             {nice(s)} <b className="tabular-nums">{data.byStatus[s] ?? 0}</b>
           </span>
         ))}
@@ -58,17 +58,17 @@ export default async function EmailLogPage(props: { searchParams: Promise<Record
             {data.items.length === 0 && <TableEmpty colSpan={6} title="No emails" description="Order, coupon and campaign emails appear here." />}
             {data.items.map((m) => (
               <tr key={m.id}>
-                <Td className="whitespace-nowrap text-gray-500">{when(m.createdAt)}</Td>
+                <Td className="whitespace-nowrap text-ink-500">{when(m.createdAt)}</Td>
                 <Td>{nice(m.type)}</Td>
                 <Td className="max-w-[18rem]">
-                  <p className="truncate font-semibold text-gray-800">{m.toEmail || '—'}</p>
-                  <p className="truncate text-[10px] text-gray-500">{m.subject}</p>
+                  <p className="truncate font-semibold text-ink-800">{m.toEmail || '—'}</p>
+                  <p className="truncate text-2xs text-ink-500">{m.subject}</p>
                 </Td>
                 <Td>
                   <StatusBadge status={TONE[m.status] ?? 'DRAFT'} label={nice(m.status)} />
                 </Td>
                 <Td className="tabular-nums">{m.attempts}</Td>
-                <Td className="max-w-[14rem] text-[10px] text-gray-500">
+                <Td className="max-w-[14rem] text-2xs text-ink-500">
                   {m.deliveredAt ? `Delivered ${when(m.deliveredAt)}` : m.sentAt ? `Accepted ${when(m.sentAt)}` : m.lastError ?? ''}
                   {canRetry && (m.status === 'FAILED' || m.status === 'SKIPPED') && <RetryEmail id={m.id} />}
                 </Td>

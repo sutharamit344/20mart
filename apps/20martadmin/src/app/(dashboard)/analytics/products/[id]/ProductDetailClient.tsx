@@ -74,7 +74,7 @@ export function ProductDetailClient({ id, maxDay }: { id: string; maxDay: string
   const [trend, setTrend] = useState<TrendKey>('units');
 
   const back = (
-    <Link href={`${BASE}${range ? `?${range}` : ''}`} className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-gray-500 hover:text-gray-800">
+    <Link href={`${BASE}${range ? `?${range}` : ''}`} className="inline-flex items-center gap-0.5 text-2xs font-semibold text-ink-500 hover:text-ink-800">
       <ChevronLeft className="h-3.5 w-3.5" /> All products
     </Link>
   );
@@ -104,10 +104,10 @@ export function ProductDetailClient({ id, maxDay }: { id: string; maxDay: string
       <div className="space-y-1">
         {back}
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-lg font-extrabold leading-tight text-gray-900 sm:text-xl">{p.name}</h1>
+          <h1 className="text-lg font-extrabold leading-tight text-ink sm:text-xl">{p.name}</h1>
           {p.status !== 'ACTIVE' && <StatusBadge status={p.status} />}
         </div>
-        <p className="text-[11px] text-gray-500">
+        <p className="text-2xs text-ink-500">
           <span className="font-mono">{p.sku}</span>
           {p.category && <> · {p.category.name}</>} · listed from {dayLabel(p.listedFromDay)}
         </p>
@@ -161,7 +161,7 @@ export function ProductDetailClient({ id, maxDay }: { id: string; maxDay: string
           points={trendPoints(data.daily, trend)}
           zeroLabel="All zero in this range"
         />
-        <p className="mt-1 text-[10px] text-gray-400">
+        <p className="mt-1 text-2xs text-ink-400">
           {trend === 'estLost' ? 'Estimate, not revenue. ' : ''}Dashed marks = no data ({missingDays} day{missingDays === 1 ? '' : 's'}: not aggregated, not listed{trend === 'estLost' || trend === 'views' || trend === 'cartAdds' ? ', or not tracked' : ''}).
         </p>
       </Panel>
@@ -181,18 +181,18 @@ export function ProductDetailClient({ id, maxDay }: { id: string; maxDay: string
 }
 
 function NoDataBox({ text }: { text: string }) {
-  return <p className="flex h-[150px] items-center justify-center rounded-lg bg-gray-50 text-center text-[11px] text-gray-400">{text}</p>;
+  return <p className="flex h-[150px] items-center justify-center rounded-lg bg-surface-page text-center text-2xs text-ink-400">{text}</p>;
 }
 
 function Warehouses({ rows }: { rows: DetailResponse['warehouses'] }) {
   return (
     <Panel title={<span className="inline-flex items-center gap-1">Stock by warehouse <Hint text="Each stock row (product or variant × warehouse), including paused warehouses. Availability per row; history replayed from stock movements." /></span>}>
       {rows.length === 0 ? (
-        <p className="px-4 py-8 text-center text-xs text-gray-400">No stock rows tracked in this range.</p>
+        <p className="px-4 py-8 text-center text-xs text-ink-400">No stock rows tracked in this range.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-xs text-gray-600">
-            <thead className="border-b border-gray-100 bg-gray-50/80 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+          <table className="w-full min-w-[720px] text-left text-xs text-ink-600">
+            <thead className="border-b border-line-subtle bg-surface-page/80 text-2xs font-semibold uppercase tracking-wide text-ink-500">
               <tr>
                 <th className="px-3 py-2">Warehouse</th>
                 <th className="px-3 py-2 text-right">Availability</th>
@@ -205,38 +205,38 @@ function Warehouses({ rows }: { rows: DetailResponse['warehouses'] }) {
                 <th className="px-3 py-2">History</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-line-subtle">
               {rows.map((w) => (
-                <tr key={w.inventoryId} className={w.warehouse.active ? '' : 'bg-gray-50/60'}>
+                <tr key={w.inventoryId} className={w.warehouse.active ? '' : 'bg-surface-page/60'}>
                   <td className="px-3 py-2 align-top">
-                    <p className="flex items-center gap-1.5 font-bold text-gray-900">
+                    <p className="flex items-center gap-1.5 font-bold text-ink">
                       {w.warehouse.name}
                       {!w.warehouse.active && <StatusBadge status="INACTIVE" label="Paused" />}
                     </p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-2xs text-ink-400">
                       {w.warehouse.code && <span className="font-mono">{w.warehouse.code}</span>}
                       {w.variant && <> · {w.variant.name ?? w.variant.sku}</>} · {w.daysTracked} day{w.daysTracked === 1 ? '' : 's'}
                     </p>
                     {w.inconsistentDays > 0 && (
-                      <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700" title="Stock history on these days produced impossible quantities (incomplete movement history); figures may be approximate.">
+                      <p className="mt-0.5 inline-flex items-center gap-1 text-2xs font-semibold text-warning" title="Stock history on these days produced impossible quantities (incomplete movement history); figures may be approximate.">
                         <AlertTriangle className="h-3 w-3" /> {w.inconsistentDays} day(s) with incomplete history
                       </p>
                     )}
                   </td>
-                  <td className={`px-3 py-2 text-right align-top font-bold tabular-nums ${w.availabilityPct !== null && w.availabilityPct < 90 ? 'text-red-600' : 'text-gray-800'}`}>{pct(w.availabilityPct)}</td>
+                  <td className={`px-3 py-2 text-right align-top font-bold tabular-nums ${w.availabilityPct !== null && w.availabilityPct < 90 ? 'text-danger' : 'text-ink-800'}`}>{pct(w.availabilityPct)}</td>
                   <td className="px-3 py-2 text-right align-top tabular-nums">{duration(w.stockoutMinutes)}</td>
                   <td className="px-3 py-2 text-right align-top tabular-nums">{num(w.stockouts)}</td>
                   <td className="px-3 py-2 text-right align-top tabular-nums">{duration(w.longestStockoutMinutes)}</td>
                   <td className="px-3 py-2 text-right align-top tabular-nums">
-                    {w.closing.available} / {w.closing.reserved} / <b className={w.closing.sellable > 0 ? 'text-gray-900' : 'text-red-600'}>{w.closing.sellable}</b>
-                    <span className="block text-[10px] text-gray-400">{dayLabel(w.closing.day, false)}</span>
+                    {w.closing.available} / {w.closing.reserved} / <b className={w.closing.sellable > 0 ? 'text-ink' : 'text-danger'}>{w.closing.sellable}</b>
+                    <span className="block text-2xs text-ink-400">{dayLabel(w.closing.day, false)}</span>
                   </td>
                   <td className="px-3 py-2 align-top">
                     <details>
-                      <summary className="cursor-pointer select-none text-[11px] font-semibold text-gray-500 hover:text-gray-800">Daily</summary>
-                      <div className="mt-1 max-h-56 overflow-auto rounded-lg border border-gray-100">
-                        <table className="w-full text-[10px]">
-                          <thead className="bg-gray-50 text-gray-500">
+                      <summary className="cursor-pointer select-none text-2xs font-semibold text-ink-500 hover:text-ink-800">Daily</summary>
+                      <div className="mt-1 max-h-56 overflow-auto rounded-lg border border-line-subtle">
+                        <table className="w-full text-2xs">
+                          <thead className="bg-surface-page text-ink-500">
                             <tr>
                               <th className="px-1.5 py-1 text-left">Day</th>
                               <th className="px-1.5 py-1 text-right">Open→close</th>
@@ -246,17 +246,17 @@ function Warehouses({ rows }: { rows: DetailResponse['warehouses'] }) {
                           </thead>
                           <tbody>
                             {w.daily.map((d) => (
-                              <tr key={d.day} className="border-t border-gray-50">
+                              <tr key={d.day} className="border-t border-line-subtle">
                                 <td className="whitespace-nowrap px-1.5 py-0.5">
                                   {dayLabel(d.day, false)}
-                                  {!d.warehouseActive && <span className="text-gray-400"> (paused)</span>}
-                                  {!d.consistent && <span className="text-amber-700" title="Incomplete movement history"> !</span>}
+                                  {!d.warehouseActive && <span className="text-ink-400"> (paused)</span>}
+                                  {!d.consistent && <span className="text-warning" title="Incomplete movement history"> !</span>}
                                 </td>
                                 <td className="px-1.5 py-0.5 text-right tabular-nums">
                                   {d.openingAvailable}→{d.closingAvailable}
                                 </td>
                                 <td className="px-1.5 py-0.5 text-right tabular-nums">{d.closingSellable}</td>
-                                <td className={`px-1.5 py-0.5 text-right tabular-nums ${d.stockoutMinutes ? 'font-bold text-red-600' : ''}`}>{d.stockoutMinutes ? duration(d.stockoutMinutes) : '0'}</td>
+                                <td className={`px-1.5 py-0.5 text-right tabular-nums ${d.stockoutMinutes ? 'font-bold text-danger' : ''}`}>{d.stockoutMinutes ? duration(d.stockoutMinutes) : '0'}</td>
                               </tr>
                             ))}
                           </tbody>

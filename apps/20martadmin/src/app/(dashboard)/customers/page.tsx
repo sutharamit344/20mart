@@ -47,22 +47,22 @@ export default async function CustomersPage(props: { searchParams: Promise<Recor
           <TBody>
             {data.items.length === 0 && <TableEmpty colSpan={7} title="No customers found" />}
             {data.items.map((c) => (
-              <tr key={c.id} className="hover:bg-gray-50/60">
+              <tr key={c.id} className="hover:bg-surface-muted/60">
                 <Td>
-                  <Link href={`/customers/${c.id}`} className="font-semibold text-gray-900 hover:text-brand-orange-600">
+                  <Link href={`/customers/${c.id}`} className="font-semibold text-ink hover:text-brand-orange-600">
                     {c.name ?? '—'}
                   </Link>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-2xs text-ink-400">
                     {c.email}
                     {c._count.campaignJoins > 0 ? ' · campaign' : ''}
                     {c.profile?.marketingOptIn ? ' · offers opt-in' : ''}
                   </p>
                 </Td>
-                <Td className="text-gray-600">{c.profile?.phone ? `+91 ${c.profile.phone}` : '—'}</Td>
+                <Td className="text-ink-600">{c.profile?.phone ? `+91 ${c.profile.phone}` : '—'}</Td>
                 <Td className="text-right tabular-nums">{c._count.orders}</Td>
                 <Td className="text-right tabular-nums">{formatINR(c.paidSpendPaise)}</Td>
                 <Td className="text-right tabular-nums">{c._count.redemptions}</Td>
-                <Td className="whitespace-nowrap text-gray-500">{day(c.createdAt)}</Td>
+                <Td className="whitespace-nowrap text-ink-500">{day(c.createdAt)}</Td>
                 <Td>
                   <StatusBadge status={c.status} />
                 </Td>

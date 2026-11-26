@@ -56,21 +56,21 @@ export function SkuSearch({ onPick, autoFocus }: { onPick: (s: SkuPick) => void;
   return (
     <div className="space-y-1">
       <input className={inputCls} placeholder="Search product name or SKU…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus={autoFocus} />
-      {loading && <p className="text-[10px] text-gray-400">Searching…</p>}
+      {loading && <p className="text-2xs text-ink-400">Searching…</p>}
       {results.length > 0 && (
-        <ul className="max-h-48 overflow-y-auto rounded-lg border border-gray-100 divide-y divide-gray-50">
+        <ul className="max-h-48 overflow-y-auto rounded-lg border border-line-subtle divide-y divide-line-subtle">
           {results.map((r) => (
             <li key={`${r.productId}:${r.variantId ?? ''}`}>
               <button
                 type="button"
-                className="w-full text-left px-2.5 py-1.5 hover:bg-orange-50"
+                className="w-full text-left px-2.5 py-1.5 hover:bg-brand-orange-50"
                 onClick={() => {
                   onPick(r);
                   setQ('');
                   setResults([]);
                 }}
               >
-                <span className="font-semibold text-gray-900">{r.label}</span> <span className="font-mono text-[10px] text-gray-400">{r.sku}</span>
+                <span className="font-semibold text-ink">{r.label}</span> <span className="font-mono text-2xs text-ink-400">{r.sku}</span>
               </button>
             </li>
           ))}
@@ -129,10 +129,10 @@ export function AddStockButton({ warehouses, defaultWarehouseId }: { warehouses:
       {open && (
         <Modal isOpen onClose={() => setOpen(false)} title="Add stock at a warehouse" maxWidth="md">
           <form onSubmit={submit} className="space-y-3 text-xs">
-            <p className="rounded-lg bg-gray-50 p-2 text-gray-600">
+            <p className="rounded-lg bg-surface-page p-2 text-ink-600">
               For goods from a supplier, prefer receiving them on a purchase order. Use this for opening stock or stock found during a count.
             </p>
-            {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+            {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
             <div>
               <label className={labelCls}>Warehouse *</label>
               <select className={inputCls} required value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)}>
@@ -148,11 +148,11 @@ export function AddStockButton({ warehouses, defaultWarehouseId }: { warehouses:
             <div>
               <label className={labelCls}>Product *</label>
               {sku ? (
-                <div className="flex items-center justify-between rounded-lg border border-gray-200 p-2">
+                <div className="flex items-center justify-between rounded-lg border border-line p-2">
                   <span>
-                    <b>{sku.label}</b> <span className="font-mono text-[10px] text-gray-400">{sku.sku}</span>
+                    <b>{sku.label}</b> <span className="font-mono text-2xs text-ink-400">{sku.sku}</span>
                   </span>
-                  <button type="button" className="text-[11px] font-semibold text-brand-orange-600" onClick={() => setSku(null)}>
+                  <button type="button" className="text-2xs font-semibold text-brand-orange-600" onClick={() => setSku(null)}>
                     Change
                   </button>
                 </div>

@@ -25,7 +25,7 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
           can('products.create') ? (
             <div className="flex items-center gap-2">
               {can('products.update') && can('media.upload') && can('inventory.adjust') && (
-                <Link href="/products/import" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                <Link href="/products/import" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-semibold text-ink-700 hover:bg-surface-muted">
                   <Upload className="w-3.5 h-3.5" /> Bulk import
                 </Link>
               )}
@@ -71,25 +71,25 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
               />
             )}
             {data.items.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50/60">
+              <tr key={p.id} className="hover:bg-surface-muted/60">
                 <Td>
                   <Link href={`/products/${p.id}`} className="flex items-center gap-2.5 min-w-0 group">
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-line-subtle bg-surface">
                       {p.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={resolveImageSrc(p.image.url)} alt="" className="h-full w-full object-contain" loading="lazy" />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-gray-300">
+                        <div className="flex h-full w-full items-center justify-center text-ink-400">
                           <Package className="w-4 h-4" />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 max-w-[16rem]">
-                      <p className="truncate font-semibold text-gray-900 group-hover:text-brand-orange-600">
+                      <p className="truncate font-semibold text-ink group-hover:text-brand-orange-600">
                         {p.name}
                         {p.isFeatured && <Star className="ml-1 inline w-3 h-3 fill-brand-orange text-brand-orange" aria-label="Featured" />}
                       </p>
-                      <p className="truncate font-mono text-[10px] text-gray-400">
+                      <p className="truncate font-mono text-2xs text-ink-400">
                         {p.sku}
                         {p._count.variants > 0 && ` · ${p._count.variants} variant${p._count.variants > 1 ? 's' : ''}`}
                       </p>
@@ -97,13 +97,13 @@ export default async function ProductsPage(props: { searchParams: Promise<Record
                   </Link>
                 </Td>
                 <Td className="whitespace-nowrap">{p.category.name}</Td>
-                <Td className="whitespace-nowrap">{p.brand?.name ?? <span className="text-gray-300">—</span>}</Td>
+                <Td className="whitespace-nowrap">{p.brand?.name ?? <span className="text-ink-400">—</span>}</Td>
                 <Td className="text-right whitespace-nowrap">
-                  <span className="font-bold text-gray-900">{formatINR(p.sellingPricePaise)}</span>
-                  {p.mrpPaise > p.sellingPricePaise && <span className="ml-1 text-[10px] text-gray-400 line-through">{formatINR(p.mrpPaise)}</span>}
+                  <span className="font-bold text-ink">{formatINR(p.sellingPricePaise)}</span>
+                  {p.mrpPaise > p.sellingPricePaise && <span className="ml-1 text-2xs text-ink-400 line-through">{formatINR(p.mrpPaise)}</span>}
                 </Td>
                 <Td className="text-right whitespace-nowrap">
-                  <span className="mr-1.5 font-semibold text-gray-800">{p.stock.sellable}</span>
+                  <span className="mr-1.5 font-semibold text-ink-800">{p.stock.sellable}</span>
                   <StatusBadge status={p.stock.state} />
                 </Td>
                 <Td>

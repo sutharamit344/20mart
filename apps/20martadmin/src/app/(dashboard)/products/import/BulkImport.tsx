@@ -312,19 +312,19 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
     <div className="space-y-3 sm:space-y-4">
       <Panel title="1. Files" actions={<button type="button" onClick={downloadTemplate} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-orange-600 hover:underline cursor-pointer"><Download className="w-3.5 h-3.5" /> Template</button>}>
         <div className="grid gap-3 p-4 sm:grid-cols-2">
-          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 p-3 hover:bg-gray-50">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line-strong p-3 hover:bg-surface-muted">
             <FileSpreadsheet className="w-5 h-5 text-brand-green shrink-0" />
             <span className="min-w-0 text-xs">
-              <span className="block font-semibold text-gray-900">{sheetName ?? 'Choose spreadsheet (.xlsx or .csv)'}</span>
-              <span className="text-gray-500">{sheetName ? `${plan.length} product rows (first sheet)` : 'One product per row, headers in the first row'}</span>
+              <span className="block font-semibold text-ink">{sheetName ?? 'Choose spreadsheet (.xlsx or .csv)'}</span>
+              <span className="text-ink-500">{sheetName ? `${plan.length} product rows (first sheet)` : 'One product per row, headers in the first row'}</span>
             </span>
             <input type="file" accept=".xlsx,.csv" className="sr-only" disabled={running} onChange={(e) => void onSheet(e.target.files?.[0])} />
           </label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 p-3 hover:bg-gray-50">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line-strong p-3 hover:bg-surface-muted">
             <FolderOpen className="w-5 h-5 text-brand-orange-600 shrink-0" />
             <span className="min-w-0 text-xs">
-              <span className="block font-semibold text-gray-900">{images.length ? `${images.length} image files selected` : 'Choose images folder'}</span>
-              <span className="text-gray-500">Matched to each row&apos;s Image Path (JPEG, PNG, WebP, AVIF · max 5 MB)</span>
+              <span className="block font-semibold text-ink">{images.length ? `${images.length} image files selected` : 'Choose images folder'}</span>
+              <span className="text-ink-500">Matched to each row&apos;s Image Path (JPEG, PNG, WebP, AVIF · max 5 MB)</span>
             </span>
             <input
               ref={folderRef}
@@ -335,7 +335,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
               onChange={(e) => setImages(Array.from(e.target.files ?? []).filter((f) => /\.(jpe?g|png|webp|avif)$/i.test(f.name)))}
             />
           </label>
-          {sheetError && <p className="sm:col-span-2 text-xs text-red-600">{sheetError}</p>}
+          {sheetError && <p className="sm:col-span-2 text-xs text-danger">{sheetError}</p>}
         </div>
       </Panel>
 
@@ -354,10 +354,10 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                   ))}
                 </select>
                 {warehouse && warehouse.status !== 'ACTIVE' && (
-                  <p className="mt-1 text-[11px] text-amber-700">This warehouse is {warehouse.status.toLowerCase()}: customers cannot buy its stock until it is active and linked to a delivery zone.</p>
+                  <p className="mt-1 text-2xs text-warning">This warehouse is {warehouse.status.toLowerCase()}: customers cannot buy its stock until it is active and linked to a delivery zone.</p>
                 )}
                 {!warehouses.length && (
-                  <p className="mt-1 text-[11px] text-amber-700">
+                  <p className="mt-1 text-2xs text-warning">
                     No warehouses yet. <Link href="/warehouses" className="underline">Create one</Link> and link it to a delivery zone first.
                   </p>
                 )}
@@ -374,7 +374,7 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                   </label>
                 </div>
               </div>
-              <label className="inline-flex items-center gap-2 text-xs text-gray-800">
+              <label className="inline-flex items-center gap-2 text-xs text-ink-800">
                 <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} disabled={running} />
                 Publish products (visible on the store) after import — otherwise they stay as drafts
               </label>
@@ -384,10 +384,10 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
               <div className="space-y-1.5">
                 {fileCategories.map((fc) => (
                   <div key={fc} className="flex items-center gap-2 text-xs">
-                    <span className="w-40 shrink-0 truncate font-medium text-gray-800" title={fc}>
-                      {fc} <span className="text-gray-400">({plan.filter((p) => p.fileCategory === fc).length})</span>
+                    <span className="w-40 shrink-0 truncate font-medium text-ink-800" title={fc}>
+                      {fc} <span className="text-ink-400">({plan.filter((p) => p.fileCategory === fc).length})</span>
                     </span>
-                    <span className="text-gray-400">→</span>
+                    <span className="text-ink-400">→</span>
                     <select className={inputCls} value={catMap[fc] ?? ''} onChange={(e) => setCatMap((m) => ({ ...m, [fc]: e.target.value }))} disabled={running}>
                       <option value="">Choose a category</option>
                       {activeCats.map((c) => (
@@ -410,13 +410,13 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
           actions={
             <div className="flex items-center gap-2">
               {running ? (
-                <button type="button" onClick={() => (stopRef.current = true)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">
+                <button type="button" onClick={() => (stopRef.current = true)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line px-3 text-xs font-semibold text-ink-700 hover:bg-surface-muted cursor-pointer">
                   <Square className="w-3.5 h-3.5" /> Stop after current
                 </button>
               ) : (
                 <>
                   {(counts.failed ?? 0) > 0 && (
-                    <button type="button" onClick={() => void run(true)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">
+                    <button type="button" onClick={() => void run(true)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line px-3 text-xs font-semibold text-ink-700 hover:bg-surface-muted cursor-pointer">
                       <RotateCcw className="w-3.5 h-3.5" /> Retry failed
                     </button>
                   )}
@@ -433,13 +433,13 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
             </div>
           }
         >
-          <div className="flex flex-wrap gap-x-4 gap-y-1 px-4 py-2 text-xs text-gray-600 border-b border-gray-100">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 px-4 py-2 text-xs text-ink-600 border-b border-line-subtle">
             {invalid.length > 0 ? (
-              <span className="font-semibold text-red-600">{invalid.length} row(s) need fixing before import</span>
+              <span className="font-semibold text-danger">{invalid.length} row(s) need fixing before import</span>
             ) : (
               <span className="text-brand-green font-semibold">All rows valid</span>
             )}
-            {anyStock && !warehouse && <span className="font-semibold text-red-600">Select a stock warehouse</span>}
+            {anyStock && !warehouse && <span className="font-semibold text-danger">Select a stock warehouse</span>}
             {finished > 0 && (
               <span>
                 {counts.done ?? 0} imported · {counts.skipped ?? 0} skipped · {counts.failed ?? 0} failed · {plan.length - finished} remaining
@@ -463,24 +463,24 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                 const s = status[p.line];
                 return (
                   <tr key={p.line} className="align-top">
-                    <Td className="text-gray-400">{p.line}</Td>
-                    <Td>{p.image ? <Thumb file={p.image} /> : <div className="h-10 w-10 rounded bg-gray-100" />}</Td>
+                    <Td className="text-ink-400">{p.line}</Td>
+                    <Td>{p.image ? <Thumb file={p.image} /> : <div className="h-10 w-10 rounded bg-surface-muted" />}</Td>
                     <Td>
-                      <div className="font-mono text-[11px] text-gray-500">{p.sku || '—'}</div>
-                      <div className="max-w-xs truncate font-medium text-gray-900" title={p.name}>
+                      <div className="font-mono text-2xs text-ink-500">{p.sku || '—'}</div>
+                      <div className="max-w-xs truncate font-medium text-ink" title={p.name}>
                         {p.name || '—'}
                       </div>
                     </Td>
                     <Td className="text-xs">
-                      <div className="text-gray-500">{p.fileCategory || '—'}</div>
-                      <div className="font-medium text-gray-800">{activeCats.find((c) => c.id === catMap[p.fileCategory])?.name ?? '—'}</div>
+                      <div className="text-ink-500">{p.fileCategory || '—'}</div>
+                      <div className="font-medium text-ink-800">{activeCats.find((c) => c.id === catMap[p.fileCategory])?.name ?? '—'}</div>
                     </Td>
                     <Td className="text-right">{p.pricePaise ? formatINR(p.pricePaise) : '—'}</Td>
                     <Td className="text-right">{p.mrpPaise ? formatINR(p.mrpPaise) : '—'}</Td>
                     <Td className="text-right">{qtyFor(p)}</Td>
                     <Td className="text-xs">
                       {s?.state === 'running' ? (
-                        <span className="inline-flex items-center gap-1 text-blue-700">
+                        <span className="inline-flex items-center gap-1 text-info">
                           <Loader2 className="w-3.5 h-3.5 animate-spin" /> Importing…
                         </span>
                       ) : s?.state === 'done' ? (
@@ -488,15 +488,15 @@ export function BulkImport({ categories, warehouses, pricePoints }: { categories
                           <CheckCircle2 className="w-3.5 h-3.5" /> {s.note ?? (publish ? 'Imported and published' : 'Imported as draft')}
                         </span>
                       ) : s?.state === 'skipped' ? (
-                        <span className="text-gray-500">{s.note}</span>
+                        <span className="text-ink-500">{s.note}</span>
                       ) : s?.state === 'failed' ? (
-                        <span className="inline-flex items-start gap-1 text-red-600">
+                        <span className="inline-flex items-start gap-1 text-danger">
                           <XCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" /> {s.note}
                         </span>
                       ) : errs.length ? (
-                        <span className="text-red-600">{errs.join(' · ')}</span>
+                        <span className="text-danger">{errs.join(' · ')}</span>
                       ) : (
-                        <span className="text-gray-500">Ready</span>
+                        <span className="text-ink-500">Ready</span>
                       )}
                     </Td>
                   </tr>
@@ -518,5 +518,5 @@ function Thumb({ file }: { file: File }) {
     return () => URL.revokeObjectURL(u);
   }, [file]);
   // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
-  return url ? <img src={url} alt="" className="h-10 w-10 rounded object-cover border border-gray-100" /> : null;
+  return url ? <img src={url} alt="" className="h-10 w-10 rounded object-cover border border-line-subtle" /> : null;
 }

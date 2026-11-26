@@ -17,7 +17,6 @@ import {
   FolderTree,
   BadgeCheck,
   X,
-  LogOut,
   Truck,
   BarChart3,
   TicketPercent,
@@ -26,6 +25,8 @@ import {
   Warehouse,
   Factory,
   ClipboardList,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 export interface SidebarUser {
@@ -43,16 +44,21 @@ interface NavItem {
 }
 
 interface AdminSidebarProps {
+  /** @deprecated Shown in the header user menu. Kept for API compatibility. */
   user: SidebarUser;
   permissions: string[];
   open: boolean;
   onClose: () => void;
+  /** @deprecated Sign out now lives in the header user menu. Kept for API compatibility. */
   onLogout?: () => void;
   storefrontUrl?: string;
   inquiriesBadge?: number;
+  /** Desktop icon-only mode (persisted by AdminShell). */
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
-const initials = (name: string) =>
+export const initials = (name: string) =>
   name
     .split(' ')
     .filter(Boolean)
@@ -61,13 +67,13 @@ const initials = (name: string) =>
     .join('');
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
-  user,
   permissions,
   open,
   onClose,
-  onLogout,
   storefrontUrl = 'http://localhost:3000',
   inquiriesBadge = 0,
+  collapsed = false,
+  onToggleCollapsed,
 }) => {
   const pathname = usePathname();
 
@@ -126,108 +132,115 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   ]
     .map((s) => ({ ...s, items: s.items.filter((i) => can(i.permission)) }))
     .filter((s) => s.items.length > 0);
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
     <>
       {/* Mobile backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] transition-opacity lg:hidden ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        className={`fixed inset-0 z-40 bg-ink/40 transition-opacity lg:hidden ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
         onClick={onClose}
         aria-hidden="true"
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 lg:w-60 bg-brand-green-900 text-white flex flex-col justify-between shrink-0 h-screen overflow-y-auto select-none transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
-          open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 select-none flex-col bg-brand-green-900 text-white transition-[transform,width] duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+          collapsed ? 'lg:w-[68px]' : 'lg:w-60'
+        } ${open ? 'translate-x-0 shadow-pop' : '-translate-x-full'}`}
         aria-label="Admin navigation"
       >
-        <div className="p-3.5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/10">
-            <Link href="/" className="flex items-center gap-2">
+        {/* Brand */}
+        <div className={`flex h-14 shrink-0 items-center border-b border-white/10 ${collapsed ? 'lg:justify-center lg:px-0' : ''} justify-between px-3.5`}>
+          <Link href="/" className="flex items-center gap-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60" aria-label="Admin dashboard">
+            <span className={collapsed ? 'lg:hidden' : ''}>
               <Logo size="sm" inverted={true} />
-            </Link>
-            <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded-md bg-brand-orange text-[9px] font-black uppercase tracking-wider text-white">
-                Admin
+            </span>
+            {collapsed && (
+              <span className="hidden lg:inline-flex">
+                <Logo variant="icon" size="sm" />
               </span>
-              <button
-                type="button"
-                onClick={onClose}
-                className="lg:hidden rounded-lg p-1 text-emerald-100 hover:bg-white/10"
-                aria-label="Close menu"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            )}
+          </Link>
+          <div className={`flex items-center gap-1 ${collapsed ? 'lg:hidden' : ''}`}>
+            <span className="rounded-md bg-brand-orange px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">Admin</span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
+              aria-label="Close menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-
-          <nav className="space-y-3.5">
-            {navSections.map((section) => (
-              <div key={section.title} className="space-y-0.5">
-                <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-300/60 px-2.5 pb-0.5">
-                  {section.title}
-                </p>
-                {section.items.map((item) => {
-                  const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                        isActive
-                          ? 'bg-brand-orange text-white shadow-xs'
-                          : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                      {!!item.badge && item.badge > 0 && (
-                        <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-400 text-gray-950 text-[10px] font-black leading-none shrink-0">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
         </div>
 
-        <div className="p-3 border-t border-white/10 bg-[#042819] space-y-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="h-7 w-7 shrink-0 rounded-lg bg-emerald-700 flex items-center justify-center text-[11px] font-bold text-white">
-              {initials(user.name)}
+        {/* Navigation */}
+        <nav className="flex-1 space-y-4 overflow-y-auto px-2.5 py-3" aria-label="Sections">
+          {navSections.map((section) => (
+            <div key={section.title} className="space-y-0.5">
+              <p className={`px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-white/45 ${collapsed ? 'lg:sr-only' : ''}`}>
+                {section.title}
+              </p>
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    title={collapsed ? item.label : undefined}
+                    className={`relative flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                      collapsed ? 'lg:justify-center lg:px-0' : ''
+                    } ${active ? 'bg-white/[0.12] text-white' : 'text-white/70 hover:bg-white/[0.07] hover:text-white'}`}
+                  >
+                    {active && <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand-orange" aria-hidden />}
+                    <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-brand-orange-300' : ''}`} />
+                    <span className={`truncate ${collapsed ? 'lg:sr-only' : ''}`}>{item.label}</span>
+                    {!!item.badge && item.badge > 0 && (
+                      <span
+                        className={`ml-auto shrink-0 rounded-full bg-brand-orange px-1.5 py-0.5 text-[10px] font-semibold leading-none tabular-nums text-white ${
+                          collapsed ? 'lg:absolute lg:right-1 lg:top-1 lg:ml-0' : ''
+                        }`}
+                        aria-label={`${item.badge} new`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-white leading-tight truncate">{user.name}</p>
-              <p className="text-[10px] text-emerald-300/70 truncate">{user.roleLabel}</p>
-            </div>
-            {onLogout && (
-              <button
-                type="button"
-                onClick={onLogout}
-                className="rounded-lg p-1.5 text-emerald-200 hover:bg-white/10 hover:text-white"
-                title="Sign out"
-                aria-label="Sign out"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          ))}
+        </nav>
+
+        {/* Footer: storefront link + collapse toggle (user menu lives in the header) */}
+        <div className="shrink-0 space-y-1 border-t border-white/10 p-2.5">
           <a
             href={storefrontUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-emerald-200 transition-colors"
+            title={collapsed ? 'Open storefront' : undefined}
+            className={`flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+              collapsed ? 'lg:justify-center lg:px-0' : ''
+            }`}
           >
-            <span>Storefront</span>
-            <ExternalLink className="w-3 h-3 text-brand-orange" />
+            <ExternalLink className="h-4 w-4 shrink-0" />
+            <span className={collapsed ? 'lg:sr-only' : ''}>Open storefront</span>
           </a>
+          {onToggleCollapsed && (
+            <button
+              type="button"
+              onClick={onToggleCollapsed}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-pressed={collapsed}
+              className={`hidden h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium text-white/60 transition-colors hover:bg-white/[0.07] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 lg:flex ${
+                collapsed ? 'lg:justify-center lg:px-0' : ''
+              }`}
+            >
+              {collapsed ? <PanelLeftOpen className="h-4 w-4 shrink-0" /> : <PanelLeftClose className="h-4 w-4 shrink-0" />}
+              <span className={collapsed ? 'lg:sr-only' : ''}>Collapse</span>
+            </button>
+          )}
         </div>
       </aside>
     </>

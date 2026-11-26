@@ -105,7 +105,7 @@ function WarehouseForm({ initial, id, onDone }: { initial: Form; id: string | nu
         {label}
       </label>
       <input id={`wh-${k}`} className={inputCls} value={f[k]} onChange={set(k)} {...props} />
-      {errors[k] && <p className="mt-0.5 text-[10px] text-red-600">{errors[k][0]}</p>}
+      {errors[k] && <p className="mt-0.5 text-2xs text-danger">{errors[k][0]}</p>}
     </div>
   );
 
@@ -193,7 +193,7 @@ function MappingForm({ warehouseId, zones, existing, onDone }: { warehouseId: st
     }
   };
   return (
-    <form onSubmit={submit} className="grid grid-cols-2 sm:grid-cols-7 gap-2 items-end text-xs p-3 bg-gray-50 rounded-lg">
+    <form onSubmit={submit} className="grid grid-cols-2 sm:grid-cols-7 gap-2 items-end text-xs p-3 bg-surface-page rounded-lg">
       <div className="col-span-2">
         <label className={labelCls}>Delivery area</label>
         <select className={inputCls} required value={m.zoneId} disabled={!!existing} onChange={(e) => setM({ ...m, zoneId: e.target.value })}>
@@ -224,13 +224,13 @@ function MappingForm({ warehouseId, zones, existing, onDone }: { warehouseId: st
         <input className={inputCls} type="time" value={m.cutoffTime} onChange={(e) => setM({ ...m, cutoffTime: e.target.value })} />
       </div>
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-1 text-[11px] font-semibold">
+        <label className="flex items-center gap-1 text-2xs font-semibold">
           <input type="checkbox" className="accent-brand-green" checked={m.isActive} onChange={(e) => setM({ ...m, isActive: e.target.checked })} /> Active
         </label>
         <Button type="submit" size="sm" disabled={saving}>
           Save
         </Button>
-        <button type="button" className="text-[11px] text-gray-500" onClick={onDone}>
+        <button type="button" className="text-2xs text-ink-500" onClick={onDone}>
           Cancel
         </button>
       </div>
@@ -277,7 +277,7 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
     <Panel
       title={
         <span className="flex flex-wrap items-center gap-2">
-          {w.name} <span className="font-mono text-[11px] text-gray-500">{w.code}</span> <StatusBadge status={w.status} />
+          {w.name} <span className="font-mono text-2xs text-ink-500">{w.code}</span> <StatusBadge status={w.status} />
         </span>
       }
       actions={
@@ -288,12 +288,12 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
                 key={a.to}
                 type="button"
                 onClick={() => setStatus(a.to, a.danger)}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold ring-1 ${a.danger ? 'text-red-600 ring-red-200 hover:bg-red-50' : 'text-brand-green ring-emerald-200 hover:bg-emerald-50'}`}
+                className={`rounded-md px-2 py-1 text-2xs font-semibold ring-1 ${a.danger ? 'text-danger ring-danger-line hover:bg-danger-soft' : 'text-brand-green ring-success-line hover:bg-success-soft'}`}
               >
                 {a.label}
               </button>
             ))}
-            <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-[11px] font-semibold ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-1">
+            <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-2xs font-semibold ring-1 ring-line hover:bg-surface-muted inline-flex items-center gap-1">
               <Pencil className="w-3 h-3" /> Edit
             </button>
           </div>
@@ -310,12 +310,12 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
       ) : (
         <>
           {w.status === 'SETUP' && (
-            <p className="rounded-lg bg-amber-50 p-2 text-[11px] text-amber-800">
+            <p className="rounded-lg bg-warning-soft p-2 text-2xs text-warning">
               Setup: this location does not serve customers yet. Check its address, add stock, map delivery areas, then activate it.
             </p>
           )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-            <div className="space-y-1 text-gray-600">
+            <div className="space-y-1 text-ink-600">
               <p className="flex items-start gap-1.5">
                 <MapPin className="w-3.5 h-3.5 mt-px shrink-0" />
                 <span>
@@ -341,14 +341,14 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
                 ['Out of stock', `${n(w.stock.outOfStock)} / ${n(w.stock.skus)}`],
                 ['Open orders', n(w.openOrders)],
               ].map(([l, v]) => (
-                <div key={l} className="rounded-lg bg-gray-50 p-2">
-                  <p className="text-[10px] text-gray-500">{l}</p>
-                  <p className="text-sm font-bold text-gray-900">{v}</p>
+                <div key={l} className="rounded-lg bg-surface-page p-2">
+                  <p className="text-2xs text-ink-500">{l}</p>
+                  <p className="text-sm font-bold text-ink">{v}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="flex gap-3 text-[11px] font-semibold">
+          <div className="flex gap-3 text-2xs font-semibold">
             <Link className="text-brand-orange-600 hover:underline" href={`/inventory?warehouseId=${w.id}`}>
               View stock →
             </Link>
@@ -359,11 +359,11 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
         </>
       )}
 
-      <div className="rounded-lg border border-gray-100">
-        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-          <p className="text-xs font-bold text-gray-800">Delivery areas served</p>
+      <div className="rounded-lg border border-line-subtle">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-line-subtle">
+          <p className="text-xs font-bold text-ink-800">Delivery areas served</p>
           {perms.mapZones && mapping === null && unmapped.length > 0 && (
-            <button type="button" onClick={() => setMapping('new')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-orange-600">
+            <button type="button" onClick={() => setMapping('new')} className="inline-flex items-center gap-1 text-2xs font-semibold text-brand-orange-600">
               <Plus className="w-3 h-3" /> Add area
             </button>
           )}
@@ -387,10 +387,10 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
             ) : (
               w.deliveryZones.map((m) => (
                 <tr key={m.id}>
-                  <Td className="font-semibold text-gray-900">{m.zone.name}</Td>
+                  <Td className="font-semibold text-ink">{m.zone.name}</Td>
                   <Td>{m.priority}</Td>
-                  <Td>{m.deliveryFeePaise != null ? formatINR(m.deliveryFeePaise) : <span className="text-gray-400">area default</span>}</Td>
-                  <Td>{m.estimateHours != null ? `${m.estimateHours} h` : <span className="text-gray-400">area default</span>}</Td>
+                  <Td>{m.deliveryFeePaise != null ? formatINR(m.deliveryFeePaise) : <span className="text-ink-400">area default</span>}</Td>
+                  <Td>{m.estimateHours != null ? `${m.estimateHours} h` : <span className="text-ink-400">area default</span>}</Td>
                   <Td>{m.cutoffTime ?? '—'}</Td>
                   <Td>
                     <StatusBadge status={m.isActive && m.zone.isActive ? 'ACTIVE' : 'INACTIVE'} label={!m.zone.isActive ? 'Area paused' : m.isActive ? 'Active' : 'Off'} />
@@ -398,10 +398,10 @@ function WarehouseCard({ w, zones, perms }: { w: WarehouseRow; zones: Zone[]; pe
                   <Td className="text-right whitespace-nowrap">
                     {perms.mapZones && (
                       <>
-                        <button type="button" aria-label="Edit mapping" onClick={() => setMapping(m)} className="p-1 text-gray-400 hover:text-gray-700">
+                        <button type="button" aria-label="Edit mapping" onClick={() => setMapping(m)} className="p-1 text-ink-400 hover:text-ink-700">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button type="button" aria-label="Remove mapping" onClick={() => removeMapping(m)} className="p-1 text-gray-400 hover:text-red-600">
+                        <button type="button" aria-label="Remove mapping" onClick={() => removeMapping(m)} className="p-1 text-ink-400 hover:text-danger">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </>
@@ -434,12 +434,12 @@ export function WarehousesClient({ warehouses, zones, perms }: { warehouses: War
           </div>
         ))}
       {zones.length === 0 && (
-        <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+        <p className="rounded-lg bg-warning-soft p-3 text-xs text-warning">
           No delivery areas yet. Create one under <Link href="/delivery" className="font-bold underline">Delivery &amp; Payments</Link> and assign PIN codes to it, then map it here.
         </p>
       )}
       {warehouses.length === 0 ? (
-        <Panel bodyClassName="p-8 text-center text-xs text-gray-500">No warehouses yet. Add your real fulfilment location to start serving customers.</Panel>
+        <Panel bodyClassName="p-8 text-center text-xs text-ink-500">No warehouses yet. Add your real fulfilment location to start serving customers.</Panel>
       ) : (
         warehouses.map((w) => <WarehouseCard key={w.id} w={w} zones={zones} perms={perms} />)
       )}

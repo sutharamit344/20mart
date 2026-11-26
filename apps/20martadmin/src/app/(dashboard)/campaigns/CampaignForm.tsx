@@ -111,7 +111,7 @@ export function CampaignForm({ initial, coupons, canEdit, canUpload, hasParticip
         <div>
           <label className={labelCls} htmlFor="cp-name">Name</label>
           <input id="cp-name" className={inputCls} value={v.name} maxLength={120} required onChange={(e) => set('name', e.target.value)} />
-          {fe('name') && <p className="mt-0.5 text-[10px] text-red-600">{fe('name')}</p>}
+          {fe('name') && <p className="mt-0.5 text-2xs text-danger">{fe('name')}</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="cp-type">Type</label>
@@ -123,7 +123,7 @@ export function CampaignForm({ initial, coupons, canEdit, canUpload, hasParticip
         <div>
           <label className={labelCls} htmlFor="cp-slug">URL slug</label>
           <input id="cp-slug" className={`${inputCls} font-mono`} value={v.slug} maxLength={80} placeholder="auto from name" onChange={(e) => set('slug', e.target.value.toLowerCase())} />
-          <p className="mt-0.5 text-[10px] text-gray-400">/campaigns/{v.slug || '…'}</p>
+          <p className="mt-0.5 text-2xs text-ink-400">/campaigns/{v.slug || '…'}</p>
         </div>
         <div>
           <label className={labelCls} htmlFor="cp-coupon">Campaign coupon (optional)</label>
@@ -136,7 +136,7 @@ export function CampaignForm({ initial, coupons, canEdit, canUpload, hasParticip
               </option>
             ))}
           </select>
-          <p className="mt-0.5 text-[10px] text-gray-400">{fyc ? 'Issued once to each customer who joins.' : 'Shown on the page when it is a public, live coupon.'}</p>
+          <p className="mt-0.5 text-2xs text-ink-400">{fyc ? 'Issued once to each customer who joins.' : 'Shown on the page when it is a public, live coupon.'}</p>
         </div>
         <div>
           <label className={labelCls} htmlFor="cp-start">Starts</label>
@@ -145,7 +145,7 @@ export function CampaignForm({ initial, coupons, canEdit, canUpload, hasParticip
         <div>
           <label className={labelCls} htmlFor="cp-end">Ends</label>
           <input id="cp-end" type="datetime-local" className={inputCls} value={ends} onChange={(e) => setEnds(e.target.value)} />
-          {fe('endsAt') && <p className="mt-0.5 text-[10px] text-red-600">{fe('endsAt')}</p>}
+          {fe('endsAt') && <p className="mt-0.5 text-2xs text-danger">{fe('endsAt')}</p>}
         </div>
         <div>
           <label className={labelCls} htmlFor="cp-bt">Banner title</label>
@@ -179,13 +179,13 @@ export function CampaignForm({ initial, coupons, canEdit, canUpload, hasParticip
         </div>
         <div className="sm:col-span-2">
           {canEdit ? <ProductPicker label="Campaign products" value={v.products} onChange={(p) => set('products', p)} /> : <p>{v.products.length} product(s)</p>}
-          {fyc && <p className="mt-1 text-[10px] text-gray-400">Customers can only save these products. Leave empty to allow any visible product.</p>}
+          {fyc && <p className="mt-1 text-2xs text-ink-400">Customers can only save these products. Leave empty to allow any visible product.</p>}
         </div>
       </fieldset>
       {v.id && canUpload && (
         <ImageUploadField endpoint={`/api/admin/campaigns/${v.id}/banner`} currentUrl={v.bannerImageUrl} label="Banner image" onUploaded={(url) => { set('bannerImageUrl', url); router.refresh(); }} />
       )}
-      {!v.id && <p className="text-[10px] text-gray-400">You can upload a banner image after creating the campaign.</p>}
+      {!v.id && <p className="text-2xs text-ink-400">You can upload a banner image after creating the campaign.</p>}
       {canEdit && (
         <div className="flex justify-end">
           <Button type="submit" size="sm" variant="brand" isLoading={saving}>

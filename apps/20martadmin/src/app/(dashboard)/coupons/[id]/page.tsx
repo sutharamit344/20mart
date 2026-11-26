@@ -96,13 +96,13 @@ export default async function CouponDetailPage(props: { params: Promise<{ id: st
                   <tr key={r.id}>
                     <Td>
                       {canSeeOrders ? (
-                        <Link href={`/orders/${r.order.id}`} className="font-mono text-[11px] font-bold hover:text-brand-orange-600">
+                        <Link href={`/orders/${r.order.id}`} className="font-mono text-2xs font-bold hover:text-brand-orange-600">
                           {r.order.orderNumber}
                         </Link>
                       ) : (
-                        <span className="font-mono text-[11px]">{r.order.orderNumber}</span>
+                        <span className="font-mono text-2xs">{r.order.orderNumber}</span>
                       )}
-                      <p className="text-[10px] text-gray-400">{when(r.redeemedAt)}</p>
+                      <p className="text-2xs text-ink-400">{when(r.redeemedAt)}</p>
                     </Td>
                     <Td className="max-w-[10rem] truncate">{r.user.name ?? r.user.email}</Td>
                     <Td className="text-right tabular-nums">{formatINR(r.discountPaise)}</Td>

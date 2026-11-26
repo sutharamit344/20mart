@@ -48,25 +48,25 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
         <TBody>
           {items.length === 0 && <TableEmpty colSpan={9} title="Nothing to show" description="No stock rows match these filters." />}
           {items.map((i) => (
-            <tr key={i.id} className="hover:bg-gray-50/60">
+            <tr key={i.id} className="hover:bg-surface-muted/60">
               <Td>
                 <Link href={`/products/${i.product.id}`} className="flex items-center gap-2.5 min-w-0 group">
-                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white">
+                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-line-subtle bg-surface">
                     {i.product.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={resolveImageSrc(i.product.imageUrl)} alt="" className="h-full w-full object-contain" loading="lazy" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-gray-300">
+                      <div className="flex h-full w-full items-center justify-center text-ink-400">
                         <Package className="w-4 h-4" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 max-w-[16rem]">
-                    <p className="truncate font-semibold text-gray-900 group-hover:text-brand-orange-600">
+                    <p className="truncate font-semibold text-ink group-hover:text-brand-orange-600">
                       {i.product.name}
-                      {i.variant && <span className="font-normal text-gray-500"> · {i.variant.name}</span>}
+                      {i.variant && <span className="font-normal text-ink-500"> · {i.variant.name}</span>}
                     </p>
-                    <p className="truncate font-mono text-[10px] text-gray-400">
+                    <p className="truncate font-mono text-2xs text-ink-400">
                       {i.variant?.sku ?? i.product.sku}
                       {i.product.status !== 'ACTIVE' && ` · ${i.product.status.toLowerCase()}`}
                     </p>
@@ -74,12 +74,12 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
                 </Link>
               </Td>
               <Td>
-                <span className="font-mono text-[11px] font-semibold text-gray-700">{i.warehouse.code}</span>
+                <span className="font-mono text-2xs font-semibold text-ink-700">{i.warehouse.code}</span>
                 {i.warehouse.status !== 'ACTIVE' && <span className="ml-1"><StatusBadge status={i.warehouse.status} /></span>}
               </Td>
-              <Td className="text-right font-semibold text-gray-900">{i.availableQuantity}</Td>
-              <Td className="text-right text-gray-500">{i.reservedQuantity}</Td>
-              <Td className="text-right font-bold text-gray-900" >{i.sellable}</Td>
+              <Td className="text-right font-semibold text-ink">{i.availableQuantity}</Td>
+              <Td className="text-right text-ink-500">{i.reservedQuantity}</Td>
+              <Td className="text-right font-bold text-ink" >{i.sellable}</Td>
               <Td className="text-right">
                 <LevelCell row={i} field="safetyStock" canEdit={perms.update} />
               </Td>
@@ -92,7 +92,7 @@ export function InventoryTable({ items, perms }: { items: InventoryRow[]; perms:
               <Td className="text-right">
                 <div className="flex items-center justify-end gap-0.5">
                   {perms.adjust && (
-                    <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" leftIcon={<SlidersHorizontal className="w-3 h-3" />} onClick={() => setAdjusting(i)}>
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-2xs" leftIcon={<SlidersHorizontal className="w-3 h-3" />} onClick={() => setAdjusting(i)}>
                       Adjust
                     </Button>
                   )}
@@ -118,7 +118,7 @@ function LevelCell({ row, field, canEdit }: { row: InventoryRow; field: 'lowStoc
   const current = row[field];
   const [value, setValue] = useState(String(current));
   const [saving, setSaving] = useState(false);
-  if (!canEdit) return <span className="text-gray-600">{current}</span>;
+  if (!canEdit) return <span className="text-ink-600">{current}</span>;
   const commit = async () => {
     const n = Number(value);
     if (!Number.isInteger(n) || n < 0 || n === current) {
@@ -146,7 +146,7 @@ function LevelCell({ row, field, canEdit }: { row: InventoryRow; field: 'lowStoc
       onChange={(e) => setValue(e.target.value.replace(/\D/g, ''))}
       onBlur={commit}
       onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-      className="h-7 w-16 rounded border border-gray-200 px-1.5 text-right text-xs focus:border-brand-green focus:outline-none"
+      className="h-7 w-16 rounded border border-line px-1.5 text-right text-xs focus:border-brand-green focus:outline-none"
     />
   );
 }
@@ -196,17 +196,17 @@ function AdjustModal({ row, onClose }: { row: InventoryRow; onClose: () => void 
   return (
     <Modal isOpen onClose={onClose} title="Adjust stock" maxWidth="md">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        <div className="rounded-lg bg-gray-50 p-2.5">
-          <p className="font-semibold text-gray-900">
+        <div className="rounded-lg bg-surface-page p-2.5">
+          <p className="font-semibold text-ink">
             {row.product.name}
-            {row.variant && <span className="font-normal text-gray-500"> · {row.variant.name}</span>}
+            {row.variant && <span className="font-normal text-ink-500"> · {row.variant.name}</span>}
           </p>
-          <p className="mt-0.5 text-gray-500">Warehouse <b className="text-gray-900">{row.warehouse.code}</b> · {row.warehouse.name}</p>
-          <p className="mt-0.5 text-gray-500">
-            On hand <b className="text-gray-900">{row.availableQuantity}</b> · reserved {row.reservedQuantity}
+          <p className="mt-0.5 text-ink-500">Warehouse <b className="text-ink">{row.warehouse.code}</b> · {row.warehouse.name}</p>
+          <p className="mt-0.5 text-ink-500">
+            On hand <b className="text-ink">{row.availableQuantity}</b> · reserved {row.reservedQuantity}
           </p>
         </div>
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="Adjustment type">
           {(Object.keys(TYPE_LABELS) as AdjustType[])
             .filter((t) => (t === 'INITIAL_STOCK' ? firstTime : true))
@@ -217,10 +217,10 @@ function AdjustModal({ row, onClose }: { row: InventoryRow; onClose: () => void 
                 role="radio"
                 aria-checked={type === t}
                 onClick={() => setType(t)}
-                className={`rounded-lg border p-2 text-left transition-colors ${type === t ? 'border-brand-green bg-emerald-50' : 'border-gray-200 hover:bg-gray-50'}`}
+                className={`rounded-lg border p-2 text-left transition-colors ${type === t ? 'border-brand-green bg-success-soft' : 'border-line hover:bg-surface-muted'}`}
               >
-                <span className="block font-semibold text-gray-900">{TYPE_LABELS[t].label}</span>
-                <span className="block text-[10px] text-gray-500">{TYPE_LABELS[t].hint}</span>
+                <span className="block font-semibold text-ink">{TYPE_LABELS[t].label}</span>
+                <span className="block text-2xs text-ink-500">{TYPE_LABELS[t].hint}</span>
               </button>
             ))}
         </div>
@@ -239,7 +239,7 @@ function AdjustModal({ row, onClose }: { row: InventoryRow; onClose: () => void 
           <input className={inputCls} required minLength={3} maxLength={300} placeholder="e.g. Delivery from Ahmedabad supplier" value={reason} onChange={(e) => setReason(e.target.value)} />
         </div>
         {resulting !== null && (
-          <p className={`rounded-lg p-2 ${wouldGoNegative ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-800'}`}>
+          <p className={`rounded-lg p-2 ${wouldGoNegative ? 'bg-danger-soft text-danger' : 'bg-success-soft text-success'}`}>
             {wouldGoNegative ? `Not allowed: stock would drop below ${row.reservedQuantity}.` : `New on-hand quantity: ${row.availableQuantity} → ${resulting}`}
           </p>
         )}
@@ -296,28 +296,28 @@ function HistoryDrawer({ row, onClose }: { row: InventoryRow | null; onClose: ()
     <Drawer isOpen={!!row} onClose={onClose} position="right" title="Stock history">
       {row && (
         <div className="space-y-3 text-xs">
-          <p className="font-semibold text-gray-900">
+          <p className="font-semibold text-ink">
             {row.product.name}
-            {row.variant && <span className="font-normal text-gray-500"> · {row.variant.name}</span>}
+            {row.variant && <span className="font-normal text-ink-500"> · {row.variant.name}</span>}
           </p>
-          {error && <p className="rounded bg-red-50 p-2 text-red-700">{error}</p>}
-          {!data && !error && <p className="py-6 text-center text-gray-400">Loading…</p>}
-          {data && data.items.length === 0 && <p className="py-6 text-center text-gray-500">No stock movements yet.</p>}
+          {error && <p className="rounded bg-danger-soft p-2 text-danger">{error}</p>}
+          {!data && !error && <p className="py-6 text-center text-ink-400">Loading…</p>}
+          {data && data.items.length === 0 && <p className="py-6 text-center text-ink-500">No stock movements yet.</p>}
           <ul className="space-y-2">
             {data?.items.map((m) => (
-              <li key={m.id} className="rounded-lg border border-gray-100 p-2.5">
+              <li key={m.id} className="rounded-lg border border-line-subtle p-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <StatusBadge status={m.movementType} label={m.movementType.replace(/_/g, ' ').toLowerCase()} />
-                  <span className={`font-bold ${m.quantity >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                  <span className={`font-bold ${m.quantity >= 0 ? 'text-success' : 'text-danger'}`}>
                     {m.quantity > 0 ? '+' : ''}
                     {m.quantity}
                   </span>
                 </div>
-                <p className="mt-1 text-gray-600">
+                <p className="mt-1 text-ink-600">
                   {m.previousQuantity} → <b>{m.newQuantity}</b> · {m.reason}
-                  {m.reference && <span className="text-gray-400"> · Ref {m.reference}</span>}
+                  {m.reference && <span className="text-ink-400"> · Ref {m.reference}</span>}
                 </p>
-                <p className="mt-0.5 text-[10px] text-gray-400">
+                <p className="mt-0.5 text-2xs text-ink-400">
                   {new Date(m.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })} · {m.performedBy?.name ?? 'System'}
                 </p>
               </li>
@@ -328,7 +328,7 @@ function HistoryDrawer({ row, onClose }: { row: InventoryRow | null; onClose: ()
               <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
                 Newer
               </Button>
-              <span className="text-gray-500">
+              <span className="text-ink-500">
                 {page} / {pages}
               </span>
               <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => setPage((p) => p + 1)}>

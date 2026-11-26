@@ -59,8 +59,8 @@ export function CategoriesTable({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-gray-100">
-        <p className="text-xs text-gray-500">{reorderable ? 'Use the arrows to change storefront order.' : 'Clear filters to reorder.'}</p>
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-line-subtle">
+        <p className="text-xs text-ink-500">{reorderable ? 'Use the arrows to change storefront order.' : 'Clear filters to reorder.'}</p>
         {perms.create && (
           <Button size="sm" variant="primary" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setEditing('new')}>
             Add category
@@ -81,27 +81,27 @@ export function CategoriesTable({
             <TableEmpty colSpan={6} title="No categories found" description="Try a different search, or add your first category." />
           )}
           {items.map((c, idx) => (
-            <tr key={c.id} className={`hover:bg-gray-50/60 ${busyId === c.id ? 'opacity-60' : ''}`}>
+            <tr key={c.id} className={`hover:bg-surface-muted/60 ${busyId === c.id ? 'opacity-60' : ''}`}>
               <Td>
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-line-subtle bg-surface-page">
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={resolveImageSrc(c.imageUrl)} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-gray-300">
+                      <div className="flex h-full w-full items-center justify-center text-ink-400">
                         <FolderTree className="w-4 h-4" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-gray-900">{c.name}</p>
-                    <p className="truncate font-mono text-[10px] text-gray-400">/{c.slug}</p>
+                    <p className="truncate font-semibold text-ink">{c.name}</p>
+                    <p className="truncate font-mono text-2xs text-ink-400">/{c.slug}</p>
                   </div>
                 </div>
               </Td>
-              <Td>{c.parent?.name ?? <span className="text-gray-300">—</span>}</Td>
-              <Td className="text-right font-semibold text-gray-800">{c._count.products}</Td>
+              <Td>{c.parent?.name ?? <span className="text-ink-400">—</span>}</Td>
+              <Td className="text-right font-semibold text-ink-800">{c._count.products}</Td>
               <Td>
                 <StatusBadge status={c.status} label={c.status === 'ACTIVE' ? 'Active' : 'Disabled'} />
               </Td>
@@ -120,7 +120,7 @@ export function CategoriesTable({
                     </IconBtn>
                   </div>
                 ) : (
-                  <span className="text-gray-400">{c.displayOrder}</span>
+                  <span className="text-ink-400">{c.displayOrder}</span>
                 )}
               </Td>
               <Td className="text-right">
@@ -141,7 +141,7 @@ export function CategoriesTable({
                           )
                         }
                       >
-                        <Power className={`w-3.5 h-3.5 ${c.status === 'ACTIVE' ? 'text-emerald-600' : ''}`} />
+                        <Power className={`w-3.5 h-3.5 ${c.status === 'ACTIVE' ? 'text-success' : ''}`} />
                       </IconBtn>
                     </>
                   )}
@@ -211,8 +211,8 @@ export function IconBtn({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-md p-1.5 text-gray-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
-        danger ? 'hover:bg-red-50 hover:text-red-600' : 'hover:bg-gray-100 hover:text-gray-700'
+      className={`rounded-md p-1.5 text-ink-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+        danger ? 'hover:bg-danger-soft hover:text-danger' : 'hover:bg-surface-muted hover:text-ink-700'
       }`}
     >
       {children}
@@ -268,12 +268,12 @@ function CategoryForm({
     }
   };
 
-  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-[11px] text-red-600">{fieldErrors[k][0]}</p>;
+  const fe = (k: string) => fieldErrors[k]?.[0] && <p className="mt-0.5 text-2xs text-danger">{fieldErrors[k][0]}</p>;
 
   return (
     <Modal isOpen onClose={onClose} title={category ? `Edit “${category.name}”` : 'New category'} maxWidth="lg">
       <form onSubmit={submit} className="space-y-3 text-xs">
-        {error && <p className="rounded-lg bg-red-50 p-2 text-red-700">{error}</p>}
+        {error && <p className="rounded-lg bg-danger-soft p-2 text-danger">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className={labelCls}>Name *</label>
@@ -322,8 +322,8 @@ function CategoryForm({
         {category && canUpload && (
           <ImageUploadField endpoint={`/api/admin/categories/${category.id}/image`} currentUrl={category.imageUrl} label="Category image" onUploaded={() => undefined} />
         )}
-        <details className="rounded-lg border border-gray-100 p-2.5">
-          <summary className="cursor-pointer text-[11px] font-semibold text-gray-700">SEO</summary>
+        <details className="rounded-lg border border-line-subtle p-2.5">
+          <summary className="cursor-pointer text-2xs font-semibold text-ink-700">SEO</summary>
           <div className="mt-2 space-y-2">
             <div>
               <label className={labelCls}>SEO title ({form.seoTitle.length}/70)</label>

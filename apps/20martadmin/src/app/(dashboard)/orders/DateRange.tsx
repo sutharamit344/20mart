@@ -14,9 +14,9 @@ export function DateRange() {
     sp.delete('page');
     router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
   };
-  const cls = 'h-9 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-700 focus:border-brand-green focus:outline-none';
+  const cls = 'h-9 rounded-lg border border-line bg-surface px-2 text-xs text-ink-700 focus:border-brand-green focus:outline-none';
   return (
-    <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+    <div className="flex items-center gap-1.5 text-2xs text-ink-500">
       <label className="sr-only" htmlFor="from">From date</label>
       <input id="from" type="date" className={cls} value={params.get('from') ?? ''} onChange={(e) => set('from', e.target.value)} />
       <span>to</span>

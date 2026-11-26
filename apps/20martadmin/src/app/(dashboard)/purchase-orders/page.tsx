@@ -53,21 +53,21 @@ export default async function PurchaseOrdersPage(props: { searchParams: Promise<
           <TBody>
             {data.items.length === 0 && <TableEmpty colSpan={7} title="No purchase orders" description="Create one to order stock from a supplier." />}
             {data.items.map((po) => (
-              <tr key={po.id} className="hover:bg-gray-50/60">
+              <tr key={po.id} className="hover:bg-surface-muted/60">
                 <Td>
                   <Link href={`/purchase-orders/${po.id}`} className="font-mono font-semibold text-brand-orange-600 hover:underline">
                     {po.poNumber}
                   </Link>
-                  <p className="text-[10px] text-gray-400">{date(po.createdAt)}</p>
+                  <p className="text-2xs text-ink-400">{date(po.createdAt)}</p>
                 </Td>
-                <Td className="font-semibold text-gray-900">{po.supplier.name}</Td>
-                <Td className="font-mono text-[11px]">{po.warehouse.code}</Td>
+                <Td className="font-semibold text-ink">{po.supplier.name}</Td>
+                <Td className="font-mono text-2xs">{po.warehouse.code}</Td>
                 <Td>
                   <StatusBadge status={po.status} />
                 </Td>
                 <Td className="text-right">
                   {po.received} / {po.ordered}
-                  {po.rejected > 0 && <span className="block text-[10px] text-red-600">{po.rejected} rejected</span>}
+                  {po.rejected > 0 && <span className="block text-2xs text-danger">{po.rejected} rejected</span>}
                 </Td>
                 <Td className="text-right">{formatINR(po.totalPaise)}</Td>
                 <Td>{po.expectedDate ? date(po.expectedDate) : '—'}</Td>
