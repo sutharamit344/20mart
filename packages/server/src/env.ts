@@ -29,6 +29,8 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional().default(''),
   EMAIL_FROM: z.string().optional().default(''),
   RESEND_WEBHOOK_SECRET: z.string().optional().default(''),
+  /** Absolute URL of the email header logo. Defaults to APP_URL + /email/20mart-logo.png (must be publicly reachable). */
+  EMAIL_LOGO_URL: z.string().optional().default(''),
   /**
    * Reverse geocoding for "Use my current location". Off (manual PIN entry only) unless set.
    * google = Google Geocoding API (needs GOOGLE_MAPS_API_KEY); nominatim = OpenStreetMap
